@@ -1,0 +1,160 @@
+---
+---
+
+<header class="header">
+  <div class="header-container">
+    <div class="logo-area">
+      <img src="/assets/logo.png" alt="Las Manos de Nanos Logo" class="logo-img" />
+      <span class="logo-text">Las Manos de Nanos</span>
+    </div>
+
+    <!-- Desktop Navigation -->
+    <nav class="desktop-nav">
+      <a href="/">Inicio</a>
+      <a href="/galeria">Galería</a>
+      <a href="/sobre-nanos">Sobre Nanos</a>
+      <a href="/contacto">Contacto</a>
+      <a href="/contacto" class="btn-primary">
+        <span class="whatsapp-dot"></span> WhatsApp
+      </a>
+    </nav>
+
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Abrir menú">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mobile Navigation Overlay -->
+  <nav class="mobile-nav" id="mobile-nav">
+    <a href="/">Inicio</a>
+    <a href="/galeria">Galería</a>
+    <a href="/sobre-nanos">Sobre Nanos</a>
+    <a href="/contacto">Contacto</a>
+    <a href="/contacto" class="btn-primary mobile-btn">
+      <span class="whatsapp-dot"></span> WhatsApp
+    </a>
+  </nav>
+</header>
+
+<style>
+  .header {
+    background: rgba(255, 250, 244, 0.92);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+  }
+
+  .header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 44px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .logo-area {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+  }
+
+  .logo-img {
+    height: 42px;
+    width: auto;
+    display: block;
+  }
+
+  .logo-text {
+    font-family: var(--font-title);
+    font-size: 19px;
+    color: var(--color-primary);
+  }
+
+  .desktop-nav {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .desktop-nav a:not(.btn-primary) {
+    color: var(--color-secondary);
+    font-weight: 700;
+    font-size: 14.5px;
+    transition: color 0.2s ease;
+  }
+
+  .desktop-nav a:not(.btn-primary):hover {
+    color: var(--color-primary);
+  }
+
+  .mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    cursor: pointer;
+    padding: 8px;
+  }
+
+  .mobile-nav {
+    display: none;
+    flex-direction: column;
+    background: var(--color-bg-light);
+    padding: 20px 44px;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .mobile-nav.open {
+    display: flex;
+    animation: slideDown 0.3s ease-out;
+  }
+
+  .mobile-nav a:not(.btn-primary) {
+    color: var(--color-secondary);
+    font-weight: 700;
+    font-size: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .mobile-btn {
+    margin-top: 20px;
+    justify-content: center;
+  }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 768px) {
+    .header-container {
+      padding: 14px 20px;
+    }
+    .desktop-nav {
+      display: none;
+    }
+    .mobile-menu-btn {
+      display: block;
+    }
+  }
+</style>
+
+<script>
+  const btn = document.getElementById('mobile-menu-btn');
+  const nav = document.getElementById('mobile-nav');
+
+  if (btn && nav) {
+    btn.addEventListener('click', () => {
+      nav.classList.toggle('open');
+    });
+  }
+</script>
