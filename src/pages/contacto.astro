@@ -2,6 +2,10 @@
 import { Image } from "astro:assets";
 import Layout from "../layouts/Layout.astro";
 import logoImg from "../assets/logo.png";
+import { tartas } from "../data/tartas";
+import { bizcochos, rellenos, coberturas } from "../data/opciones-tarta";
+
+const OTRO = "__otro__";
 
 // TODO: sustituir por los datos reales del negocio
 const CONTACTO = {
@@ -218,24 +222,118 @@ const pasos = [
                   placeholder="Ej. 20 de julio"
                 />
               </div>
+            </div>
+
+            <div class="form-section">
+              <span class="form-section-title">Tu tarta</span>
+              <p class="form-section-lead">
+                Todo opcional — cuanto más me cuentes, más ajustado te paso el
+                presupuesto.
+              </p>
+            </div>
+
+            <div class="form-grid">
+              <div class="field field-full-row">
+                <label for="f-diseno">Diseño</label>
+                <select id="f-diseno" name="diseno">
+                  <option value="">Elige un modelo de la galería…</option>
+                  {tartas.map((t) => (
+                    <option value={t.nombre} data-id={t.id}>
+                      {t.nombre}
+                    </option>
+                  ))}
+                  <option value={OTRO}>Diseño propio / otro</option>
+                </select>
+                <input
+                  class="otro-input"
+                  name="diseno_otro"
+                  type="text"
+                  placeholder="Cuéntame el diseño que tienes en mente"
+                  hidden
+                />
+              </div>
               <div class="field">
                 <label for="f-personas">¿Cuántas personas?</label>
                 <input
                   id="f-personas"
                   name="personas"
-                  type="text"
+                  type="number"
+                  min="1"
+                  inputmode="numeric"
                   placeholder="Ej. 12"
                 />
               </div>
               <div class="field">
-                <label for="f-presupuesto">Presupuesto aprox.</label>
+                <label for="f-diametro">Diámetro <span class="opt">(opcional)</span></label>
                 <input
-                  id="f-presupuesto"
-                  name="presupuesto"
+                  id="f-diametro"
+                  name="diametro"
                   type="text"
-                  placeholder="Opcional"
+                  placeholder="Ej. 20 cm"
                 />
               </div>
+            </div>
+
+            <fieldset class="chips-field">
+              <legend>Bizcocho <span class="opt">(puedes marcar varios)</span></legend>
+              <div class="chips">
+                {bizcochos.map((b) => (
+                  <label class="chip">
+                    <input type="checkbox" name="bizcocho" value={b} />
+                    <span>{b}</span>
+                  </label>
+                ))}
+                <label class="chip">
+                  <input type="checkbox" name="bizcocho" value={OTRO} />
+                  <span>Otro</span>
+                </label>
+              </div>
+              <input
+                class="otro-input"
+                name="bizcocho_otro"
+                type="text"
+                placeholder="¿Qué bizcocho te gustaría?"
+                hidden
+              />
+            </fieldset>
+
+            <fieldset class="chips-field">
+              <legend>Relleno <span class="opt">(puedes marcar varios)</span></legend>
+              <div class="chips">
+                {rellenos.map((r) => (
+                  <label class="chip">
+                    <input type="checkbox" name="relleno" value={r} />
+                    <span>{r}</span>
+                  </label>
+                ))}
+                <label class="chip">
+                  <input type="checkbox" name="relleno" value={OTRO} />
+                  <span>Otro</span>
+                </label>
+              </div>
+              <input
+                class="otro-input"
+                name="relleno_otro"
+                type="text"
+                placeholder="¿Qué relleno te gustaría?"
+                hidden
+              />
+            </fieldset>
+
+            <div class="field field-full">
+              <label for="f-cobertura">Cobertura</label>
+              <select id="f-cobertura" name="cobertura">
+                <option value="">Elige…</option>
+                {coberturas.map((c) => <option value={c}>{c}</option>)}
+                <option value={OTRO}>Otra</option>
+              </select>
+              <input
+                class="otro-input"
+                name="cobertura_otro"
+                type="text"
+                placeholder="¿Qué cobertura te gustaría?"
+                hidden
+              />
             </div>
 
             <div class="field field-full">
@@ -244,7 +342,7 @@ const pasos = [
                 id="f-mensaje"
                 name="mensaje"
                 rows="3"
-                placeholder="Temática, colores, sabores, alergias…"></textarea>
+                placeholder="Temática, colores, alergias, cualquier detalle…"></textarea>
             </div>
 
             <p id="form-error" class="form-error" hidden>
@@ -759,6 +857,138 @@ const pasos = [
     box-shadow: 0 0 0 3px rgba(188, 17, 80, 0.12);
   }
 
+  .field-full-row {
+    grid-column: 1 / -1;
+  }
+
+  .opt {
+    font-weight: 600;
+    color: #a88;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  /* Campo de texto que aparece al marcar "Otro" */
+  .otro-input {
+    margin-top: 8px;
+  }
+
+  /* ---- SECCIÓN "TU TARTA" ---- */
+  .form-section {
+    margin: 26px 0 14px;
+    padding-top: 22px;
+    border-top: 1.5px solid #f3e1e5;
+  }
+
+  .form-section-title {
+    display: block;
+    font-family: var(--font-title);
+    font-size: 24px;
+    color: var(--color-primary);
+    margin-bottom: 4px;
+  }
+
+  .form-section-lead {
+    margin: 0;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--color-secondary);
+    font-weight: 600;
+  }
+
+  /* ---- CHIPS (bizcocho, relleno) ---- */
+  .chips-field {
+    margin: 16px 0 0;
+    padding: 0;
+    border: none;
+    min-width: 0;
+  }
+
+  .chips-field legend {
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--color-secondary);
+    margin-bottom: 9px;
+    padding: 0;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chip {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .chip input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+
+  .chip span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 9px 15px;
+    border-radius: 999px;
+    border: 1.5px solid #ead7dd;
+    background: #fffdfb;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-text-dark);
+    user-select: none;
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease,
+      color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .chip:hover span {
+    border-color: #d9a7ba;
+  }
+
+  .chip input:checked + span {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+    box-shadow: 0 8px 18px -10px rgba(188, 17, 80, 0.6);
+  }
+
+  .chip input:focus-visible + span {
+    box-shadow: 0 0 0 3px rgba(188, 17, 80, 0.25);
+  }
+
+  .chips-field .otro-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 13px 16px;
+    border-radius: 12px;
+    border: 1.5px solid #ead7dd;
+    background: #fffdfb;
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--color-text-dark);
+    font-weight: 600;
+    outline: none;
+    margin-top: 10px;
+  }
+
+  .chips-field .otro-input::placeholder {
+    color: #c3a9b2;
+  }
+
+  .chips-field .otro-input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(188, 17, 80, 0.12);
+  }
+
   .form-error {
     margin: 14px 0 0;
     background: #fce8ee;
@@ -915,6 +1145,57 @@ const pasos = [
     document.querySelector<HTMLAnchorElement>("#success-link");
   const resetBtn = document.querySelector<HTMLButtonElement>("#reset-btn");
 
+  // Mismo valor que la constante OTRO del frontmatter
+  const OTRO = "__otro__";
+
+  // --- "Otro": muestra el campo de texto al elegir/marcar esa opción ---
+  function syncOtro(controlName: string) {
+    if (!form) return;
+    const otroInput = form.querySelector<HTMLInputElement>(
+      `input[name="${controlName}_otro"]`,
+    );
+    if (!otroInput) return;
+    const controls = form.querySelectorAll<HTMLInputElement | HTMLSelectElement>(
+      `[name="${controlName}"]`,
+    );
+    const activo = Array.from(controls).some((c) =>
+      c instanceof HTMLSelectElement
+        ? c.value === OTRO
+        : c.value === OTRO && c.checked,
+    );
+    otroInput.hidden = !activo;
+    if (!activo) otroInput.value = "";
+  }
+
+  const CON_OTRO = ["diseno", "bizcocho", "relleno", "cobertura"];
+  form?.addEventListener("change", (e) => {
+    const name = (e.target as HTMLInputElement).name;
+    if (CON_OTRO.includes(name)) syncOtro(name);
+  });
+
+  // --- Preselecciona el diseño si venimos de una ficha (?tarta=id) ---
+  {
+    const id = new URLSearchParams(location.search).get("tarta");
+    const diseno = form?.querySelector<HTMLSelectElement>('[name="diseno"]');
+    if (id && diseno) {
+      // El <option> lleva el nombre; el id lo pasamos en el data-attribute
+      const opt = Array.from(diseno.options).find((o) => o.dataset.id === id);
+      if (opt) {
+        diseno.value = opt.value;
+        form?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  }
+
+  // Lee un grupo de checkboxes (o un select) y sustituye "Otro" por el texto
+  function leerOpcion(data: FormData, name: string): string[] {
+    const otro = ((data.get(`${name}_otro`) as string) || "").trim();
+    return data
+      .getAll(name)
+      .map((v) => (v === OTRO ? otro : (v as string)))
+      .filter(Boolean);
+  }
+
   form?.addEventListener("submit", (event) => {
     event.preventDefault();
     const data = new FormData(form);
@@ -930,18 +1211,30 @@ const pasos = [
     const ocasion = (data.get("ocasion") as string) || "";
     const fecha = ((data.get("fecha") as string) || "").trim();
     const personas = ((data.get("personas") as string) || "").trim();
-    const presupuesto = ((data.get("presupuesto") as string) || "").trim();
+    const diametro = ((data.get("diametro") as string) || "").trim();
     const mensaje = ((data.get("mensaje") as string) || "").trim();
+    const [diseno] = leerOpcion(data, "diseno");
+    const bizcocho = leerOpcion(data, "bizcocho");
+    const relleno = leerOpcion(data, "relleno");
+    const [cobertura] = leerOpcion(data, "cobertura");
 
     const lineas = [
       `¡Hola Nanos! Soy ${nombre}.`,
-      `Me gustaría encargar algo para ${ocasion || "una ocasión especial"}.`,
+      `Me gustaría encargar una tarta para ${ocasion || "una ocasión especial"}.`,
     ];
     if (fecha) lineas.push(`Fecha: ${fecha}`);
-    if (personas) lineas.push(`Personas: ${personas}`);
-    if (presupuesto) lineas.push(`Presupuesto aprox.: ${presupuesto}`);
-    if (mensaje) lineas.push(`Detalles: ${mensaje}`);
-    lineas.push(`Me contactas por: ${contacto}`);
+
+    const tarta: string[] = [];
+    if (diseno) tarta.push(`Diseño: ${diseno}`);
+    if (personas) tarta.push(`Personas: ${personas}`);
+    if (diametro) tarta.push(`Diámetro: ${diametro}`);
+    if (bizcocho.length) tarta.push(`Bizcocho: ${bizcocho.join(", ")}`);
+    if (relleno.length) tarta.push(`Relleno: ${relleno.join(", ")}`);
+    if (cobertura) tarta.push(`Cobertura: ${cobertura}`);
+    if (tarta.length) lineas.push("", "Así la quiero:", ...tarta.map((l) => `· ${l}`));
+
+    if (mensaje) lineas.push("", `Más detalles: ${mensaje}`);
+    lineas.push("", `Me contactas por: ${contacto}`);
 
     const texto = lineas.join("\n");
     const waHref = `https://wa.me/${waNumber}?text=${encodeURIComponent(texto)}`;
@@ -955,6 +1248,7 @@ const pasos = [
 
   resetBtn?.addEventListener("click", () => {
     form?.reset();
+    CON_OTRO.forEach(syncOtro);
     errorEl?.setAttribute("hidden", "");
     successPanel?.setAttribute("hidden", "");
     formPanel?.removeAttribute("hidden");

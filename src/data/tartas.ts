@@ -25,7 +25,6 @@ export type Tarta = {
   desc: string;
   descLarga: string;
   sabores: string[];
-  precioDesde: number;
   // Opcional: tartas antiguas (de antes de escanear) pueden no tener modelo.
   // Sin `modelo` la tarjeta no enlaza a una ficha de detalle (no hay 3D que
   // mostrar ahí) y se comporta como las galletas: solo foto + "Contacto".
@@ -47,7 +46,6 @@ export const tartas: Tarta[] = [
       "Relleno de nata y fresa",
       "Cobertura de nata",
     ],
-    precioDesde: 55,
     modelo: "/models/princesas_cropped.glb",
     foto: princesasFoto,
   },
@@ -63,7 +61,6 @@ export const tartas: Tarta[] = [
       "Relleno de frosting de queso",
       "Cobertura de frosting de queso con detalles de fondant",
     ],
-    precioDesde: 50,
     modelo: "/models/bebazo_cropped.glb",
     foto: bebeJefazoFoto,
   },
@@ -79,7 +76,6 @@ export const tartas: Tarta[] = [
       "Relleno de crema de chocolate con dulce de leche",
       "Cobertura de fondant con decoracion de flores hechas en pasta de goma y tela efecto charol",
     ],
-    precioDesde: 120,
     modelo: "/models/boda_cropped.glb",
     foto: bodaFloralFoto,
   },
@@ -93,7 +89,6 @@ export const tartas: Tarta[] = [
       "Relleno de capuchino en el primer bizcocho y para el segundo frosting de queso",
       "Cobertura de fondant y decoración en papel de azúcar"
     ],
-    precioDesde: 60,                         // precio orientativo en €
     modelo: "/models/50_anios_motero_cropped.glb",    // el mismo nombre que en el paso 1
     foto: motero50aniosFoto,                  // solo si hiciste el paso 2
   },
@@ -109,7 +104,6 @@ export const tartas: Tarta[] = [
       "Relleno de crema diplomática y compota de piña",
       "Cobertura de crema diplomática",
     ],
-    precioDesde: 65,
     foto: bolsoChanelFoto,
   },
   {
@@ -124,7 +118,6 @@ export const tartas: Tarta[] = [
       "Relleno de crema de chocolate y avellana",
       "Cobertura de fondant",
     ],
-    precioDesde: 70,
     foto: gamingFoto,
   },
   {
@@ -139,7 +132,6 @@ export const tartas: Tarta[] = [
       "Relleno de nata, crema de queso o frutos rojos",
       "Cobertura de fondant con detalles en oro",
     ],
-    precioDesde: 140,
     foto: floralRojaFoto,
   },
   {
@@ -154,7 +146,6 @@ export const tartas: Tarta[] = [
       "Relleno de nata y fresa",
       "Cobertura de buttercream",
     ],
-    precioDesde: 75,
     foto: graduacionChicaFoto,
   },
 ];
