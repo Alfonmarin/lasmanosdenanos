@@ -1,0 +1,668 @@
+---
+import { Image } from "astro:assets";
+import Layout from "../layouts/Layout.astro";
+import elsaImg from "../assets/sobre-nanos/nanos.jpg";
+
+const stats = [
+  { valor: "+8", label: "años horneando" },
+  { valor: "+200", label: "encargos felices" },
+  { valor: "100%", label: "hecho a mano" },
+];
+
+const diplomas = [
+  {
+    titulo: "Repostería creativa",
+    fuente: "Escuela de Pastelería · 2019",
+    emoji: "🏅",
+    tipo: "Diploma escaneado",
+  },
+  {
+    titulo: "Modelado en fondant",
+    fuente: "Taller especializado · 2020",
+    emoji: "🎂",
+    tipo: "Diploma escaneado",
+  },
+  {
+    titulo: "Galletas con glasa real",
+    fuente: "Máster class · 2021",
+    emoji: "🍪",
+    tipo: "Diploma escaneado",
+  },
+  {
+    titulo: "Manipulador de alimentos",
+    fuente: "Certificado oficial · vigente",
+    emoji: "✅",
+    tipo: "Certificado oficial",
+  },
+];
+---
+
+<Layout>
+  <!-- === HERO: RETRATO + INTRO === -->
+  <section class="nanos-hero">
+    <div class="hero-inner">
+      <div class="portrait-wrap">
+        <div class="portrait-backdrop"></div>
+        <div class="portrait">
+          <Image
+            src={elsaImg}
+            alt="Elsa, Nanos"
+            width={640}
+            height={800}
+            class="portrait-img"
+          />
+        </div>
+        <span class="portrait-tag">Repostera artesana ♡</span>
+      </div>
+
+      <div class="intro">
+        <div class="subtitle-bar">
+          <span class="line"></span>Sobre Nanos<span class="line"></span>
+        </div>
+        <h1 class="hero-title">Hola, soy Elsa</h1>
+        <p class="hero-lead">
+          En casa siempre me llamaron <strong>Nanos</strong>, y de tanto
+          hornear para los míos nació algo más grande: unas manos que
+          endulzan los días importantes de otras familias.
+        </p>
+        <p class="hero-desc">
+          Cada tarta, cada cupcake y cada galleta sale de mi cocina como
+          salían para los míos: con tiempo, con mimo y con la ilusión de que
+          sepa a hecho en casa.
+        </p>
+        <div class="stats-row">
+          {
+            stats.map((stat, i) => (
+              <>
+                {i > 0 && <span class="stat-divider" />}
+                <div class="stat">
+                  <div class="stat-valor">{stat.valor}</div>
+                  <div class="stat-label">{stat.label}</div>
+                </div>
+              </>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- === SCALLOPED DIVIDER === -->
+  <div class="scalloped scalloped-to-quote"></div>
+
+  <!-- === PULL QUOTE === -->
+  <section class="quote-section">
+    <div class="quote-dot q1"></div>
+    <div class="quote-dot q2"></div>
+    <div class="quote-card">
+      <span class="quote-mark open">&ldquo;</span>
+      <p class="quote-text">
+        No vendo tartas: vendo el momento en que todos sonríen antes de
+        soplar las velas.
+      </p>
+      <span class="quote-mark close">&rdquo;</span>
+      <div class="quote-divider"></div>
+      <p class="quote-author">Elsa, «Nanos»</p>
+    </div>
+  </section>
+
+  <!-- === SCALLOPED DIVIDER === -->
+  <div class="scalloped scalloped-to-diplomas"></div>
+
+  <!-- === DIPLOMAS Y CERTIFICACIONES === -->
+  <section class="diplomas-section">
+    <div class="diplomas-inner">
+      <div class="section-header-center">
+        <div class="subtitle-bar">
+          <span class="line"></span>Con formación<span class="line"></span>
+        </div>
+        <h2 class="section-title">Diplomas y certificaciones</h2>
+        <p class="section-subtitle">
+          Cariño casero, sí, pero también técnica. Estos son algunos de mis
+          cursos y certificados.
+        </p>
+      </div>
+
+      <div class="diplomas-grid">
+        {
+          diplomas.map((diploma) => (
+            <div class="diploma-card">
+              <div class="diploma-img">
+                <span class="diploma-label">{diploma.tipo}</span>
+                <span class="diploma-badge">{diploma.emoji}</span>
+              </div>
+              <div class="diploma-body">
+                <h3 class="diploma-titulo">{diploma.titulo}</h3>
+                <p class="diploma-fuente">{diploma.fuente}</p>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+      <p class="diplomas-nota">
+        Aquí irán los escaneos reales de los diplomas de Elsa.
+      </p>
+    </div>
+  </section>
+
+  <!-- === FOOTER CTA === -->
+  <section class="footer-cta">
+    <div class="cta-dot t"></div>
+    <div class="cta-dot b"></div>
+    <h2 class="cta-title">¿Hacemos tu tarta juntas?</h2>
+    <p class="cta-desc">
+      Cuéntame qué celebras y le pongo todo el cariño. Te respondo por
+      WhatsApp.
+    </p>
+    <div class="cta-actions">
+      <a href="/contacto" class="cta-btn-main">
+        <span class="dot-green"></span>Escríbeme por WhatsApp
+      </a>
+      <a href="/galeria" class="cta-btn-outline"> Ver la galería </a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  /* ---- HERO ---- */
+  .nanos-hero {
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(120% 90% at 78% -10%, #fceef0 0%, #fffaf4 62%);
+  }
+
+  .hero-inner {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 58px 5vw 56px;
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 56px;
+    align-items: center;
+  }
+
+  .portrait-wrap {
+    position: relative;
+    justify-self: center;
+  }
+
+  .portrait-backdrop {
+    position: absolute;
+    inset: -14px -14px 18px -14px;
+    border-radius: 200px 200px 26px 26px;
+    background: #f6ecfb;
+    transform: rotate(-3deg);
+  }
+
+  .portrait {
+    position: relative;
+    width: 320px;
+    height: 400px;
+    max-width: 70vw;
+    border-radius: 190px 190px 22px 22px;
+    overflow: hidden;
+    box-shadow: 0 26px 50px -24px rgba(140, 60, 95, 0.5);
+  }
+
+  .portrait-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .portrait-tag {
+    position: absolute;
+    bottom: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    color: var(--color-primary);
+    font-weight: 800;
+    font-size: 13px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    box-shadow: 0 12px 26px -12px rgba(120, 40, 70, 0.4);
+    border: 1px solid #f3dde3;
+    white-space: nowrap;
+  }
+
+  .subtitle-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #c9769a;
+    margin-bottom: 16px;
+  }
+
+  .line {
+    width: 22px;
+    height: 1.5px;
+    background: #e7b8cb;
+  }
+
+  .hero-title {
+    font-family: var(--font-title);
+    font-size: clamp(38px, 6vw, 56px);
+    line-height: 1.12;
+    color: var(--color-primary);
+    margin: 0 0 18px;
+  }
+
+  .hero-lead {
+    font-size: 19px;
+    line-height: 1.65;
+    color: var(--color-text);
+    font-weight: 600;
+    margin: 0 0 16px;
+  }
+
+  .hero-lead strong {
+    color: var(--color-primary);
+  }
+
+  .hero-desc {
+    font-size: 16.5px;
+    line-height: 1.7;
+    color: var(--color-secondary);
+    font-weight: 500;
+    margin: 0;
+  }
+
+  .stats-row {
+    display: flex;
+    gap: 34px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .stat-divider {
+    width: 1px;
+    align-self: stretch;
+    background: #f1d6dd;
+  }
+
+  .stat-valor {
+    font-family: var(--font-title);
+    font-size: 30px;
+    color: var(--color-primary);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-weight: 700;
+    font-size: 13px;
+    color: #8a6a76;
+    margin-top: 6px;
+  }
+
+  .section-header-center {
+    text-align: center;
+    margin-bottom: 44px;
+  }
+
+  .section-title {
+    font-family: var(--font-title);
+    font-size: 38px;
+    color: var(--color-primary);
+    margin: 0 0 10px;
+  }
+
+  .section-subtitle {
+    max-width: 520px;
+    margin: 0 auto;
+    font-size: 16px;
+    color: var(--color-secondary);
+    font-weight: 600;
+  }
+
+  /* ---- SCALLOPED ---- */
+  .scalloped {
+    height: 26px;
+  }
+
+  .scalloped-to-quote {
+    background:
+      radial-gradient(circle at 13px 0, #fbeaee 13px, transparent 14px) 0 0/26px
+        26px repeat-x,
+      #fffaf4;
+  }
+
+  .scalloped-to-diplomas {
+    background:
+      radial-gradient(circle at 13px 0, #fffaf4 13px, transparent 14px) 0 0/26px
+        26px repeat-x,
+      #fbeaee;
+  }
+
+  /* ---- PULL QUOTE ---- */
+  .quote-section {
+    position: relative;
+    overflow: hidden;
+    background: #fbeaee;
+    padding: 68px 5vw;
+    text-align: center;
+  }
+
+  .quote-dot {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(188, 17, 80, 0.14);
+  }
+  .quote-dot.q1 {
+    top: 36px;
+    left: 9vw;
+    width: 13px;
+    height: 13px;
+  }
+  .quote-dot.q2 {
+    bottom: 44px;
+    right: 10vw;
+    width: 10px;
+    height: 10px;
+  }
+
+  .quote-card {
+    position: relative;
+    max-width: 680px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 28px;
+    padding: 52px 44px 38px;
+    box-shadow: 0 22px 48px -26px rgba(140, 60, 95, 0.45);
+    border: 1px solid #f3dde3;
+  }
+
+  .quote-mark {
+    display: block;
+    font-family: var(--font-title);
+    font-size: 54px;
+    color: #f1d6dd;
+    line-height: 0.6;
+  }
+
+  .quote-mark.open {
+    text-align: left;
+  }
+
+  .quote-mark.close {
+    text-align: right;
+  }
+
+  .quote-text {
+    font-family: var(--font-title);
+    font-size: 28px;
+    line-height: 1.45;
+    color: var(--color-primary);
+    margin: 8px 0;
+  }
+
+  .quote-divider {
+    width: 40px;
+    height: 2px;
+    background: #f1d6dd;
+    margin: 20px auto 14px;
+  }
+
+  .quote-author {
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #8a6a76;
+    margin: 0;
+  }
+
+  /* ---- DIPLOMAS ---- */
+  .diplomas-section {
+    background: #fffaf4;
+    padding: 58px 5vw;
+  }
+
+  .diplomas-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+  }
+
+  .diplomas-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 22px;
+  }
+
+  .diploma-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 16px 38px -22px rgba(140, 60, 95, 0.4);
+    border: 1px solid var(--color-border);
+  }
+
+  .diploma-img {
+    position: relative;
+    height: 180px;
+    border-radius: 10px;
+    background: repeating-linear-gradient(
+      135deg,
+      #f9eee1 0 14px,
+      #fdf7ef 14px 28px
+    );
+    border: 2px dashed #e0be9a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .diploma-label {
+    font:
+      800 10px/1.5 ui-monospace,
+      Menlo,
+      monospace;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #bfa07a;
+    text-align: center;
+  }
+
+  .diploma-badge {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #f1e6fa;
+    border: 2px solid #d6beec;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .diploma-body {
+    padding: 14px 6px 4px;
+  }
+
+  .diploma-titulo {
+    margin: 0 0 4px;
+    font-weight: 800;
+    font-size: 15px;
+    color: var(--color-text-dark);
+    line-height: 1.3;
+  }
+
+  .diploma-fuente {
+    margin: 0;
+    font-size: 12.5px;
+    color: #8a6a76;
+    font-weight: 600;
+  }
+
+  .diplomas-nota {
+    text-align: center;
+    margin: 26px 0 0;
+    font-size: 13.5px;
+    color: #a88;
+    font-weight: 600;
+    font-style: italic;
+  }
+
+  /* ---- FOOTER CTA ---- */
+  .footer-cta {
+    position: relative;
+    overflow: hidden;
+    padding: 56px 5vw;
+    text-align: center;
+    background: linear-gradient(135deg, #bc1150 0%, #9c1257 100%);
+    color: #fff;
+  }
+
+  .cta-dot {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.35);
+  }
+  .cta-dot.t {
+    top: 34px;
+    left: 12vw;
+    width: 12px;
+    height: 12px;
+  }
+  .cta-dot.b {
+    bottom: 40px;
+    right: 14vw;
+    width: 16px;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(24deg);
+  }
+
+  .cta-title {
+    font-family: var(--font-title);
+    font-size: clamp(28px, 5vw, 38px);
+    margin: 0 0 10px;
+    color: #fff;
+  }
+
+  .cta-desc {
+    max-width: 520px;
+    margin: 0 auto 26px;
+    font-size: 17px;
+    line-height: 1.55;
+    color: #fce0ea;
+    font-weight: 600;
+  }
+
+  .cta-actions {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .cta-btn-main {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    background: #fff;
+    color: var(--color-primary);
+    font-weight: 800;
+    font-size: 16px;
+    padding: 15px 28px;
+    border-radius: 999px;
+    box-shadow: 0 14px 30px -12px rgba(0, 0, 0, 0.35);
+    transition: transform 0.2s ease;
+  }
+  .cta-btn-main:hover {
+    transform: translateY(-2px);
+  }
+
+  .dot-green {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #25d366;
+  }
+
+  .cta-btn-outline {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    background: transparent;
+    color: #fff;
+    font-weight: 800;
+    font-size: 16px;
+    padding: 14px 26px;
+    border-radius: 999px;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    transition: background 0.2s ease;
+  }
+  .cta-btn-outline:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  /* ---- RESPONSIVE ---- */
+  @media (max-width: 900px) {
+    .hero-inner {
+      grid-template-columns: 1fr;
+      text-align: center;
+      padding: 44px 5vw 40px;
+    }
+    .portrait-wrap {
+      margin: 0 auto;
+    }
+    .stats-row {
+      justify-content: center;
+    }
+    .diplomas-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .diplomas-grid {
+      grid-template-columns: 1fr;
+    }
+    .quote-card {
+      padding: 40px 24px 30px;
+    }
+    .quote-text {
+      font-size: 24px;
+    }
+  }
+</style>
+
+<script>
+  import { gsap } from "gsap";
+
+  gsap.from(".hero-inner > *", {
+    y: 24,
+    opacity: 0,
+    duration: 0.7,
+    stagger: 0.15,
+    ease: "power2.out",
+  });
+
+  gsap.from(".quote-card", {
+    y: 20,
+    opacity: 0,
+    duration: 0.6,
+    ease: "power2.out",
+    delay: 0.1,
+  });
+
+  gsap.from(".diploma-card", {
+    y: 20,
+    opacity: 0,
+    duration: 0.6,
+    stagger: 0.08,
+    ease: "power2.out",
+    delay: 0.2,
+  });
+</script>

@@ -1,0 +1,233 @@
+---
+import { Image } from 'astro:assets';
+import logoImg from '../assets/logo.png';
+---
+
+<section class="hero-section">
+  <!-- Confetti sprinkles (decorations) -->
+  <div class="confetti c1"></div>
+  <div class="confetti c2"></div>
+  <div class="confetti c3"></div>
+  <div class="confetti c4"></div>
+  <div class="confetti c5"></div>
+  <div class="confetti c6"></div>
+
+  <div class="hero-content">
+    <div class="subtitle">
+      <span class="line"></span>
+      Repostería artesanal casera
+      <span class="line"></span>
+    </div>
+    
+    <Image src={logoImg} alt="Las Manos de Nanos" class="hero-logo" loading="eager" />
+    
+    <p class="description">
+      Tartas, cupcakes y galletas hechas a mano para cumpleaños, baby showers, graduaciones y todos tus momentos más dulces.
+    </p>
+
+    <div class="actions">
+      <a href="/contacto" class="btn-primary">
+        <span class="whatsapp-dot"></span> Contacto
+      </a>
+      <a href="/galeria" class="btn-secondary">
+        Ver la galería
+      </a>
+    </div>
+
+    <!-- Featured Cake Placeholder -->
+    <div class="featured-cake">
+      <div class="cake-shadow"></div>
+      <div class="cake-circle">
+        <div class="cake-label">
+          Foto / render<br/>Tarta destacada
+        </div>
+      </div>
+      <div class="badge">Hecho a mano ♡</div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero-section {
+    position: relative;
+    overflow: hidden;
+    padding: 52px 20px 22px;
+    text-align: center;
+    background: radial-gradient(120% 92% at 50% -6%, #FCEEF0 0%, #FFFAF4 58%);
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 10;
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .subtitle {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #C9769A;
+  }
+
+  .line {
+    width: 22px;
+    height: 1.5px;
+    background: #E7B8CB;
+  }
+
+  .hero-logo {
+    width: 330px;
+    max-width: 90%;
+    height: auto;
+    display: block;
+    margin: 16px auto 6px;
+  }
+
+  .description {
+    max-width: 540px;
+    margin: 6px auto 0;
+    font-size: 18px;
+    line-height: 1.55;
+    color: var(--color-text);
+    font-weight: 600;
+  }
+
+  .actions {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin: 26px 0 8px;
+    flex-wrap: wrap;
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    background: #fff;
+    color: #8A4E9E;
+    font-weight: 800;
+    font-size: 16px;
+    padding: 14px 26px;
+    border-radius: 999px;
+    border: 2px solid #E7D6F1;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -10px rgba(138, 78, 158, 0.3);
+  }
+
+  .featured-cake {
+    position: relative;
+    width: 340px;
+    height: 300px;
+    margin: 26px auto 0;
+    max-width: 100%;
+  }
+
+  .cake-shadow {
+    position: absolute;
+    left: 50%;
+    bottom: 6px;
+    transform: translateX(-50%);
+    width: 290px;
+    height: 44px;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(150,110,175,.28), transparent);
+  }
+
+  .cake-circle {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    width: 300px;
+    height: 300px;
+    max-width: 90vw;
+    border-radius: 50%;
+    background: repeating-linear-gradient(135deg, #F6E1E6 0 15px, #FCEEF1 15px 30px);
+    border: 2px dashed #E7A9BE;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cake-label {
+    font: 800 12px/1.7 ui-monospace, Menlo, monospace;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #BE7C92;
+    text-align: center;
+  }
+
+  .badge {
+    position: absolute;
+    top: 10px;
+    right: -6px;
+    background: #fff;
+    color: var(--color-primary);
+    font-weight: 800;
+    font-size: 12.5px;
+    padding: 9px 15px;
+    border-radius: 999px;
+    box-shadow: 0 10px 24px -10px rgba(120,40,70,.4);
+    border: 1px solid #F3DDE3;
+    transform: rotate(6deg);
+  }
+
+  /* Confetti Styles */
+  .confetti {
+    position: absolute;
+    border-radius: 3px;
+  }
+  .c1 { top: 15%; left: 15%; width: 16px; height: 6px; background: #E7B8CB; transform: rotate(28deg); }
+  .c2 { top: 25%; right: 20%; width: 16px; height: 6px; background: #C9AEE6; transform: rotate(-40deg); }
+  .c3 { top: 35%; left: 10%; width: 11px; height: 11px; border-radius: 50%; background: #F4CBD8; }
+  .c4 { top: 20%; right: 15%; width: 9px; height: 9px; border-radius: 50%; background: #D7C2ED; }
+  .c5 { top: 45%; right: 25%; width: 15px; height: 6px; background: #BC1150; opacity: 0.5; transform: rotate(18deg); }
+  .c6 { top: 50%; left: 22%; width: 9px; height: 9px; border-radius: 50%; background: #EFD3A8; }
+
+  @media (max-width: 768px) {
+    .hero-logo { width: 260px; }
+    .description { font-size: 16px; padding: 0 10px; }
+    .featured-cake { width: 280px; height: 260px; }
+    .cake-circle { width: 260px; height: 260px; }
+    .c1, .c2, .c5 { display: none; } /* Hide some confetti on mobile to reduce clutter */
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+
+  // GSAP Animation for Hero Elements
+  gsap.from('.hero-content > *', {
+    y: 30,
+    opacity: 0,
+    duration: 0.8,
+    stagger: 0.15,
+    ease: 'power2.out',
+    delay: 0.1
+  });
+
+  gsap.from('.confetti', {
+    scale: 0,
+    opacity: 0,
+    duration: 0.6,
+    stagger: 0.1,
+    ease: 'back.out(1.7)',
+    delay: 0.5
+  });
+</script>

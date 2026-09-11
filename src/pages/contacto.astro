@@ -1,0 +1,995 @@
+---
+import { Image } from "astro:assets";
+import Layout from "../layouts/Layout.astro";
+import logoImg from "../assets/logo.png";
+
+// TODO: sustituir por los datos reales del negocio
+const CONTACTO = {
+  whatsappNumber: "34699155145",
+  whatsappDisplay: "+34 699 15 51 45",
+  email: "[EMAIL_ADDRESS]",
+  instagramHandle: "lasmanosdenanos",
+};
+
+const waLink = `https://wa.me/${CONTACTO.whatsappNumber}`;
+const igLink = `https://instagram.com/${CONTACTO.instagramHandle}`;
+
+const perks = [
+  {
+    emoji: "⏱️",
+    title: "Respuesta rápida",
+    sub: "en pocas horas",
+    variant: "pink",
+  },
+  {
+    emoji: "📍",
+    title: "Entrega y recogida",
+    sub: "consulta tu zona",
+    variant: "purple",
+  },
+  {
+    emoji: "📅",
+    title: "Reserva con tiempo",
+    sub: "mín. 5 días antes",
+    variant: "pink",
+  },
+];
+
+const chatMessages = [
+  { from: "in", text: "¡Hola! Quiero una tarta para el cumple de mi hija 🎂" },
+  {
+    from: "out",
+    text: "¡Qué ilusión! ¿Para cuántas personas y qué temática? ✨",
+  },
+  { from: "in", text: "Somos 12 y le encantan los unicornios 🦄" },
+  { from: "out", text: "¡Me encanta! Te preparo una propuesta 💖" },
+];
+
+const pasos = [
+  "Me escribes con tu idea y la fecha.",
+  "Te paso propuesta y presupuesto.",
+  "Confirmas y me pongo manos a la obra.",
+];
+---
+
+<Layout>
+  <!-- === HERO === -->
+  <section class="contacto-hero">
+    <div class="hero-inner">
+      <div class="hero-text">
+        <div class="subtitle-bar">
+          <span class="line"></span>Contacto<span class="line"></span>
+        </div>
+        <h1 class="hero-title">Hablemos de tu tarta</h1>
+        <p class="hero-lead">
+          Cuéntame qué celebras y lo diseñamos juntas. La forma más rápida es
+          WhatsApp: te respondo personalmente en pocas horas.
+        </p>
+        <div class="hero-actions">
+          <a href={waLink} target="_blank" rel="noopener" class="btn-whatsapp">
+            <span class="dot-white"></span>Escríbeme por WhatsApp
+          </a>
+          <a href={igLink} target="_blank" rel="noopener" class="btn-instagram">
+            @{CONTACTO.instagramHandle}
+          </a>
+        </div>
+        <div class="perks-row">
+          {
+            perks.map((perk) => (
+              <div class="perk">
+                <span class={`perk-icon ${perk.variant}`}>{perk.emoji}</span>
+                <div>
+                  <div class="perk-title">{perk.title}</div>
+                  <div class="perk-sub">{perk.sub}</div>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+
+      <div class="chat-mock">
+        <div class="chat-header">
+          <Image
+            src={logoImg}
+            alt=""
+            width={76}
+            height={76}
+            class="chat-avatar"
+          />
+          <div>
+            <div class="chat-name">Las Manos de Nanos</div>
+            <div class="chat-status">en línea · te responde Elsa</div>
+          </div>
+        </div>
+        <div class="chat-body">
+          {
+            chatMessages.map((msg) => (
+              <div class:list={["chat-bubble", msg.from]}>{msg.text}</div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- === SCALLOPED DIVIDER === -->
+  <div class="scalloped"></div>
+
+  <!-- === CANALES + FORMULARIO === -->
+  <section class="channels-section">
+    <div class="channels-inner">
+      <!-- CANALES -->
+      <div class="channels-col">
+        <h2 class="channels-title">Por dónde quieras</h2>
+        <p class="channels-lead">
+          Elige tu canal favorito. Sea cual sea, te responde Elsa en persona.
+        </p>
+
+        <a href={waLink} target="_blank" rel="noopener" class="channel-card">
+          <span class="channel-icon green">💬</span>
+          <div class="channel-info">
+            <div class="channel-name">WhatsApp</div>
+            <div class="channel-detail">{CONTACTO.whatsappDisplay}</div>
+          </div>
+          <span class="channel-arrow green">→</span>
+        </a>
+
+        <a href={igLink} target="_blank" rel="noopener" class="channel-card">
+          <span class="channel-icon pink">📸</span>
+          <div class="channel-info">
+            <div class="channel-name">Instagram</div>
+            <div class="channel-detail">@{CONTACTO.instagramHandle}</div>
+          </div>
+          <span class="channel-arrow pink">→</span>
+        </a>
+
+        <div class="channel-card static">
+          <span class="channel-icon rose">✉️</span>
+          <div class="channel-info">
+            <div class="channel-name">Email</div>
+            <div class="channel-detail">{CONTACTO.email}</div>
+          </div>
+        </div>
+
+        <div class="how-card">
+          <div class="how-title">Cómo funciona</div>
+          <div class="how-steps">
+            {
+              pasos.map((paso, i) => (
+                <div class="how-step">
+                  <span class="how-num">{i + 1}</span>
+                  <span class="how-text">{paso}</span>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- FORMULARIO -->
+      <div class="form-card">
+        <div id="form-panel">
+          <span class="form-badge">Formulario · opcional</span>
+          <h2 class="form-title">Cuéntame tu idea</h2>
+          <p class="form-lead">
+            Rellena lo que quieras y prepararé tu mensaje de WhatsApp listo para
+            enviar. Sin compromiso.
+          </p>
+
+          <form id="contacto-form" data-wa-number={CONTACTO.whatsappNumber}>
+            <div class="form-grid">
+              <div class="field">
+                <label for="f-nombre">Tu nombre *</label>
+                <input
+                  id="f-nombre"
+                  name="nombre"
+                  type="text"
+                  placeholder="Ej. María"
+                />
+              </div>
+              <div class="field">
+                <label for="f-contacto">WhatsApp o email *</label>
+                <input
+                  id="f-contacto"
+                  name="contacto"
+                  type="text"
+                  placeholder="Cómo te contesto"
+                />
+              </div>
+              <div class="field">
+                <label for="f-ocasion">Ocasión</label>
+                <select id="f-ocasion" name="ocasion">
+                  <option value="">Elige…</option>
+                  <option value="un cumpleaños">Cumpleaños</option>
+                  <option value="un baby shower">Baby shower</option>
+                  <option value="una graduación">Graduación</option>
+                  <option value="un evento">Evento</option>
+                  <option value="unas galletas">Galletas</option>
+                  <option value="otra ocasión">Otra</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="f-fecha">Fecha del evento</label>
+                <input
+                  id="f-fecha"
+                  name="fecha"
+                  type="text"
+                  placeholder="Ej. 20 de julio"
+                />
+              </div>
+              <div class="field">
+                <label for="f-personas">¿Cuántas personas?</label>
+                <input
+                  id="f-personas"
+                  name="personas"
+                  type="text"
+                  placeholder="Ej. 12"
+                />
+              </div>
+              <div class="field">
+                <label for="f-presupuesto">Presupuesto aprox.</label>
+                <input
+                  id="f-presupuesto"
+                  name="presupuesto"
+                  type="text"
+                  placeholder="Opcional"
+                />
+              </div>
+            </div>
+
+            <div class="field field-full">
+              <label for="f-mensaje">Cuéntame más</label>
+              <textarea
+                id="f-mensaje"
+                name="mensaje"
+                rows="3"
+                placeholder="Temática, colores, sabores, alergias…"></textarea>
+            </div>
+
+            <p id="form-error" class="form-error" hidden>
+              Escribe al menos tu nombre y cómo contactarte 💕
+            </p>
+
+            <button type="submit" class="form-submit">
+              <span class="dot-white"></span>Preparar mi mensaje de WhatsApp
+            </button>
+            <p class="form-note">
+              Sin registros ni spam. Solo abriremos WhatsApp con tu mensaje
+              escrito.
+            </p>
+          </form>
+        </div>
+
+        <div id="success-panel" hidden>
+          <div class="success-icon">🎉</div>
+          <h2 class="success-title">¡Tu mensaje está listo!</h2>
+          <p class="success-lead">
+            He preparado tu mensaje con estos datos. Pulsa el botón para abrir
+            WhatsApp y enviármelo:
+          </p>
+          <div id="success-preview" class="success-preview"></div>
+          <a
+            id="success-link"
+            href="#"
+            target="_blank"
+            rel="noopener"
+            class="form-submit success-btn"
+          >
+            <span class="dot-white"></span>Abrir WhatsApp y enviar
+          </a>
+          <button type="button" id="reset-btn" class="success-reset">
+            Escribir otro mensaje
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  /* ---- HERO ---- */
+  .contacto-hero {
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(120% 90% at 22% -10%, #fceef0 0%, #fffaf4 62%);
+  }
+
+  .hero-inner {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 58px 5vw 56px;
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 52px;
+    align-items: center;
+  }
+
+  .subtitle-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #c9769a;
+    margin-bottom: 16px;
+  }
+
+  .line {
+    width: 24px;
+    height: 1.5px;
+    background: #e7b8cb;
+  }
+
+  .hero-title {
+    font-family: var(--font-title);
+    font-size: clamp(38px, 6vw, 54px);
+    line-height: 1.12;
+    color: var(--color-primary);
+    margin: 0 0 16px;
+  }
+
+  .hero-lead {
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--color-text);
+    font-weight: 600;
+    margin: 0 0 28px;
+    max-width: 460px;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 13px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+
+  .btn-whatsapp {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #25d366;
+    color: #fff;
+    font-weight: 800;
+    font-size: 16px;
+    padding: 15px 26px;
+    border-radius: 999px;
+    box-shadow: 0 14px 30px -12px rgba(37, 211, 102, 0.55);
+    transition: transform 0.2s ease;
+  }
+  .btn-whatsapp:hover {
+    transform: translateY(-2px);
+  }
+
+  .dot-white {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #fff;
+  }
+
+  .btn-instagram {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    background: #fff;
+    color: #8a4e9e;
+    font-weight: 800;
+    font-size: 16px;
+    padding: 14px 24px;
+    border-radius: 999px;
+    border: 2px solid #e7d6f1;
+    transition: transform 0.2s ease;
+  }
+  .btn-instagram:hover {
+    transform: translateY(-2px);
+  }
+
+  .perks-row {
+    display: flex;
+    gap: 26px;
+    flex-wrap: wrap;
+  }
+
+  .perk {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+
+  .perk-icon {
+    width: 34px;
+    height: 34px;
+    flex: none;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  .perk-icon.pink {
+    background: #fceff1;
+  }
+  .perk-icon.purple {
+    background: #f6ecfb;
+  }
+
+  .perk-title {
+    font-weight: 800;
+    font-size: 13.5px;
+    color: var(--color-text-dark);
+  }
+
+  .perk-sub {
+    font-weight: 600;
+    font-size: 12.5px;
+    color: #8a6a76;
+    margin-top: 2px;
+  }
+
+  /* ---- CHAT MOCK ---- */
+  .chat-mock {
+    justify-self: center;
+    width: 340px;
+    max-width: 100%;
+    background: #fff;
+    border-radius: 26px;
+    box-shadow: 0 30px 60px -28px rgba(140, 60, 95, 0.5);
+    border: 1px solid var(--color-border);
+    overflow: hidden;
+  }
+
+  .chat-header {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 14px 18px;
+    background: #128c7e;
+    color: #fff;
+  }
+
+  .chat-avatar {
+    width: 38px;
+    height: 38px;
+    object-fit: cover;
+    border-radius: 50%;
+    background: #fff;
+    padding: 3px;
+  }
+
+  .chat-name {
+    font-weight: 800;
+    font-size: 15px;
+  }
+
+  .chat-status {
+    font-size: 11.5px;
+    opacity: 0.85;
+  }
+
+  .chat-body {
+    padding: 20px 16px;
+    background: linear-gradient(180deg, #fbeff3, #f7ecf0);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .chat-bubble {
+    max-width: 82%;
+    padding: 11px 14px;
+    font-size: 13.5px;
+    line-height: 1.45;
+    font-weight: 600;
+    box-shadow: 0 4px 10px -6px rgba(0, 0, 0, 0.15);
+  }
+
+  .chat-bubble.in {
+    align-self: flex-start;
+    background: #fff;
+    color: var(--color-text-dark);
+    border-radius: 14px 14px 14px 4px;
+  }
+
+  .chat-bubble.out {
+    align-self: flex-end;
+    background: #dcf8c6;
+    color: #33502b;
+    border-radius: 14px 14px 4px 14px;
+  }
+
+  /* ---- SCALLOPED ---- */
+  .scalloped {
+    height: 26px;
+    background:
+      radial-gradient(circle at 13px 0, #f6ecfb 13px, transparent 14px) 0 0/26px
+        26px repeat-x,
+      #fffaf4;
+  }
+
+  /* ---- CHANNELS + FORM ---- */
+  .channels-section {
+    background: #f6ecfb;
+    padding: 56px 5vw;
+  }
+
+  .channels-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 32px;
+    align-items: start;
+  }
+
+  .channels-col {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .channels-title {
+    font-family: var(--font-title);
+    font-size: 30px;
+    color: #8a4e9e;
+    margin: 0 0 4px;
+  }
+
+  .channels-lead {
+    margin: 0 0 6px;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--color-secondary);
+    font-weight: 600;
+  }
+
+  .channel-card {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: #fff;
+    border-radius: 18px;
+    padding: 18px 20px;
+    box-shadow: 0 14px 34px -22px rgba(140, 60, 95, 0.4);
+    border: 1px solid #ede1f3;
+    transition: transform 0.2s ease;
+  }
+
+  .channel-card:not(.static):hover {
+    transform: translateY(-2px);
+  }
+
+  .channel-icon {
+    width: 48px;
+    height: 48px;
+    flex: none;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+  }
+  .channel-icon.green {
+    background: #e9f9ee;
+  }
+  .channel-icon.pink {
+    background: #fbeaf3;
+  }
+  .channel-icon.rose {
+    background: #fceff1;
+  }
+
+  .channel-info {
+    flex: 1;
+  }
+
+  .channel-name {
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--color-text-dark);
+  }
+
+  .channel-detail {
+    font-weight: 600;
+    font-size: 13.5px;
+    color: #8a6a76;
+    margin-top: 2px;
+  }
+
+  .channel-arrow {
+    font-weight: 800;
+    font-size: 20px;
+  }
+  .channel-arrow.green {
+    color: #25a653;
+  }
+  .channel-arrow.pink {
+    color: #c13584;
+  }
+
+  .how-card {
+    background: #fff;
+    border-radius: 18px;
+    padding: 20px;
+    box-shadow: 0 14px 34px -22px rgba(140, 60, 95, 0.4);
+    border: 1px solid #ede1f3;
+  }
+
+  .how-title {
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--color-text-dark);
+    margin-bottom: 10px;
+  }
+
+  .how-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .how-step {
+    display: flex;
+    gap: 11px;
+    align-items: flex-start;
+  }
+
+  .how-num {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fceff1;
+    color: var(--color-primary);
+    font-weight: 800;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .how-text {
+    font-size: 13.5px;
+    line-height: 1.4;
+    color: var(--color-secondary);
+    font-weight: 600;
+  }
+
+  /* ---- FORM CARD ---- */
+  .form-card {
+    background: #fff;
+    border-radius: 24px;
+    padding: 34px 32px;
+    box-shadow: 0 22px 50px -26px rgba(140, 60, 95, 0.5);
+    border: 1px solid #f0e1e9;
+  }
+
+  .form-badge {
+    display: inline-flex;
+    background: #f6ecfb;
+    color: #8a4e9e;
+    font-weight: 800;
+    font-size: 11.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+
+  .form-title {
+    font-family: var(--font-title);
+    font-size: 30px;
+    color: var(--color-primary);
+    margin: 0 0 6px;
+  }
+
+  .form-lead {
+    margin: 0 0 24px;
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--color-secondary);
+    font-weight: 600;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .field-full {
+    margin-top: 16px;
+  }
+
+  .field label {
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--color-secondary);
+    margin-bottom: 7px;
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 13px 16px;
+    border-radius: 12px;
+    border: 1.5px solid #ead7dd;
+    background: #fffdfb;
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--color-text-dark);
+    font-weight: 600;
+    outline: none;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .field select {
+    appearance: none;
+  }
+
+  .field textarea {
+    resize: vertical;
+  }
+
+  .field input::placeholder,
+  .field textarea::placeholder {
+    color: #c3a9b2;
+  }
+
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(188, 17, 80, 0.12);
+  }
+
+  .form-error {
+    margin: 14px 0 0;
+    background: #fce8ee;
+    color: var(--color-primary);
+    font-weight: 700;
+    font-size: 13.5px;
+    padding: 11px 15px;
+    border-radius: 12px;
+    border: 1px solid #f3c9d7;
+  }
+
+  .form-submit {
+    margin-top: 22px;
+    width: 100%;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: var(--color-primary);
+    color: #fff;
+    font-family: var(--font-body);
+    font-weight: 800;
+    font-size: 16.5px;
+    padding: 16px;
+    border: none;
+    border-radius: 14px;
+    box-shadow: 0 16px 32px -14px rgba(188, 17, 80, 0.6);
+    transition: transform 0.2s ease;
+  }
+  .form-submit:hover {
+    transform: translateY(-2px);
+  }
+
+  .form-note {
+    margin: 14px 0 0;
+    text-align: center;
+    font-size: 12.5px;
+    color: #a88;
+    font-weight: 600;
+  }
+
+  /* ---- SUCCESS PANEL ---- */
+  #success-panel {
+    text-align: center;
+    padding: 14px 6px;
+  }
+
+  .success-icon {
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    background: #e9f9ee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 34px;
+    margin: 6px auto 18px;
+  }
+
+  .success-title {
+    font-family: var(--font-title);
+    font-size: 30px;
+    color: var(--color-primary);
+    margin: 0 0 8px;
+  }
+
+  .success-lead {
+    margin: 0 auto 20px;
+    max-width: 400px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--color-secondary);
+    font-weight: 600;
+  }
+
+  .success-preview {
+    text-align: left;
+    background: #fbeff3;
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin: 0 auto 22px;
+    max-width: 440px;
+    border: 1px solid #f0dce5;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: #5a3e48;
+    font-weight: 600;
+    white-space: pre-line;
+  }
+
+  .success-btn {
+    background: #25d366;
+    box-shadow: 0 16px 32px -14px rgba(37, 211, 102, 0.55);
+  }
+
+  .success-reset {
+    display: block;
+    margin: 16px auto 0;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: #8a4e9e;
+    font-family: var(--font-body);
+    font-weight: 800;
+    font-size: 14px;
+    text-decoration: underline;
+  }
+
+  /* ---- RESPONSIVE ---- */
+  @media (max-width: 900px) {
+    .hero-inner {
+      grid-template-columns: 1fr;
+      padding: 44px 5vw 40px;
+    }
+    .chat-mock {
+      width: 100%;
+    }
+    .channels-inner {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+    .form-card {
+      padding: 26px 22px;
+    }
+    .hero-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .btn-whatsapp,
+    .btn-instagram {
+      justify-content: center;
+    }
+  }
+</style>
+
+<script>
+  import { gsap } from "gsap";
+
+  // --- Formulario: prepara el mensaje de WhatsApp ---
+  const form = document.querySelector<HTMLFormElement>("#contacto-form");
+  const waNumber = form?.dataset.waNumber ?? "";
+  const errorEl = document.querySelector<HTMLElement>("#form-error");
+  const formPanel = document.querySelector<HTMLElement>("#form-panel");
+  const successPanel = document.querySelector<HTMLElement>("#success-panel");
+  const previewEl = document.querySelector<HTMLElement>("#success-preview");
+  const successLink =
+    document.querySelector<HTMLAnchorElement>("#success-link");
+  const resetBtn = document.querySelector<HTMLButtonElement>("#reset-btn");
+
+  form?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const data = new FormData(form);
+    const nombre = ((data.get("nombre") as string) || "").trim();
+    const contacto = ((data.get("contacto") as string) || "").trim();
+
+    if (!nombre || !contacto) {
+      errorEl?.removeAttribute("hidden");
+      return;
+    }
+    errorEl?.setAttribute("hidden", "");
+
+    const ocasion = (data.get("ocasion") as string) || "";
+    const fecha = ((data.get("fecha") as string) || "").trim();
+    const personas = ((data.get("personas") as string) || "").trim();
+    const presupuesto = ((data.get("presupuesto") as string) || "").trim();
+    const mensaje = ((data.get("mensaje") as string) || "").trim();
+
+    const lineas = [
+      `¡Hola Nanos! Soy ${nombre}.`,
+      `Me gustaría encargar algo para ${ocasion || "una ocasión especial"}.`,
+    ];
+    if (fecha) lineas.push(`Fecha: ${fecha}`);
+    if (personas) lineas.push(`Personas: ${personas}`);
+    if (presupuesto) lineas.push(`Presupuesto aprox.: ${presupuesto}`);
+    if (mensaje) lineas.push(`Detalles: ${mensaje}`);
+    lineas.push(`Me contactas por: ${contacto}`);
+
+    const texto = lineas.join("\n");
+    const waHref = `https://wa.me/${waNumber}?text=${encodeURIComponent(texto)}`;
+
+    if (previewEl) previewEl.textContent = texto;
+    if (successLink) successLink.href = waHref;
+
+    formPanel?.setAttribute("hidden", "");
+    successPanel?.removeAttribute("hidden");
+  });
+
+  resetBtn?.addEventListener("click", () => {
+    form?.reset();
+    errorEl?.setAttribute("hidden", "");
+    successPanel?.setAttribute("hidden", "");
+    formPanel?.removeAttribute("hidden");
+  });
+
+  // --- Entrance animations ---
+  gsap.from(".hero-text > *", {
+    y: 24,
+    opacity: 0,
+    duration: 0.7,
+    stagger: 0.12,
+    ease: "power2.out",
+  });
+
+  gsap.from(".chat-mock", {
+    y: 24,
+    opacity: 0,
+    duration: 0.7,
+    ease: "power2.out",
+    delay: 0.2,
+  });
+
+  gsap.from(".channel-card, .how-card", {
+    y: 16,
+    opacity: 0,
+    duration: 0.5,
+    stagger: 0.08,
+    ease: "power2.out",
+  });
+
+  gsap.from(".form-card", {
+    y: 20,
+    opacity: 0,
+    duration: 0.6,
+    ease: "power2.out",
+    delay: 0.15,
+  });
+</script>

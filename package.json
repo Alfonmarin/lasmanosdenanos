@@ -9,9 +9,15 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "optimize-models": "node scripts/optimize-models.mjs"
   },
   "dependencies": {
-    "astro": "^7.0.6"
+    "@google/model-viewer": "^4.3.1",
+    "astro": "^7.0.6",
+    "gsap": "^3.15.0"
+  },
+  "devDependencies": {
+    "@gltf-transform/cli": "^4.5.0"
   }
 }
