@@ -1,77 +1,39 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Hero from '../components/Hero.astro';
-
-// Categorías para la sección "Para cada ocasión"
-const categories = [
-  { name: 'Cumpleaños', style: 'primary' },
-  { name: 'Baby shower', style: 'secondary' },
-  { name: 'Graduaciones', style: 'primary' },
-  { name: 'Eventos', style: 'secondary' },
-  { name: 'Galletas', style: 'primary' },
-];
+import Layout from "../layouts/Layout.astro";
+import Hero from "../components/Hero.astro";
+import Ocasiones from "../components/inicio/Ocasiones.astro";
+import Tarta3DScroll from "../components/inicio/Tarta3DScroll.astro";
+import NuestraHistoria from "../components/inicio/NuestraHistoria.astro";
 ---
 
 <Layout>
-	<Hero />
-
-	<!-- Scalloped divider -->
-	<div class="scalloped-divider"></div>
-
-	<section class="categories-section">
-		<p class="section-subtitle">Para cada ocasión</p>
-		<div class="categories-container">
-			{categories.map((cat) => (
-				<span class={`category-pill ${cat.style}`}>{cat.name}</span>
-			))}
-		</div>
-	</section>
+  <Hero />
+  <Ocasiones />
+  <Tarta3DScroll />
+  <NuestraHistoria />
 </Layout>
 
-<style>
-	.scalloped-divider {
-		height: 26px;
-		background: radial-gradient(circle at 13px 26px, var(--color-bg-light) 13px, transparent 14px) 0 0/26px 26px repeat-x, var(--color-accent-pink);
-	}
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-	.categories-section {
-		background: var(--color-accent-pink);
-		padding: 6px 44px 34px;
-		text-align: center;
-	}
+  gsap.registerPlugin(ScrollTrigger);
 
-	.section-subtitle {
-		font-weight: 800;
-		font-size: 13px;
-		letter-spacing: 0.16em;
-		text-transform: uppercase;
-		color: #C67F9B;
-		margin: 0 0 16px;
-	}
-
-	.categories-container {
-		display: flex;
-		justify-content: center;
-		gap: 12px;
-		flex-wrap: wrap;
-	}
-
-	.category-pill {
-		background: #fff;
-		font-weight: 800;
-		font-size: 14px;
-		padding: 10px 20px;
-		border-radius: 999px;
-		display: inline-block;
-	}
-
-	.category-pill.primary {
-		color: var(--color-primary);
-		border: 1px solid #F1D6DD;
-	}
-
-	.category-pill.secondary {
-		color: #8A4E9E;
-		border: 1px solid #E7D6F1;
-	}
-</style>
+  // Todo lo marcado con data-reveal aparece desde abajo al entrar en pantalla.
+  // Si llegan varios a la vez (p. ej. los tres mosaicos) salen escalonados.
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    gsap.set("[data-reveal]", { y: 40, opacity: 0 });
+    ScrollTrigger.batch("[data-reveal]", {
+      start: "top 88%",
+      once: true,
+      onEnter: (lote) =>
+        gsap.to(lote, {
+          y: 0,
+          opacity: 1,
+          duration: 0.8,
+          stagger: 0.12,
+          ease: "power3.out",
+        }),
+    });
+  }
+</script>
