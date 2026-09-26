@@ -3,6 +3,7 @@ import { Image } from "astro:assets";
 import Layout from "../layouts/Layout.astro";
 import { tartas, tieneFicha, ULTIMA_NOVEDAD_ID } from "../data/tartas";
 import { galletas } from "../data/galletas";
+import selloNovedad from "../assets/iconos/novedad.png";
 
 const cumpleanosTartas = tartas.filter((t) => t.categoria === "cumpleanos");
 const eventosTartas = tartas.filter((t) => t.categoria === "eventos");
@@ -14,7 +15,20 @@ const ultimaNovedad =
   tartas.find((t) => t.id === ULTIMA_NOVEDAD_ID && t.modelo) ??
   tartas.find((t) => t.modelo)!;
 
-const CATEGORIA_LABEL = { cumpleanos: "Cumpleaños", eventos: "Eventos" } as const;
+// Parte el nombre en dos para el rótulo de la novedad: la primera palabra va
+// en grande y el resto debajo ("Motero 50 años" → "Motero" / "50 años").
+// Si la primera palabra es muy corta ("Mi", "La"…) se une con la siguiente,
+// para que no quede un "Mi" gigante suelto.
+function partirNombre(nombre: string): [string, string] {
+  const palabras = nombre.trim().split(/\s+/);
+  let n = 1;
+  while (n < palabras.length && palabras.slice(0, n).join(" ").length <= 3) n++;
+  return [palabras.slice(0, n).join(" "), palabras.slice(n).join(" ")];
+}
+
+const [nombreGrande, nombreResto] = partirNombre(ultimaNovedad.nombre);
+// Con una primera línea larga bajamos un punto la letra para que quepa
+const nombreLargo = nombreGrande.length > 9;
 
 const cumpleanosLabel = `${cumpleanosTartas.length} ${cumpleanosTartas.length === 1 ? "creación" : "creaciones"}`;
 const eventosLabel = `${eventosTartas.length} ${eventosTartas.length === 1 ? "creación" : "creaciones"}`;
@@ -30,16 +44,36 @@ const galletasLabel = `${galletas.length} ${galletas.length === 1 ? "creación" 
     <div class="confetti c2"></div>
     <div class="confetti c3"></div>
 
+    <Image
+      src={selloNovedad}
+      alt="Novedad"
+      width={320}
+      densities={[1, 2]}
+      class="sello-novedad"
+    />
+
     <div class="hero-inner">
-      <div class="hero-top">
-        <div class="subtitle-bar">
-          <span class="line"></span>Nuestras creaciones
+      <!-- La cabecera visible es la novedad; el h1 queda solo para buscadores
+           y lectores de pantalla -->
+      <h1 class="sr-only">Galería</h1>
+
+      <!-- Rótulo, descripción y botón comparten un mismo eje central -->
+      <div class="hero-text">
+        <div class="hero-head">
+          <h2 class:list={["feature-name", { largo: nombreLargo }]}>
+            <span class="feature-name-inner">
+              <span class="name-big">{nombreGrande}</span>
+              {nombreResto && <span class="name-rest">{nombreResto}</span>}
+            </span>
+          </h2>
         </div>
-        <h1 class="hero-title">Galería</h1>
-        <p class="hero-lead">
-          Cada tarta se piensa contigo y se hornea a mano. Explora por ocasión
-          y descubre las que puedes girar en 3D.
-        </p>
+
+        <div class="hero-body">
+          <p class="feature-desc">{ultimaNovedad.desc}</p>
+          <a href={`/galeria/${ultimaNovedad.id}`} class="btn-feature">
+            Ver detalles
+          </a>
+        </div>
       </div>
 
       <div class="hero-stage">
@@ -58,28 +92,7 @@ const galletasLabel = `${galletas.length} ${galletas.length === 1 ? "creación" 
           shadow-intensity="1"
           exposure="0.95"
           style="width: 100%; height: 100%; background: transparent;"
-        />
-        <span class="pill-3d">↺ 360°</span>
-      </div>
-
-      <div class="hero-feature">
-        <span class="badge-novedad"
-          ><span class="badge-dot"></span>Última novedad</span
-        >
-        <h2 class="feature-name">{ultimaNovedad.nombre}</h2>
-        <p class="feature-desc">{ultimaNovedad.desc}</p>
-        <div class="feature-chips">
-          <span class="chip">{CATEGORIA_LABEL[ultimaNovedad.categoria]}</span>
-          <span class="chip">Personalizable</span>
-        </div>
-        <div class="feature-actions">
-          <a href={`/galeria/${ultimaNovedad.id}`} class="btn-feature">
-            Ver detalles →
-          </a>
-          <a href="#creaciones" class="link-explore" id="link-explore">
-            Ver todas las creaciones ↓
-          </a>
-        </div>
+        ></model-viewer>
       </div>
     </div>
   </section>
@@ -90,7 +103,7 @@ const galletasLabel = `${galletas.length} ${galletas.length === 1 ? "creación" 
   <!-- === CATEGORY SECTIONS === -->
   <div class="categories-wrapper" id="creaciones">
     <!-- CUMPLEAÑOS -->
-    <section class="category-section">
+    <section class="category-section" id="cumpleanos">
       <div class="section-header">
         <h2 class="section-title primary">Cumpleaños</h2>
         <span class="section-line pink"></span>
@@ -108,7 +121,11 @@ const galletasLabel = `${galletas.length} ${galletas.length === 1 ? "creación" 
               >
                 <div class="card-img primary">
                   {item.foto ? (
-                    <Image src={item.foto} alt={item.nombre} class="card-photo" />
+                    <Image
+                      src={item.foto}
+                      alt={item.nombre}
+                      class="card-photo"
+                    />
                   ) : (
                     <span class="img-label">Foto · Tarta</span>
                   )}
@@ -133,7 +150,7 @@ const galletasLabel = `${galletas.length} ${galletas.length === 1 ? "creación" 
     </section>
 
     <!-- EVENTOS -->
-    <section class="category-section">
+    <section class="category-section" id="eventos">
       <div class="section-header">
         <h2 class="section-title secondary">Eventos</h2>
         <span class="section-line purple"></span>
@@ -151,7 +168,11 @@ const galletasLabel = `${galletas.length} ${galletas.length === 1 ? "creación" 
               >
                 <div class="card-img secondary">
                   {item.foto ? (
-                    <Image src={item.foto} alt={item.nombre} class="card-photo" />
+                    <Image
+                      src={item.foto}
+                      alt={item.nombre}
+                      class="card-photo"
+                    />
                   ) : (
                     <span class="img-label purple">Foto · Tarta</span>
                   )}
@@ -208,13 +229,27 @@ const galletasLabel = `${galletas.length} ${galletas.length === 1 ? "creación" 
 </Layout>
 
 <style>
+  /* Los mosaicos del inicio enlazan a #cumpleanos, #eventos y #galletas:
+     margen para que la cabecera fija no tape el título al llegar */
+  .category-section {
+    scroll-margin-top: 96px;
+  }
+
   /* ---- HERO ---- */
   .galeria-hero {
     position: relative;
     overflow: hidden;
     background:
-      radial-gradient(80% 60% at 78% 35%, #f1e3fa 0%, rgba(241, 227, 250, 0) 62%),
-      radial-gradient(70% 55% at 12% 15%, #fde8ee 0%, rgba(253, 232, 238, 0) 60%),
+      radial-gradient(
+        80% 60% at 78% 35%,
+        #f1e3fa 0%,
+        rgba(241, 227, 250, 0) 62%
+      ),
+      radial-gradient(
+        70% 55% at 12% 15%,
+        #fde8ee 0%,
+        rgba(253, 232, 238, 0) 60%
+      ),
       linear-gradient(180deg, #fffaf4 0%, #fbeff3 100%);
   }
 
@@ -243,58 +278,26 @@ const galletasLabel = `${galletas.length} ${galletas.length === 1 ? "creación" 
   .hero-inner {
     position: relative;
     z-index: 2;
-    max-width: 1160px;
+    max-width: 1280px;
     margin: 0 auto;
     padding: 56px 5vw 64px;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
-    grid-template-areas:
-      "top stage"
-      "feature stage";
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    grid-template-areas: "text stage";
     column-gap: 48px;
     align-items: center;
   }
 
-  .hero-top {
-    grid-area: top;
-    align-self: end;
-    padding-bottom: 22px;
-    margin-bottom: 22px;
-    border-bottom: 1.5px solid rgba(188, 17, 80, 0.12);
-  }
-
-  .subtitle-bar {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 800;
-    font-size: 12px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: #c9769a;
-  }
-
-  .line {
-    width: 22px;
-    height: 1.5px;
-    background: #e7b8cb;
-  }
-
-  .hero-title {
-    font-family: var(--font-title);
-    font-size: clamp(40px, 5vw, 52px);
-    line-height: 1.1;
-    color: var(--color-primary);
-    margin: 10px 0;
-  }
-
-  .hero-lead {
-    max-width: 440px;
-    margin: 0;
-    font-size: 16.5px;
-    line-height: 1.55;
-    color: var(--color-text);
-    font-weight: 600;
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   /* Stage: la tarta 3D flotando sin caja */
@@ -326,99 +329,107 @@ const galletasLabel = `${galletas.length} ${galletas.length === 1 ? "creación" 
     z-index: 1;
   }
 
-  .hero-stage .pill-3d {
-    top: auto;
-    right: auto;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
+  /* Sello "Novedad" (esquina superior izquierda).
+     Para moverlo o cambiarle el tamaño, toca solo estas tres variables:
+       --sello-top   → distancia al borde SUPERIOR de la sección
+       --sello-left  → distancia al borde IZQUIERDO (más grande = más a la derecha)
+       --sello-size  → ancho del sello
+     Los valores clamp(mín, ideal, máx) se adaptan al ancho de pantalla. */
+  .sello-novedad {
+    --sello-top: 18px;
+    --sello-left: clamp(24px, 7vw, 130px);
+    --sello-size: clamp(110px, 10vw, 150px);
+
+    position: absolute;
+    z-index: 3;
+    top: var(--sello-top);
+    left: var(--sello-left);
+    width: var(--sello-size);
+    height: auto;
+    filter: drop-shadow(0 12px 18px rgba(140, 20, 70, 0.28));
+    pointer-events: none;
   }
 
-  /* Feature: la novedad destacada */
-  .hero-feature {
-    grid-area: feature;
-    align-self: start;
-  }
-
-  .badge-novedad {
-    display: inline-flex;
+  /* Novedad destacada: rótulo, descripción y botón centrados entre sí sobre
+     un mismo eje. El bloque mide lo que mida su elemento más ancho. */
+  .hero-text {
+    grid-area: text;
+    justify-self: start;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 8px;
-    background: #eadbf6;
-    color: #7b4fae;
-    font-weight: 800;
-    font-size: 11.5px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 6px 12px;
-    border-radius: 999px;
-    margin-bottom: 12px;
+    width: fit-content;
+    max-width: 100%;
   }
 
-  .badge-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #7b4fae;
+  .hero-head {
+    grid-area: head;
   }
 
+  .hero-body {
+    grid-area: body;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  /* Rótulo: primera palabra enorme y el resto debajo, algo desplazado,
+     todo ligeramente girado. El giro va en el span interior para no
+     pelearse con la animación de entrada (GSAP mueve el h2). */
   .feature-name {
-    font-family: var(--font-body);
-    font-weight: 900;
-    font-size: clamp(30px, 3.4vw, 40px);
-    letter-spacing: -0.01em;
-    line-height: 1.12;
-    color: var(--color-text-dark);
-    margin: 4px 0 10px;
+    font-family: var(--font-title);
+    font-weight: 400;
+    font-size: clamp(76px, 8.6vw, 128px);
+    line-height: 1;
+    color: var(--color-primary);
+    margin: 0 0 22px;
+  }
+  .feature-name.largo {
+    font-size: clamp(60px, 6.6vw, 96px);
+  }
+
+  .feature-name-inner {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    transform: rotate(-4deg);
+    transform-origin: left center;
+  }
+
+  .name-big {
+    display: block;
+    padding-bottom: 0.08em;
+  }
+
+  .name-rest {
+    display: block;
+    font-size: 0.56em;
+    color: #8a4e9e;
+    margin-left: 1.1em;
+    margin-top: -0.1em;
   }
 
   .feature-desc {
     margin: 0;
-    max-width: 460px;
-    font-size: 16px;
+    max-width: 440px;
+    text-wrap: balance;
+    font-size: 16.5px;
     line-height: 1.55;
     color: var(--color-text);
     font-weight: 600;
   }
 
-  .feature-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 16px;
-  }
-
-  .chip {
-    display: inline-flex;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.85);
-    border: 1px solid #f1d6dd;
-    color: #8a4e9e;
-    font-weight: 800;
-    font-size: 11.5px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    padding: 6px 11px;
-    border-radius: 999px;
-  }
-
-  .feature-actions {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 18px;
-    margin-top: 24px;
-  }
-
   .btn-feature {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    justify-content: center;
+    margin-top: 26px;
     background: var(--color-primary);
     color: #fff;
     font-weight: 800;
     font-size: 15px;
-    padding: 14px 24px;
+    padding: 14px 30px;
     border-radius: 999px;
     box-shadow: 0 14px 30px -12px rgba(188, 17, 80, 0.55);
     transition:
@@ -428,16 +439,6 @@ const galletasLabel = `${galletas.length} ${galletas.length === 1 ? "creación" 
   .btn-feature:hover {
     transform: translateY(-2px);
     box-shadow: 0 18px 34px -12px rgba(188, 17, 80, 0.6);
-  }
-
-  .link-explore {
-    color: #8a4e9e;
-    font-weight: 800;
-    font-size: 14px;
-    transition: color 0.2s ease;
-  }
-  .link-explore:hover {
-    color: var(--color-primary);
   }
 
   /* Confetti */
@@ -682,20 +683,33 @@ const galletasLabel = `${galletas.length} ${galletas.length === 1 ? "creación" 
     .hero-inner {
       grid-template-columns: 1fr;
       grid-template-areas:
-        "top"
+        "head"
         "stage"
-        "feature";
+        "body";
       column-gap: 0;
       padding: 44px 5vw 52px;
       text-align: center;
     }
-    .hero-top {
-      align-self: auto;
-      border-bottom: none;
-      padding-bottom: 0;
+    .sello-novedad {
+      --sello-top: 14px;
+      --sello-left: 20px;
+      --sello-size: 100px;
+    }
+    /* En móvil el bloque se "deshace" para que el rótulo quede arriba y la
+       descripción con el botón debajo de la tarta */
+    .hero-text {
+      display: contents;
+    }
+    .feature-name {
       margin-bottom: 8px;
     }
-    .hero-lead,
+    .feature-name-inner {
+      align-items: center;
+      transform-origin: center;
+    }
+    .name-rest {
+      margin-left: 0;
+    }
     .feature-desc {
       margin-left: auto;
       margin-right: auto;
@@ -703,13 +717,8 @@ const galletasLabel = `${galletas.length} ${galletas.length === 1 ? "creación" 
     .hero-stage {
       height: 400px;
     }
-    .hero-feature {
-      align-self: auto;
-      margin-top: 26px;
-    }
-    .feature-chips,
-    .feature-actions {
-      justify-content: center;
+    .hero-body {
+      margin-top: 18px;
     }
     .hero-blob.a {
       width: 260px;
@@ -736,13 +745,8 @@ const galletasLabel = `${galletas.length} ${galletas.length === 1 ? "creación" 
     .hero-pedestal {
       width: 72%;
     }
-    .feature-actions {
-      flex-direction: column;
-      gap: 12px;
-    }
     .btn-feature {
       width: 100%;
-      justify-content: center;
     }
     .categories-wrapper {
       padding: 12px 20px 20px;
@@ -771,18 +775,24 @@ const galletasLabel = `${galletas.length} ${galletas.length === 1 ? "creación" 
     });
   });
 
-  // --- Scroll suave al enlace "Ver todas las creaciones" ---
-  document.getElementById("link-explore")?.addEventListener("click", (e) => {
-    e.preventDefault();
-    document
-      .getElementById("creaciones")
-      ?.scrollIntoView({ behavior: "smooth", block: "start" });
-  });
-
   // --- Entrance animations on page load ---
   gsap.from(".hero-blob", { opacity: 0, duration: 1.4, ease: "power1.out" });
 
-  gsap.from(".hero-top > *, .hero-feature > *", {
+  // El sello "cae" con un pequeño rebote; acaba girado -12° (lo fija GSAP)
+  gsap.fromTo(
+    ".sello-novedad",
+    { scale: 0.3, rotation: -45, opacity: 0 },
+    {
+      scale: 1,
+      rotation: -12,
+      opacity: 1,
+      duration: 0.9,
+      delay: 0.5,
+      ease: "back.out(1.8)",
+    },
+  );
+
+  gsap.from(".hero-head > *, .hero-body > *", {
     y: 22,
     opacity: 0,
     duration: 0.7,
