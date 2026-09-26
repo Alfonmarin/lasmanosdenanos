@@ -1,233 +1,448 @@
 ---
-import { Image } from 'astro:assets';
-import logoImg from '../assets/logo.png';
+import { CONTACTO } from "../data/contacto";
+
+// Vídeo de fondo: clip gratuito de Mixkit (licencia libre para uso comercial,
+// sin atribución). Para cambiarlo, sustituye los archivos de public/video/
+// manteniendo los nombres: el de escritorio, uno ligero para móvil y una
+// imagen fija (poster) que se ve mientras carga o si el vídeo no se reproduce.
+const VIDEO_ESCRITORIO = "/video/hero-reposteria.mp4";
+const VIDEO_MOVIL = "/video/hero-reposteria-movil.mp4";
+const VIDEO_POSTER = "/video/hero-reposteria-poster.jpg";
+
+// Palabras que van rotando en el titular ("…para tu cumpleaños", "…para tu boda")
+const ocasiones = [
+  "cumpleaños",
+  "boda",
+  "comunión",
+  "graduación",
+  "baby shower",
+  "bautizo",
+];
+
+const perks = [
+  { emoji: "🎨", title: "Diseño a medida", sub: "lo pensamos juntas" },
+  { emoji: "🤲", title: "Hecho a mano", sub: "en mi cocina, sin prisas" },
+  { emoji: "📅", title: "Reserva con tiempo", sub: `mín. ${CONTACTO.plazoMinimoTexto} antes` },
+  { emoji: "📍", title: "Entrega o recogida", sub: "consulta tu zona" },
+];
 ---
 
-<section class="hero-section">
-  <!-- Confetti sprinkles (decorations) -->
-  <div class="confetti c1"></div>
-  <div class="confetti c2"></div>
-  <div class="confetti c3"></div>
-  <div class="confetti c4"></div>
-  <div class="confetti c5"></div>
-  <div class="confetti c6"></div>
+<section class="hero">
+  <div class="hero-media">
+    <video
+      class="hero-video"
+      data-src-escritorio={VIDEO_ESCRITORIO}
+      data-src-movil={VIDEO_MOVIL}
+      poster={VIDEO_POSTER}
+      muted
+      loop
+      playsinline
+      preload="none"
+      aria-hidden="true"></video>
+    <div class="hero-veil"></div>
+  </div>
 
-  <div class="hero-content">
-    <div class="subtitle">
-      <span class="line"></span>
-      Repostería artesanal casera
-      <span class="line"></span>
-    </div>
-    
-    <Image src={logoImg} alt="Las Manos de Nanos" class="hero-logo" loading="eager" />
-    
-    <p class="description">
-      Tartas, cupcakes y galletas hechas a mano para cumpleaños, baby showers, graduaciones y todos tus momentos más dulces.
-    </p>
+  <div class="hero-inner">
+    <div class="hero-content">
+      <p class="hero-kicker">
+        <span class="line"></span>Repostería artesanal<span class="line"></span>
+      </p>
 
-    <div class="actions">
-      <a href="/contacto" class="btn-primary">
-        <span class="whatsapp-dot"></span> Contacto
-      </a>
-      <a href="/galeria" class="btn-secondary">
-        Ver la galería
-      </a>
-    </div>
+      <h1 class="hero-title">
+        <span class="hero-title-main">Tartas hechas a mano</span>
+        <span class="hero-title-sub">
+          para tu{" "}<span
+            class="hero-typed"
+            data-palabras={JSON.stringify(ocasiones)}
+            aria-live="off">{ocasiones[0]}</span
+          ><span class="hero-caret" aria-hidden="true"></span>
+        </span>
+      </h1>
 
-    <!-- Featured Cake Placeholder -->
-    <div class="featured-cake">
-      <div class="cake-shadow"></div>
-      <div class="cake-circle">
-        <div class="cake-label">
-          Foto / render<br/>Tarta destacada
-        </div>
+      <p class="hero-lead">
+        Tartas, galletas y dulces personalizados para que tu celebración sepa a
+        hecho en casa.
+      </p>
+
+      <div class="hero-actions">
+        <a href="/contacto" class="hero-btn primary">Encarga tu tarta</a>
+        <a href="/galeria" class="hero-btn ghost">Ver galería</a>
       </div>
-      <div class="badge">Hecho a mano ♡</div>
     </div>
   </div>
+
+  <ul class="hero-perks">
+    {
+      perks.map((p) => (
+        <li class="perk">
+          <span class="perk-icon" aria-hidden="true">{p.emoji}</span>
+          <span class="perk-text">
+            <span class="perk-title">{p.title}</span>
+            <span class="perk-sub">{p.sub}</span>
+          </span>
+        </li>
+      ))
+    }
+  </ul>
 </section>
 
 <style>
-  .hero-section {
+  .hero {
     position: relative;
+    background: #2a1420;
+    isolation: isolate;
+  }
+
+  /* ---- Vídeo de fondo ---- */
+  .hero-media {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
     overflow: hidden;
-    padding: 52px 20px 22px;
-    text-align: center;
-    background: radial-gradient(120% 92% at 50% -6%, #FCEEF0 0%, #FFFAF4 58%);
-    min-height: 80vh;
+  }
+
+  .hero-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Velo para que el texto se lea: más oscuro a la izquierda (donde va el
+     texto) y con un toque rosado de la marca */
+  .hero-veil {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(
+        100deg,
+        rgba(58, 16, 38, 0.86) 0%,
+        rgba(90, 20, 55, 0.62) 42%,
+        rgba(188, 17, 80, 0.18) 100%
+      ),
+      linear-gradient(180deg, rgba(0, 0, 0, 0) 60%, rgba(40, 10, 28, 0.55) 100%);
+  }
+
+  /* ---- Contenido ---- */
+  .hero-inner {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0 5vw;
+    min-height: clamp(560px, calc(100svh - 78px), 820px);
     display: flex;
     align-items: center;
-    justify-content: center;
+    padding-bottom: 120px; /* hueco para la franja de ventajas */
   }
 
   .hero-content {
-    position: relative;
-    z-index: 10;
-    max-width: 800px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    max-width: 640px;
+    color: #fff;
   }
 
-  .subtitle {
+  .hero-kicker {
     display: inline-flex;
     align-items: center;
     gap: 10px;
+    margin: 0 0 18px;
     font-weight: 800;
-    font-size: 12px;
-    letter-spacing: 0.2em;
+    font-size: 12.5px;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: #C9769A;
+    color: #f7c3d6;
   }
 
   .line {
-    width: 22px;
+    width: 24px;
     height: 1.5px;
-    background: #E7B8CB;
+    background: #f7c3d6;
+    opacity: 0.7;
   }
 
-  .hero-logo {
-    width: 330px;
-    max-width: 90%;
-    height: auto;
+  .hero-title {
+    margin: 0 0 20px;
+    color: #fff;
+    font-weight: 400;
+  }
+
+  .hero-title-main {
     display: block;
-    margin: 16px auto 6px;
+    font-family: var(--font-title);
+    font-size: clamp(44px, 6.4vw, 82px);
+    line-height: 1.12;
+    text-wrap: balance;
+    text-shadow: 0 6px 30px rgba(0, 0, 0, 0.25);
   }
 
-  .description {
-    max-width: 540px;
-    margin: 6px auto 0;
+  .hero-title-sub {
+    display: block;
+    margin-top: 10px;
+    font-family: var(--font-body);
+    font-weight: 800;
+    font-size: clamp(22px, 2.6vw, 32px);
+    color: #fde6ee;
+  }
+
+  .hero-typed {
+    color: #ff9cc0;
+  }
+
+  .hero-caret {
+    display: inline-block;
+    width: 3px;
+    height: 0.95em;
+    margin-left: 3px;
+    vertical-align: -0.12em;
+    background: #ff9cc0;
+    border-radius: 2px;
+    animation: parpadeo 1s steps(1) infinite;
+  }
+
+  @keyframes parpadeo {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  .hero-lead {
+    margin: 0 0 30px;
+    max-width: 480px;
     font-size: 18px;
-    line-height: 1.55;
-    color: var(--color-text);
+    line-height: 1.6;
     font-weight: 600;
+    color: rgba(255, 255, 255, 0.88);
   }
 
-  .actions {
+  .hero-actions {
     display: flex;
-    justify-content: center;
     gap: 14px;
-    margin: 26px 0 8px;
     flex-wrap: wrap;
   }
 
-  .btn-secondary {
+  .hero-btn {
     display: inline-flex;
     align-items: center;
-    background: #fff;
-    color: #8A4E9E;
+    justify-content: center;
     font-weight: 800;
     font-size: 16px;
-    padding: 14px 26px;
+    padding: 15px 30px;
     border-radius: 999px;
-    border: 2px solid #E7D6F1;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease,
+      background 0.2s ease;
   }
-
-  .btn-secondary:hover {
+  .hero-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 20px -10px rgba(138, 78, 158, 0.3);
   }
 
-  .featured-cake {
-    position: relative;
-    width: 340px;
-    height: 300px;
-    margin: 26px auto 0;
-    max-width: 100%;
+  .hero-btn.primary {
+    background: var(--color-primary);
+    color: #fff;
+    box-shadow: 0 16px 34px -14px rgba(188, 17, 80, 0.9);
   }
 
-  .cake-shadow {
+  .hero-btn.ghost {
+    color: #fff;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(4px);
+  }
+  .hero-btn.ghost:hover {
+    background: rgba(255, 255, 255, 0.16);
+  }
+
+  /* ---- Franja de ventajas (sobre el vídeo en escritorio) ---- */
+  .hero-perks {
+    list-style: none;
+    margin: 0;
     position: absolute;
     left: 50%;
-    bottom: 6px;
+    bottom: 34px;
     transform: translateX(-50%);
-    width: 290px;
-    height: 44px;
-    border-radius: 50%;
-    background: radial-gradient(closest-side, rgba(150,110,175,.28), transparent);
+    width: min(1160px, 100%);
+    padding: 0 5vw;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
   }
 
-  .cake-circle {
-    position: absolute;
-    left: 50%;
-    top: 0;
-    transform: translateX(-50%);
-    width: 300px;
-    height: 300px;
-    max-width: 90vw;
-    border-radius: 50%;
-    background: repeating-linear-gradient(135deg, #F6E1E6 0 15px, #FCEEF1 15px 30px);
-    border: 2px dashed #E7A9BE;
+  .perk {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(8px);
+    color: #fff;
+  }
+
+  .perk-icon {
+    flex: none;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 20px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.16);
   }
 
-  .cake-label {
-    font: 800 12px/1.7 ui-monospace, Menlo, monospace;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: #BE7C92;
-    text-align: center;
+  .perk-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
   }
 
-  .badge {
-    position: absolute;
-    top: 10px;
-    right: -6px;
-    background: #fff;
-    color: var(--color-primary);
+  .perk-title {
     font-weight: 800;
+    font-size: 14.5px;
+  }
+
+  .perk-sub {
+    font-weight: 600;
     font-size: 12.5px;
-    padding: 9px 15px;
-    border-radius: 999px;
-    box-shadow: 0 10px 24px -10px rgba(120,40,70,.4);
-    border: 1px solid #F3DDE3;
-    transform: rotate(6deg);
+    opacity: 0.8;
+    margin-top: 2px;
   }
 
-  /* Confetti Styles */
-  .confetti {
-    position: absolute;
-    border-radius: 3px;
+  /* ---- Tablet ---- */
+  @media (max-width: 1000px) {
+    .hero-perks {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .hero-inner {
+      padding-bottom: 190px;
+    }
   }
-  .c1 { top: 15%; left: 15%; width: 16px; height: 6px; background: #E7B8CB; transform: rotate(28deg); }
-  .c2 { top: 25%; right: 20%; width: 16px; height: 6px; background: #C9AEE6; transform: rotate(-40deg); }
-  .c3 { top: 35%; left: 10%; width: 11px; height: 11px; border-radius: 50%; background: #F4CBD8; }
-  .c4 { top: 20%; right: 15%; width: 9px; height: 9px; border-radius: 50%; background: #D7C2ED; }
-  .c5 { top: 45%; right: 25%; width: 15px; height: 6px; background: #BC1150; opacity: 0.5; transform: rotate(18deg); }
-  .c6 { top: 50%; left: 22%; width: 9px; height: 9px; border-radius: 50%; background: #EFD3A8; }
 
-  @media (max-width: 768px) {
-    .hero-logo { width: 260px; }
-    .description { font-size: 16px; padding: 0 10px; }
-    .featured-cake { width: 280px; height: 260px; }
-    .cake-circle { width: 260px; height: 260px; }
-    .c1, .c2, .c5 { display: none; } /* Hide some confetti on mobile to reduce clutter */
+  /* ---- Móvil: texto centrado y ventajas en una franja clara bajo el vídeo ---- */
+  @media (max-width: 700px) {
+    .hero-veil {
+      background: linear-gradient(
+        180deg,
+        rgba(58, 16, 38, 0.55) 0%,
+        rgba(70, 18, 45, 0.78) 100%
+      );
+    }
+    .hero-inner {
+      min-height: calc(100svh - 150px);
+      padding: 48px 20px 44px;
+      justify-content: center;
+      text-align: center;
+    }
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .hero-lead {
+      font-size: 16px;
+    }
+    .hero-actions {
+      flex-direction: column;
+      width: 100%;
+      max-width: 340px;
+    }
+    .hero-perks {
+      position: static;
+      transform: none;
+      background: var(--color-bg-light);
+      padding: 18px 16px;
+      gap: 10px;
+    }
+    .perk {
+      flex-direction: column;
+      text-align: center;
+      gap: 8px;
+      padding: 14px 10px;
+      background: #fff;
+      border-color: var(--color-border);
+      backdrop-filter: none;
+      color: var(--color-text-dark);
+      box-shadow: 0 12px 26px -20px rgba(140, 60, 95, 0.45);
+    }
+    .perk-icon {
+      background: #fceff1;
+    }
+    .perk-sub {
+      color: #8a6a76;
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-caret {
+      display: none;
+    }
   }
 </style>
 
 <script>
-  import { gsap } from 'gsap';
+  import { gsap } from "gsap";
 
-  // GSAP Animation for Hero Elements
-  gsap.from('.hero-content > *', {
-    y: 30,
-    opacity: 0,
-    duration: 0.8,
-    stagger: 0.15,
-    ease: 'power2.out',
-    delay: 0.1
-  });
+  const reducirMovimiento = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
 
-  gsap.from('.confetti', {
-    scale: 0,
-    opacity: 0,
-    duration: 0.6,
-    stagger: 0.1,
-    ease: 'back.out(1.7)',
-    delay: 0.5
-  });
+  // --- Vídeo: elegimos la versión según el ancho y solo lo reproducimos
+  // mientras se ve (ahorra batería y datos). Con "reducir movimiento" se
+  // queda la imagen fija.
+  const video = document.querySelector<HTMLVideoElement>(".hero-video");
+  if (video && !reducirMovimiento) {
+    const esMovil = window.matchMedia("(max-width: 700px)").matches;
+    video.src = (esMovil ? video.dataset.srcMovil : video.dataset.srcEscritorio) ?? "";
+    new IntersectionObserver(([entrada]) => {
+      if (entrada.isIntersecting) video.play().catch(() => {});
+      else video.pause();
+    }).observe(video);
+  }
+
+  // --- Texto que se escribe solo: "para tu cumpleaños / boda / comunión…"
+  const typed = document.querySelector<HTMLElement>(".hero-typed");
+  if (typed && !reducirMovimiento) {
+    const palabras: string[] = JSON.parse(typed.dataset.palabras ?? "[]");
+    let i = 0;
+    const esperar = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+    (async function ciclo() {
+      while (true) {
+        await esperar(2000);
+        const actual = palabras[i];
+        for (let n = actual.length; n >= 0; n--) {
+          typed.textContent = actual.slice(0, n);
+          await esperar(45);
+        }
+        i = (i + 1) % palabras.length;
+        const siguiente = palabras[i];
+        await esperar(200);
+        for (let n = 1; n <= siguiente.length; n++) {
+          typed.textContent = siguiente.slice(0, n);
+          await esperar(85);
+        }
+      }
+    })();
+  }
+
+  // --- Entrada
+  if (!reducirMovimiento) {
+    gsap.from(".hero-content > *", {
+      y: 28,
+      opacity: 0,
+      duration: 0.8,
+      stagger: 0.12,
+      ease: "power3.out",
+      delay: 0.1,
+    });
+    gsap.from(".hero-perks .perk", {
+      y: 24,
+      opacity: 0,
+      duration: 0.6,
+      stagger: 0.08,
+      ease: "power2.out",
+      delay: 0.6,
+    });
+  }
 </script>
