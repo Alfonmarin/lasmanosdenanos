@@ -3,6 +3,9 @@ import { Image } from "astro:assets";
 import Layout from "../layouts/Layout.astro";
 import PedidoWizard from "../components/PedidoWizard.astro";
 import logoImg from "../assets/logo.png";
+import iconoWhatsapp from "../assets/iconos/whatsapp.png";
+import iconoInstagram from "../assets/iconos/instagram.png";
+import iconoGmail from "../assets/iconos/gmail.png";
 import { CONTACTO, waLink, igLink, mailLink } from "../data/contacto";
 
 const perks = [
@@ -36,6 +39,9 @@ const chatMessages = [
   { from: "out", text: "¡Me encanta! Te preparo una propuesta 💖" },
 ];
 
+// Partimos el email para poder cortar la línea justo antes de la @
+const [emailUsuario, emailDominio] = CONTACTO.email.split("@");
+
 const pasos = [
   "Me escribes con tu idea y la fecha.",
   "Te paso propuesta y presupuesto.",
@@ -56,14 +62,6 @@ const pasos = [
           Cuéntame qué celebras y lo diseñamos juntas. La forma más rápida es
           WhatsApp: te respondo personalmente en pocas horas.
         </p>
-        <div class="hero-actions">
-          <a href={waLink} target="_blank" rel="noopener" class="btn-whatsapp">
-            <span class="dot-white"></span>Escríbeme por WhatsApp
-          </a>
-          <a href={igLink} target="_blank" rel="noopener" class="btn-instagram">
-            @{CONTACTO.instagramHandle}
-          </a>
-        </div>
         <div class="perks-row">
           {
             perks.map((perk) => (
@@ -79,7 +77,14 @@ const pasos = [
         </div>
       </div>
 
-      <div class="chat-mock">
+      <!-- En móvil la tarjeta entera abre WhatsApp (en escritorio es decorativa) -->
+      <a
+        href={waLink}
+        target="_blank"
+        rel="noopener"
+        class="chat-mock"
+        aria-label="Escríbeme por WhatsApp"
+      >
         <div class="chat-header">
           <Image
             src={logoImg}
@@ -92,6 +97,7 @@ const pasos = [
             <div class="chat-name">Las Manos de Nanos</div>
             <div class="chat-status">en línea · te responde Elsa</div>
           </div>
+          <span class="chat-open">Escribir →</span>
         </div>
         <div class="chat-body">
           {
@@ -100,7 +106,7 @@ const pasos = [
             ))
           }
         </div>
-      </div>
+      </a>
     </div>
   </section>
 
@@ -117,32 +123,43 @@ const pasos = [
           Elige tu canal favorito. Sea cual sea, te responde Elsa en persona.
         </p>
 
-        <a href={waLink} target="_blank" rel="noopener" class="channel-card">
-          <span class="channel-icon green">💬</span>
-          <div class="channel-info">
-            <div class="channel-name">WhatsApp</div>
-            <div class="channel-detail">{CONTACTO.whatsappDisplay}</div>
-          </div>
-          <span class="channel-arrow green">→</span>
-        </a>
+        <div class="channels-row">
+          <a href={waLink} target="_blank" rel="noopener" class="channel-card">
+            <Image
+              src={iconoWhatsapp}
+              alt="WhatsApp"
+              width={240}
+              height={240}
+              densities={[1, 2, 3]}
+              class="channel-icon"
+            />
+            <span class="channel-detail">{CONTACTO.whatsappDisplay}</span>
+          </a>
 
-        <a href={igLink} target="_blank" rel="noopener" class="channel-card">
-          <span class="channel-icon pink">📸</span>
-          <div class="channel-info">
-            <div class="channel-name">Instagram</div>
-            <div class="channel-detail">@{CONTACTO.instagramHandle}</div>
-          </div>
-          <span class="channel-arrow pink">→</span>
-        </a>
+          <a href={igLink} target="_blank" rel="noopener" class="channel-card">
+            <Image
+              src={iconoInstagram}
+              alt="Instagram"
+              width={240}
+              height={240}
+              densities={[1, 2, 3]}
+              class="channel-icon"
+            />
+            <span class="channel-detail">@{CONTACTO.instagramHandle}</span>
+          </a>
 
-        <a href={mailLink} class="channel-card">
-          <span class="channel-icon rose">✉️</span>
-          <div class="channel-info">
-            <div class="channel-name">Email</div>
-            <div class="channel-detail">{CONTACTO.email}</div>
-          </div>
-          <span class="channel-arrow rose">→</span>
-        </a>
+          <a href={mailLink} class="channel-card">
+            <Image
+              src={iconoGmail}
+              alt="Email"
+              width={240}
+              height={240}
+              densities={[1, 2, 3]}
+              class="channel-icon mail"
+            />
+            <span class="channel-detail">{emailUsuario}<wbr />@{emailDominio}</span>
+          </a>
+        </div>
 
         <div class="how-card">
           <div class="how-title">Cómo funciona</div>
@@ -214,81 +231,39 @@ const pasos = [
     line-height: 1.6;
     color: var(--color-text);
     font-weight: 600;
-    margin: 0 0 28px;
+    margin: 0 0 36px;
     max-width: 460px;
   }
 
-  .hero-actions {
-    display: flex;
-    gap: 13px;
-    flex-wrap: wrap;
-    margin-bottom: 24px;
-  }
-
-  .btn-whatsapp {
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: #25d366;
-    color: #fff;
-    font-weight: 800;
-    font-size: 16px;
-    padding: 15px 26px;
-    border-radius: 999px;
-    box-shadow: 0 14px 30px -12px rgba(37, 211, 102, 0.55);
-    transition: transform 0.2s ease;
-  }
-  .btn-whatsapp:hover {
-    transform: translateY(-2px);
-  }
-
-  .dot-white {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #fff;
-  }
-
-  .btn-instagram {
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 9px;
-    background: #fff;
-    color: #8a4e9e;
-    font-weight: 800;
-    font-size: 16px;
-    padding: 14px 24px;
-    border-radius: 999px;
-    border: 2px solid #e7d6f1;
-    transition: transform 0.2s ease;
-  }
-  .btn-instagram:hover {
-    transform: translateY(-2px);
-  }
-
   .perks-row {
-    display: flex;
-    gap: 26px;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    max-width: 560px;
   }
 
   .perk {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 9px;
+    text-align: center;
+    gap: 10px;
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    padding: 18px 12px 16px;
+    box-shadow: 0 14px 30px -22px rgba(140, 60, 95, 0.45);
   }
 
   .perk-icon {
-    width: 34px;
-    height: 34px;
+    width: 42px;
+    height: 42px;
     flex: none;
-    border-radius: 10px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
+    font-size: 20px;
   }
   .perk-icon.pink {
     background: #fceff1;
@@ -299,19 +274,26 @@ const pasos = [
 
   .perk-title {
     font-weight: 800;
-    font-size: 13.5px;
+    font-size: 14px;
+    line-height: 1.25;
     color: var(--color-text-dark);
+    text-wrap: balance;
   }
 
   .perk-sub {
     font-weight: 600;
     font-size: 12.5px;
     color: #8a6a76;
-    margin-top: 2px;
+    margin-top: 4px;
+    text-wrap: balance;
   }
 
   /* ---- CHAT MOCK ---- */
   .chat-mock {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    pointer-events: none;
     justify-self: center;
     width: 340px;
     max-width: 100%;
@@ -348,6 +330,16 @@ const pasos = [
   .chat-status {
     font-size: 11.5px;
     opacity: 0.85;
+  }
+
+  .chat-open {
+    display: none;
+    margin-left: auto;
+    font-weight: 800;
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.2);
   }
 
   .chat-body {
@@ -402,6 +394,9 @@ const pasos = [
     display: grid;
     grid-template-columns: 0.85fr 1.15fr;
     gap: 32px;
+    /* La columna de canales NO sigue al formulario cuando este crece con los
+       pasos: su altura se fija al cargar (ver script) para cuadrar con el
+       primer paso. */
     align-items: start;
   }
 
@@ -426,75 +421,65 @@ const pasos = [
     font-weight: 600;
   }
 
+  .channels-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin: 4px 0 6px;
+  }
+
+  /* Sin tarjeta: solo el icono y el dato debajo. Los tres iconos comparten
+     el mismo cuadrado de 80px y los textos arrancan todos a la misma altura. */
   .channel-card {
     text-decoration: none;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 15px;
-    background: #fff;
-    border-radius: 18px;
-    padding: 18px 20px;
-    box-shadow: 0 14px 34px -22px rgba(140, 60, 95, 0.4);
-    border: 1px solid #ede1f3;
-    transition: transform 0.2s ease;
-  }
-
-  .channel-card:not(.static):hover {
-    transform: translateY(-2px);
+    justify-content: flex-start;
+    gap: 12px;
+    min-width: 0;
   }
 
   .channel-icon {
-    width: 48px;
-    height: 48px;
+    display: block;
+    width: 80px;
+    height: 80px;
     flex: none;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-  }
-  .channel-icon.green {
-    background: #e9f9ee;
-  }
-  .channel-icon.pink {
-    background: #fbeaf3;
-  }
-  .channel-icon.rose {
-    background: #fceff1;
+    object-fit: contain;
+    border-radius: 18px;
+    box-shadow: 0 10px 18px -8px rgba(140, 60, 95, 0.35);
+    /* El hover va en el icono: la tarjeta la anima GSAP al entrar y una
+       transición CSS sobre ella se pelearía con esa animación. */
+    transition: transform 0.2s ease;
   }
 
-  .channel-info {
-    flex: 1;
+  /* El logo de Gmail es apaisado: lo metemos en una baldosa blanca del mismo
+     tamaño que WhatsApp e Instagram para que los tres queden alineados. */
+  .channel-icon.mail {
+    background: #fff;
+    padding: 16px 12px;
+    box-sizing: border-box;
   }
 
-  .channel-name {
-    font-weight: 800;
-    font-size: 16px;
-    color: var(--color-text-dark);
+  .channel-card:hover .channel-icon {
+    transform: translateY(-3px);
   }
 
   .channel-detail {
-    font-weight: 600;
-    font-size: 13.5px;
-    color: #8a6a76;
-    margin-top: 2px;
-  }
-
-  .channel-arrow {
-    font-weight: 800;
-    font-size: 20px;
-  }
-  .channel-arrow.green {
-    color: #25a653;
-  }
-  .channel-arrow.pink {
-    color: #c13584;
-  }
-  .channel-arrow.rose {
-    color: var(--color-primary);
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 1.35;
+    color: var(--color-secondary);
+    text-align: center;
+    overflow-wrap: anywhere;
   }
 
   .how-card {
+    /* Rellena lo que sobre de la columna, cuya altura fija el script */
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     background: #fff;
     border-radius: 18px;
     padding: 20px;
@@ -546,30 +531,60 @@ const pasos = [
   @media (max-width: 900px) {
     .hero-inner {
       grid-template-columns: 1fr;
+      gap: 28px;
       padding: 44px 5vw 40px;
     }
     .chat-mock {
       width: 100%;
+      pointer-events: auto;
+    }
+    .chat-open {
+      display: inline-block;
     }
     .channels-inner {
       grid-template-columns: 1fr;
     }
-  }
 
-  @media (max-width: 600px) {
-    .hero-actions {
-      flex-direction: column;
-      align-items: stretch;
+    /* En móvil vamos directos al formulario: fuera lo que ya cubren
+       el wizard (canales, plazo) y el footer (enlaces de contacto). */
+    .hero-lead,
+    .perks-row,
+    .channels-col {
+      display: none;
     }
-    .btn-whatsapp,
-    .btn-instagram {
-      justify-content: center;
+    .hero-title {
+      margin-bottom: 0;
     }
   }
 </style>
 
 <script>
   import { gsap } from "gsap";
+
+  // --- Altura de la columna de canales ---
+  // Al entrar (paso 1 del formulario) la columna izquierda mide lo mismo que
+  // el formulario, y "Cómo funciona" rellena el hueco. Cuando el formulario
+  // avanza y cambia de altura, la columna se queda como estaba.
+  const col = document.querySelector<HTMLElement>(".channels-col");
+  const wizard = document.querySelector<HTMLElement>(".wizard");
+  const pasoTipo = document.querySelector<HTMLElement>('[data-step="tipo"]');
+  let medido = false;
+
+  function fijarAltura() {
+    if (!col || !wizard) return;
+    if (window.innerWidth <= 900) return; // en móvil la columna está oculta
+    // Solo medimos con el primer paso a la vista (o la primera vez, si el
+    // formulario arranca en otro paso porque el tipo viene fijado).
+    if (medido && pasoTipo?.hidden) return;
+    col.style.minHeight = `${wizard.offsetHeight}px`;
+    medido = true;
+  }
+
+  fijarAltura();
+  window.addEventListener("load", fijarAltura);
+  window.addEventListener("resize", fijarAltura);
+  document.fonts?.ready.then(fijarAltura);
+  if (wizard) new ResizeObserver(fijarAltura).observe(wizard);
 
   // --- Entrance animations ---
   gsap.from(".hero-text > *", {
