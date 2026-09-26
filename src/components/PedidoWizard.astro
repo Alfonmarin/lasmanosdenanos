@@ -1,0 +1,1663 @@
+---
+// Wizard de encargo: pide los datos uno a uno y al final prepara un mensaje
+// (WhatsApp, Instagram o email) con todo lo elegido, listo para enviar.
+//
+// Se puede abrir con el tipo ya decidido desde una ficha de la galería:
+//   /contacto?tipo=tarta&modelo=<id de tarta>
+//   /contacto?tipo=galletas&modelo=<id de galleta>
+// Sin `tipo`, el primer paso pregunta qué quiere encargar.
+import { Image } from "astro:assets";
+import { tartas } from "../data/tartas";
+import { galletas } from "../data/galletas";
+import { bizcochos, rellenos, coberturas } from "../data/opciones-tarta";
+import { CONTACTO, igDmLink } from "../data/contacto";
+
+const OTRO = "__otro__";
+const PERSONALIZADO = "__personalizado__";
+
+// Solo las creaciones con foto sirven de referencia visual en el paso "Modelo".
+// El script enseña la rejilla de tartas o la de galletas según el tipo elegido.
+const modelosTarta = tartas.filter((t) => t.foto);
+const modelosGalletas = galletas.filter((g) => g.foto);
+---
+
+<div
+  class="wizard"
+  id="pedido-wizard"
+  data-wa={CONTACTO.whatsappNumber}
+  data-ig={igDmLink}
+  data-email={CONTACTO.email}
+  data-plazo={CONTACTO.plazoMinimoDias}
+  data-plazo-texto={CONTACTO.plazoMinimoTexto}
+>
+  <div class="wz-head">
+    <div class="wz-head-row">
+      <span class="wz-badge">Prepara tu encargo</span>
+      <span class="wz-progress-label" id="wz-label"></span>
+    </div>
+    <div class="wz-progress">
+      <div class="wz-progress-bar" id="wz-bar"></div>
+    </div>
+    <!-- Solo se muestra cuando el tipo viene fijado desde una ficha -->
+    <p class="wz-fijo" id="wz-fijo" hidden>
+      <span id="wz-fijo-texto"></span>
+      <button type="button" class="wz-link" id="wz-cambiar">cambiar</button>
+    </p>
+  </div>
+
+  <form id="wz-form" novalidate>
+    <!-- === TIPO === -->
+    <section class="wz-step" data-step="tipo" hidden>
+      <h2 class="wz-q">¿Qué quieres encargar?</h2>
+      <p class="wz-hint">Elige una opción y seguimos.</p>
+      <div class="tipo-grid">
+        <label class="tipo-card">
+          <input type="radio" name="tipo" value="tarta" />
+          <span class="tipo-inner">
+            <span class="tipo-emoji">🎂</span>
+            <span class="tipo-text">
+              <span class="tipo-name">Una tarta</span>
+              <span class="tipo-desc">Cumpleaños, bodas, eventos…</span>
+            </span>
+          </span>
+        </label>
+        <label class="tipo-card">
+          <input type="radio" name="tipo" value="galletas" />
+          <span class="tipo-inner">
+            <span class="tipo-emoji">🍪</span>
+            <span class="tipo-text">
+              <span class="tipo-name">Galletas</span>
+              <span class="tipo-desc">Decoradas y personalizadas</span>
+            </span>
+          </span>
+        </label>
+        <label class="tipo-card">
+          <input type="radio" name="tipo" value="otro" />
+          <span class="tipo-inner">
+            <span class="tipo-emoji">✨</span>
+            <span class="tipo-text">
+              <span class="tipo-name">Otro producto</span>
+              <span class="tipo-desc">Muffins, pasteles, croissants…</span>
+            </span>
+          </span>
+        </label>
+      </div>
+    </section>
+
+    <!-- === NOMBRE === -->
+    <section class="wz-step" data-step="nombre" hidden>
+      <h2 class="wz-q">¿Cómo te llamas?</h2>
+      <p class="wz-hint">Para que Elsa sepa a quién se dirige.</p>
+      <input
+        class="wz-big"
+        name="nombre"
+        type="text"
+        autocomplete="given-name"
+        placeholder="Tu nombre"
+      />
+    </section>
+
+    <!-- === FECHA === -->
+    <section class="wz-step" data-step="fecha" hidden>
+      <h2 class="wz-q">¿Cuándo es el evento?</h2>
+      <p class="wz-hint">
+        Los encargos necesitan al menos {CONTACTO.plazoMinimoTexto} de antelación.
+      </p>
+      <input class="wz-big wz-date" name="fecha" type="date" />
+      <p class="wz-subhint" id="wz-fecha-min"></p>
+    </section>
+
+    <!-- === TARTA: PERSONAS === -->
+    <section class="wz-step" data-step="personas" hidden>
+      <h2 class="wz-q">¿Para cuántas personas?</h2>
+      <p class="wz-hint">Una cifra aproximada vale.</p>
+      <input
+        class="wz-big wz-num"
+        name="personas"
+        type="number"
+        min="1"
+        step="1"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        placeholder="12"
+      />
+    </section>
+
+    <!-- === TARTA: BIZCOCHO === -->
+    <section class="wz-step" data-step="bizcocho" data-optional hidden>
+      <h2 class="wz-q">¿Qué bizcocho te apetece?</h2>
+      <p class="wz-hint">Puedes marcar varios · opcional</p>
+      <div class="chips">
+        {
+          bizcochos.map((b) => (
+            <label class="chip">
+              <input type="checkbox" name="bizcocho" value={b} />
+              <span>{b}</span>
+            </label>
+          ))
+        }
+        <label class="chip">
+          <input type="checkbox" name="bizcocho" value={OTRO} />
+          <span>Otro</span>
+        </label>
+      </div>
+      <input
+        class="wz-input otro-input"
+        name="bizcocho_otro"
+        type="text"
+        placeholder="¿Qué bizcocho te gustaría?"
+        hidden
+      />
+    </section>
+
+    <!-- === TARTA: RELLENO === -->
+    <section class="wz-step" data-step="relleno" data-optional hidden>
+      <h2 class="wz-q">¿Y de relleno?</h2>
+      <p class="wz-hint">Puedes marcar varios · opcional</p>
+      <div class="chips">
+        {
+          rellenos.map((r) => (
+            <label class="chip">
+              <input type="checkbox" name="relleno" value={r} />
+              <span>{r}</span>
+            </label>
+          ))
+        }
+        <label class="chip">
+          <input type="checkbox" name="relleno" value={OTRO} />
+          <span>Otro</span>
+        </label>
+      </div>
+      <input
+        class="wz-input otro-input"
+        name="relleno_otro"
+        type="text"
+        placeholder="¿Qué relleno te gustaría?"
+        hidden
+      />
+    </section>
+
+    <!-- === TARTA: COBERTURA === -->
+    <section class="wz-step" data-step="cobertura" data-optional hidden>
+      <h2 class="wz-q">¿Qué cobertura?</h2>
+      <p class="wz-hint">Elige una · opcional</p>
+      <div class="chips">
+        {
+          coberturas.map((c) => (
+            <label class="chip">
+              <input type="radio" name="cobertura" value={c} />
+              <span>{c}</span>
+            </label>
+          ))
+        }
+        <label class="chip">
+          <input type="radio" name="cobertura" value={OTRO} />
+          <span>Otra</span>
+        </label>
+      </div>
+      <input
+        class="wz-input otro-input"
+        name="cobertura_otro"
+        type="text"
+        placeholder="¿Qué cobertura te gustaría?"
+        hidden
+      />
+    </section>
+
+    <!-- === MODELO (tartas o galletas, según el tipo) === -->
+    <section class="wz-step" data-step="modelo" data-optional hidden>
+      <h2 class="wz-q">¿Tienes un modelo en mente?</h2>
+      <p class="wz-hint">Elige uno de la galería como referencia o personaliza el diseño · opcional</p>
+
+      <div class="modelo-grid" data-tipo="tarta" hidden>
+        {modelosTarta.map((t) => (
+          <label class="modelo-card">
+            <input type="radio" name="modelo" value={t.id} data-nombre={t.nombre} />
+            <span class="modelo-inner">
+              <Image src={t.foto!} alt={t.nombre} width={360} class="modelo-img" />
+              <span class="modelo-name">{t.nombre}</span>
+            </span>
+          </label>
+        ))}
+      </div>
+      <div class="modelo-grid" data-tipo="galletas" hidden>
+        {modelosGalletas.map((g) => (
+          <label class="modelo-card">
+            <input type="radio" name="modelo" value={g.id} data-nombre={g.nombre} />
+            <span class="modelo-inner">
+              <Image src={g.foto!} alt={g.nombre} width={360} class="modelo-img" />
+              <span class="modelo-name">{g.nombre}</span>
+            </span>
+          </label>
+        ))}
+      </div>
+
+      <!-- Escritorio: páginas de 4 · Móvil: flechas y puntos del carrusel -->
+      <div class="modelo-pag" id="wz-pag" hidden>
+        <button type="button" class="pag-arrow" id="wz-pag-prev" aria-label="Anterior">←</button>
+        <div class="pag-dots" id="wz-pag-dots"></div>
+        <button type="button" class="pag-arrow" id="wz-pag-next" aria-label="Siguiente">→</button>
+      </div>
+
+      <input
+        type="radio"
+        name="modelo"
+        value={PERSONALIZADO}
+        data-nombre="Personalizado"
+        id="wz-modelo-perso"
+        hidden
+      />
+      <button type="button" class="wz-personalizar" id="wz-personalizar">
+        <span class="wz-personalizar-icon">✏️</span>
+        <span>
+          <span class="wz-personalizar-title">Personalizar diseño</span>
+          <span class="wz-personalizar-sub">Cuéntame el modelo que tienes en mente</span>
+        </span>
+      </button>
+      <textarea
+        class="wz-input otro-input"
+        name="modelo_otro"
+        rows="3"
+        placeholder="Describe el diseño: temática, colores, forma…"
+        hidden></textarea>
+    </section>
+
+    <!-- === TARTA: DETALLES === -->
+    <section class="wz-step" data-step="detalles" data-optional hidden>
+      <h2 class="wz-q">¿Algo más que deba saber?</h2>
+      <p class="wz-hint">
+        Alergias, un nombre para escribir, colores… · opcional
+      </p>
+      <textarea
+        class="wz-input"
+        name="detalles"
+        rows="4"
+        placeholder="Cualquier detalle que quieras resaltar"></textarea>
+    </section>
+
+    <!-- === GALLETAS === -->
+    <section class="wz-step" data-step="galletas" hidden>
+      <h2 class="wz-q">Cuéntame para qué son</h2>
+      <p class="wz-hint">
+        Las galletas son de mantequilla decoradas: dime el evento, cuántas
+        necesitas y la temática o colores.
+      </p>
+      <textarea
+        class="wz-input"
+        name="descripcion_galletas"
+        rows="5"
+        placeholder="Ej. 20 galletas para el bautizo de Lucía, en tonos rosa y blanco, con su nombre…"
+      ></textarea>
+    </section>
+
+    <!-- === OTRO === -->
+    <section class="wz-step" data-step="otro" hidden>
+      <h2 class="wz-q">¿Qué tienes en mente?</h2>
+      <p class="wz-hint">Cuéntame qué te gustaría y para cuántas personas.</p>
+      <textarea
+        class="wz-input"
+        name="descripcion_otro"
+        rows="5"
+        placeholder="Ej. unos muffins para una comunión, un pastel de manzana, unos croissants…"
+      ></textarea>
+    </section>
+
+    <!-- === RESUMEN === -->
+    <section class="wz-step" data-step="resumen" hidden>
+      <h2 class="wz-q">¡Todo listo!</h2>
+      <p class="wz-hint">
+        Así es tu encargo. Elige por dónde enviarlo y se abrirá con el mensaje
+        ya escrito.
+      </p>
+      <div class="wz-resumen" id="wz-resumen"></div>
+      <div class="wz-canales">
+        <a
+          id="wz-send-wa"
+          href="#"
+          target="_blank"
+          rel="noopener"
+          class="wz-canal wa"
+        >
+          <span class="wz-canal-icon">💬</span>Preparar por WhatsApp
+        </a>
+        <a
+          id="wz-send-ig"
+          href="#"
+          target="_blank"
+          rel="noopener"
+          class="wz-canal ig"
+        >
+          <span class="wz-canal-icon">📸</span>Preparar por Instagram
+        </a>
+        <a id="wz-send-mail" href="#" class="wz-canal mail">
+          <span class="wz-canal-icon">✉️</span>Preparar por email
+        </a>
+      </div>
+      <p class="wz-toast" id="wz-toast" hidden></p>
+      <button type="button" class="wz-link wz-copiar" id="wz-copiar">
+        Copiar el mensaje
+      </button>
+    </section>
+
+    <p class="wz-error" id="wz-error" hidden></p>
+
+    <div class="wz-nav" id="wz-nav">
+      <button type="button" class="wz-btn-back" id="wz-back">← Atrás</button>
+      <button type="submit" class="wz-btn-next" id="wz-next">Siguiente →</button
+      >
+    </div>
+  </form>
+</div>
+
+<style>
+  [hidden] {
+    display: none !important;
+  }
+
+  .wizard {
+    background: #fff;
+    border-radius: 24px;
+    padding: 30px 32px 28px;
+    box-shadow: 0 22px 50px -26px rgba(140, 60, 95, 0.5);
+    border: 1px solid #f0e1e9;
+    /* El wizard es una celda del grid de la página. Sin esto hereda
+       min-width:auto y el carrusel de modelos (más ancho que la pantalla)
+       estiraría la tarjeta entera, desbordando la página en móvil. */
+    min-width: 0;
+  }
+
+  /* ---- CABECERA / PROGRESO ---- */
+  .wz-head {
+    margin-bottom: 26px;
+  }
+
+  .wz-head-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .wz-badge {
+    display: inline-flex;
+    background: #f6ecfb;
+    color: #8a4e9e;
+    font-weight: 800;
+    font-size: 11.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: 999px;
+  }
+
+  .wz-progress-label {
+    font-weight: 800;
+    font-size: 12.5px;
+    color: #a88;
+  }
+
+  .wz-progress {
+    height: 6px;
+    border-radius: 999px;
+    background: #f6e6ec;
+    overflow: hidden;
+  }
+
+  .wz-progress-bar {
+    height: 100%;
+    width: 0;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #bc1150, #9c1257);
+    transition: width 0.35s ease;
+  }
+
+  .wz-fijo {
+    margin: 14px 0 0;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--color-secondary);
+  }
+
+  .wz-link {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-weight: 800;
+    font-size: inherit;
+    color: #8a4e9e;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* ---- PASOS ---- */
+  .wz-step {
+    animation: wz-in 0.3s ease;
+  }
+
+  @keyframes wz-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .wz-q {
+    font-family: var(--font-title);
+    font-size: clamp(24px, 4vw, 30px);
+    color: var(--color-primary);
+    margin: 0 0 6px;
+  }
+
+  .wz-hint {
+    margin: 0 0 20px;
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--color-secondary);
+    font-weight: 600;
+  }
+
+  .wz-subhint {
+    margin: 10px 0 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #a88;
+  }
+
+  /* Campo grande: nombre, fecha, personas */
+  .wz-big {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 18px 20px;
+    border-radius: 16px;
+    border: 2px solid #ead7dd;
+    background: #fffdfb;
+    font-family: var(--font-body);
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--color-text-dark);
+    outline: none;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .wz-big::placeholder {
+    color: #d3bcc4;
+    font-weight: 700;
+  }
+
+  .wz-big:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px rgba(188, 17, 80, 0.12);
+  }
+
+  .wz-num {
+    text-align: center;
+    font-size: 44px;
+    padding: 14px 20px;
+    -moz-appearance: textfield;
+  }
+
+  .wz-num::-webkit-outer-spin-button,
+  .wz-num::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .wz-date {
+    font-size: 20px;
+  }
+
+  /* Campo normal: textareas y "otro" */
+  .wz-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 13px 16px;
+    border-radius: 12px;
+    border: 1.5px solid #ead7dd;
+    background: #fffdfb;
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--color-text-dark);
+    font-weight: 600;
+    outline: none;
+    resize: vertical;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .wz-input::placeholder {
+    color: #c3a9b2;
+  }
+
+  .wz-input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(188, 17, 80, 0.12);
+  }
+
+  .otro-input {
+    margin-top: 12px;
+  }
+
+  /* ---- TIPO ---- */
+  .tipo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .tipo-card {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .tipo-card input,
+  .modelo-card input,
+  .chip input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+
+  .tipo-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 6px;
+    padding: 22px 12px 18px;
+    border-radius: 18px;
+    border: 2px solid #ead7dd;
+    background: #fffdfb;
+    transition:
+      border-color 0.15s ease,
+      background 0.15s ease,
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .tipo-card:hover .tipo-inner {
+    border-color: #d9a7ba;
+    transform: translateY(-2px);
+  }
+
+  .tipo-card input:checked + .tipo-inner {
+    border-color: var(--color-primary);
+    background: #fdf1f5;
+    box-shadow: 0 12px 26px -14px rgba(188, 17, 80, 0.5);
+  }
+
+  .tipo-card input:focus-visible + .tipo-inner {
+    box-shadow: 0 0 0 3px rgba(188, 17, 80, 0.25);
+  }
+
+  .tipo-emoji {
+    font-size: 34px;
+    line-height: 1;
+  }
+
+  .tipo-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .tipo-name {
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--color-text-dark);
+  }
+
+  .tipo-desc {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--color-secondary);
+  }
+
+  /* ---- CHIPS ---- */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chip {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .chip span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 42px;
+    padding: 9px 16px;
+    border-radius: 999px;
+    border: 1.5px solid #ead7dd;
+    background: #fffdfb;
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--color-text-dark);
+    user-select: none;
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease,
+      color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .chip:hover span {
+    border-color: #d9a7ba;
+  }
+
+  .chip input:checked + span {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+    box-shadow: 0 8px 18px -10px rgba(188, 17, 80, 0.6);
+  }
+
+  .chip input:focus-visible + span {
+    box-shadow: 0 0 0 3px rgba(188, 17, 80, 0.25);
+  }
+
+  /* ---- MODELO ---- */
+  .modelo-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  .modelo-card {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .modelo-inner {
+    display: block;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 2px solid #ead7dd;
+    background: #fffdfb;
+    transition:
+      border-color 0.15s ease,
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
+  }
+
+  .modelo-card:hover .modelo-inner {
+    border-color: #d9a7ba;
+    transform: translateY(-2px);
+  }
+
+  .modelo-card input:checked + .modelo-inner {
+    border-color: var(--color-primary);
+    box-shadow: 0 12px 26px -14px rgba(188, 17, 80, 0.55);
+  }
+
+  .modelo-card input:focus-visible + .modelo-inner {
+    box-shadow: 0 0 0 3px rgba(188, 17, 80, 0.25);
+  }
+
+  .modelo-img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    height: auto;
+  }
+
+  .modelo-name {
+    display: block;
+    padding: 9px 10px;
+    text-align: center;
+    font-weight: 800;
+    font-size: 12.5px;
+    color: var(--color-text-dark);
+  }
+
+  .modelo-card input:checked + .modelo-inner .modelo-name {
+    background: var(--color-primary);
+    color: #fff;
+  }
+
+
+  /* Paginación (escritorio) / indicador del carrusel (móvil) */
+  .modelo-pag {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 14px;
+  }
+
+  .pag-arrow {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid #ead7dd;
+    background: #fff;
+    color: var(--color-primary);
+    font-weight: 800;
+    font-size: 16px;
+    cursor: pointer;
+    transition:
+      border-color 0.15s ease,
+      opacity 0.15s ease;
+  }
+
+  .pag-arrow:hover {
+    border-color: #d9a7ba;
+  }
+
+  .pag-arrow[disabled] {
+    opacity: 0.3;
+    cursor: default;
+  }
+
+  .pag-dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .pag-dot {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    border: none;
+    border-radius: 999px;
+    background: #ead7dd;
+    cursor: pointer;
+    transition:
+      width 0.2s ease,
+      background 0.2s ease;
+  }
+
+  .pag-dot.is-active {
+    width: 20px;
+    background: var(--color-primary);
+  }
+
+  /* Botón "Personalizar diseño" */
+  .wz-personalizar {
+    margin-top: 14px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    border: 2px dashed #ead7dd;
+    background: #fffdfb;
+    cursor: pointer;
+    text-align: left;
+    font-family: var(--font-body);
+    transition:
+      border-color 0.15s ease,
+      background 0.15s ease;
+  }
+
+  .wz-personalizar:hover {
+    border-color: #d9a7ba;
+  }
+
+  .wz-personalizar.is-active {
+    border-style: solid;
+    border-color: var(--color-primary);
+    background: #fdf1f5;
+  }
+
+  .wz-personalizar-icon {
+    font-size: 24px;
+  }
+
+  .wz-personalizar-title {
+    display: block;
+    font-weight: 800;
+    font-size: 15px;
+    color: var(--color-text-dark);
+  }
+
+  .wz-personalizar-sub {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--color-secondary);
+  }
+
+  /* ---- RESUMEN ---- */
+  .wz-resumen {
+    background: #fbeff3;
+    border: 1px solid #f0dce5;
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    line-height: 1.55;
+    color: #5a3e48;
+    font-weight: 600;
+    overflow-wrap: break-word;
+  }
+
+  .wz-resumen :global(h3) {
+    margin: 12px 0 4px;
+    font-size: 11.5px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #8a4e9e;
+  }
+
+  .wz-resumen :global(h3:first-child) {
+    margin-top: 0;
+  }
+
+  .wz-resumen :global(ul) {
+    margin: 0;
+    padding-left: 18px;
+  }
+
+  .wz-resumen :global(p) {
+    margin: 0;
+    white-space: pre-line;
+  }
+
+  .wz-canales {
+    display: grid;
+    gap: 10px;
+  }
+
+  .wz-canal {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 15px 18px;
+    border-radius: 14px;
+    font-weight: 800;
+    font-size: 15.5px;
+    color: #fff;
+    transition: transform 0.2s ease;
+  }
+
+  .wz-canal:hover {
+    transform: translateY(-2px);
+  }
+
+  .wz-canal.wa {
+    background: #25d366;
+    box-shadow: 0 16px 32px -14px rgba(37, 211, 102, 0.55);
+  }
+
+  .wz-canal.ig {
+    background: linear-gradient(45deg, #f58529, #dd2a7b 55%, #8134af);
+    box-shadow: 0 16px 32px -14px rgba(221, 42, 123, 0.55);
+  }
+
+  .wz-canal.mail {
+    background: var(--color-primary);
+    box-shadow: 0 16px 32px -14px rgba(188, 17, 80, 0.6);
+  }
+
+  .wz-canal-icon {
+    font-size: 18px;
+  }
+
+  .wz-toast {
+    margin: 14px 0 0;
+    background: #e9f9ee;
+    color: #1d7a3e;
+    font-weight: 700;
+    font-size: 13.5px;
+    padding: 11px 15px;
+    border-radius: 12px;
+    text-align: center;
+  }
+
+  .wz-copiar {
+    display: block;
+    margin: 14px auto 0;
+    font-size: 13.5px;
+  }
+
+  /* ---- ERROR / NAV ---- */
+  .wz-error {
+    margin: 16px 0 0;
+    background: #fce8ee;
+    color: var(--color-primary);
+    font-weight: 700;
+    font-size: 13.5px;
+    padding: 11px 15px;
+    border-radius: 12px;
+    border: 1px solid #f3c9d7;
+  }
+
+  .wz-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .wz-btn-back,
+  .wz-btn-next {
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-weight: 800;
+    font-size: 15px;
+    border-radius: 999px;
+    border: none;
+    transition:
+      transform 0.2s ease,
+      opacity 0.2s ease;
+  }
+
+  .wz-btn-back {
+    background: none;
+    color: var(--color-secondary);
+    padding: 12px 6px;
+  }
+
+  .wz-btn-back:hover {
+    color: var(--color-primary);
+  }
+
+  .wz-btn-back[disabled] {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .wz-btn-next {
+    background: var(--color-primary);
+    color: #fff;
+    padding: 14px 28px;
+    box-shadow: 0 14px 28px -12px rgba(188, 17, 80, 0.6);
+  }
+
+  .wz-btn-next:hover {
+    transform: translateY(-2px);
+  }
+
+  .wz-btn-next.is-skip {
+    background: #fff;
+    color: var(--color-primary);
+    border: 2px solid #ead7dd;
+    box-shadow: none;
+  }
+
+  /* ---- RESPONSIVE ---- */
+  @media (max-width: 600px) {
+    .wizard {
+      padding: 24px 20px 22px;
+    }
+    .tipo-grid {
+      grid-template-columns: 1fr;
+    }
+
+    /* Carrusel: una carta centrada y las de los lados atenuadas.
+       El padding lateral es justo el hueco que sobra a los lados de una
+       carta, para que la primera y la última también queden centradas. */
+    .modelo-grid {
+      --carta: min(210px, 62vw);
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      gap: 12px;
+      padding: 6px max(0px, calc(50% - var(--carta) / 2)) 10px;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .modelo-grid::-webkit-scrollbar {
+      display: none;
+    }
+    .modelo-card {
+      flex: 0 0 var(--carta);
+      scroll-snap-align: center;
+      opacity: 0.4;
+      transform: scale(0.88);
+      transition:
+        opacity 0.25s ease,
+        transform 0.25s ease;
+    }
+    .modelo-card.is-center {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .modelo-card:hover .modelo-inner {
+      transform: none;
+    }
+    .tipo-inner {
+      flex-direction: row;
+      text-align: left;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+    }
+    .tipo-emoji {
+      font-size: 28px;
+    }
+    .wz-big {
+      font-size: 20px;
+    }
+    .wz-num {
+      font-size: 38px;
+    }
+    .wz-btn-next {
+      flex: 1;
+    }
+  }
+</style>
+
+<script>
+  const wz = document.querySelector<HTMLElement>("#pedido-wizard");
+  const form = document.querySelector<HTMLFormElement>("#wz-form");
+  if (wz && form) iniciarWizard(wz, form);
+
+  function iniciarWizard(wz: HTMLElement, form: HTMLFormElement) {
+    // Mismos valores que las constantes del frontmatter
+    const OTRO = "__otro__";
+    const PERSONALIZADO = "__personalizado__";
+    const TIPOS = ["tarta", "galletas", "otro"] as const;
+    type Tipo = (typeof TIPOS)[number];
+
+    const TIPO_LABEL: Record<Tipo, string> = {
+      tarta: "Tarta",
+      galletas: "Galletas",
+      otro: "Otro encargo",
+    };
+    const TIPO_EMOJI: Record<Tipo, string> = {
+      tarta: "🎂",
+      galletas: "🍪",
+      otro: "✨",
+    };
+
+    const waNumber = wz.dataset.wa ?? "";
+    const igDm = wz.dataset.ig ?? "";
+    const email = wz.dataset.email ?? "";
+    const plazoDias = Number(wz.dataset.plazo ?? 21);
+    const plazoTexto = wz.dataset.plazoTexto ?? "3 semanas";
+
+    const $ = <T extends HTMLElement>(sel: string) => wz.querySelector<T>(sel)!;
+    const steps = Array.from(wz.querySelectorAll<HTMLElement>(".wz-step"));
+    const stepEl = (id: string) => steps.find((s) => s.dataset.step === id)!;
+    const barEl = $("#wz-bar");
+    const labelEl = $("#wz-label");
+    const errorEl = $("#wz-error");
+    const backBtn = $<HTMLButtonElement>("#wz-back");
+    const nextBtn = $<HTMLButtonElement>("#wz-next");
+    const navEl = $("#wz-nav");
+    const fijoEl = $("#wz-fijo");
+    const fijoTexto = $("#wz-fijo-texto");
+    const resumenEl = $("#wz-resumen");
+    const toastEl = $("#wz-toast");
+
+    // --- Estado: ¿venimos de una ficha con el tipo ya decidido? ---
+    const params = new URLSearchParams(location.search);
+    let tipoParam = params.get("tipo");
+    let modeloParam = params.get("modelo");
+    // Compatibilidad con el enlace antiguo ?tarta=<id>
+    if (!tipoParam && params.get("tarta")) {
+      tipoParam = "tarta";
+      modeloParam = params.get("tarta");
+    }
+    let tipoFijo: Tipo | null = (TIPOS as readonly string[]).includes(
+      tipoParam ?? "",
+    )
+      ? (tipoParam as Tipo)
+      : null;
+    let tipo: Tipo | null = tipoFijo;
+    let idx = 0;
+
+    // Modelo de referencia cuando se llega desde una ficha (tarta o galleta)
+    let modeloRefNombre = "";
+    if (tipoFijo && modeloParam) {
+      const radio = form.querySelector<HTMLInputElement>(
+        `input[name="modelo"][value="${CSS.escape(modeloParam)}"]`,
+      );
+      if (radio) {
+        radio.checked = true;
+        modeloRefNombre = radio.dataset.nombre ?? "";
+      }
+    }
+
+    function pintarFijo() {
+      if (!tipoFijo) {
+        fijoEl.hidden = true;
+        return;
+      }
+      fijoEl.hidden = false;
+      fijoTexto.textContent = `${TIPO_EMOJI[tipoFijo]} ${TIPO_LABEL[tipoFijo]}${
+        modeloRefNombre ? ` · ${modeloRefNombre}` : ""
+      } · `;
+    }
+    pintarFijo();
+
+    $("#wz-cambiar").addEventListener("click", () => {
+      tipoFijo = null;
+      tipo = null;
+      modeloRefNombre = "";
+      // El modelo elegido era de ese tipo: se descarta
+      form
+        .querySelectorAll<HTMLInputElement>('input[name="tipo"], input[name="modelo"]')
+        .forEach((r) => (r.checked = false));
+      syncOtro("modelo");
+      pagina = 0;
+      pintarFijo();
+      ir(0);
+    });
+
+    // --- Lista de pasos según el tipo ---
+    function listaPasos(): string[] {
+      const lista: string[] = tipoFijo ? [] : ["tipo"];
+      lista.push("nombre", "fecha");
+      if (tipo === "tarta")
+        lista.push(
+          "personas",
+          "bizcocho",
+          "relleno",
+          "cobertura",
+          "modelo",
+          "detalles",
+        );
+      else if (tipo === "galletas") lista.push("modelo", "galletas");
+      else if (tipo === "otro") lista.push("otro");
+      lista.push("resumen");
+      return lista;
+    }
+
+    // --- Fecha mínima ---
+    const fechaInput = form.querySelector<HTMLInputElement>('[name="fecha"]')!;
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const fechaMin = new Date(hoy);
+    fechaMin.setDate(fechaMin.getDate() + plazoDias);
+    const isoLocal = (d: Date) =>
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+        d.getDate(),
+      ).padStart(2, "0")}`;
+    const fechaLarga = (d: Date) =>
+      d.toLocaleDateString("es-ES", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+    fechaInput.min = isoLocal(fechaMin);
+    $("#wz-fecha-min").textContent =
+      `La fecha más cercana posible es el ${fechaLarga(fechaMin)}.`;
+
+    function parseFecha(v: string): Date | null {
+      const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
+      if (!m) return null;
+      const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+      return isNaN(d.getTime()) ? null : d;
+    }
+
+    // --- "Otro": muestra el campo de texto al marcar esa opción ---
+    function syncOtro(name: string) {
+      const otroInput = form.querySelector<
+        HTMLInputElement | HTMLTextAreaElement
+      >(`[name="${name}_otro"]`);
+      if (!otroInput) return;
+      const activo = Array.from(
+        form.querySelectorAll<HTMLInputElement>(`input[name="${name}"]`),
+      ).some(
+        (c) => c.checked && (c.value === OTRO || c.value === PERSONALIZADO),
+      );
+      otroInput.hidden = !activo;
+      if (!activo) otroInput.value = "";
+      else otroInput.focus();
+    }
+    const CON_OTRO = ["bizcocho", "relleno", "cobertura", "modelo"];
+    CON_OTRO.forEach(syncOtro);
+
+    form.addEventListener("change", (e) => {
+      const t = e.target as HTMLInputElement;
+      if (CON_OTRO.includes(t.name)) syncOtro(t.name);
+      if (t.name === "modelo") {
+        pintarModelos();
+        const g = gridActiva();
+        if (g && mqMovil.matches) {
+          const i = cartas(g).findIndex((c) => c.contains(t));
+          if (i >= 0) centrar(g, i);
+        }
+      }
+      if (t.name === "tipo" && t.checked) {
+        tipo = t.value as Tipo;
+        // Elegir el tipo avanza solo, sin tener que pulsar "Siguiente"
+        setTimeout(siguiente, 220);
+      }
+    });
+
+    // --- Lectura de campos ---
+    const val = (name: string) =>
+      (
+        form.querySelector<HTMLInputElement | HTMLTextAreaElement>(
+          `[name="${name}"]`,
+        )?.value ?? ""
+      ).trim();
+
+    // Devuelve las opciones marcadas de un grupo, sustituyendo "Otro" por lo escrito
+    function leerOpcion(name: string): string[] {
+      const otro = val(`${name}_otro`);
+      return Array.from(
+        form.querySelectorAll<HTMLInputElement>(
+          `input[name="${name}"]:checked`,
+        ),
+      )
+        .map((c) =>
+          c.value === OTRO || c.value === PERSONALIZADO
+            ? otro
+            : (c.dataset.nombre ?? c.value),
+        )
+        .filter(Boolean);
+    }
+
+    function pasoVacio(id: string): boolean {
+      switch (id) {
+        case "bizcocho":
+        case "relleno":
+        case "cobertura":
+        case "modelo":
+          return leerOpcion(id).length === 0;
+        case "detalles":
+          return !val("detalles");
+        default:
+          return false;
+      }
+    }
+
+    // --- Validación: devuelve el mensaje de error o null ---
+    function validar(id: string): string | null {
+      switch (id) {
+        case "tipo":
+          return tipo ? null : "Elige qué quieres encargar 💕";
+        case "nombre":
+          return val("nombre")
+            ? null
+            : "Dime tu nombre para saber a quién me dirijo 💕";
+        case "fecha": {
+          const d = parseFecha(val("fecha"));
+          if (!d) return "Elige la fecha del evento 📅";
+          if (d < fechaMin)
+            return `Necesito al menos ${plazoTexto} de antelación: la fecha más cercana es el ${fechaLarga(fechaMin)}.`;
+          return null;
+        }
+        case "personas": {
+          const n = Number(val("personas"));
+          return Number.isInteger(n) && n >= 1
+            ? null
+            : "Dime para cuántas personas, aunque sea aproximado 🎂";
+        }
+        case "galletas":
+          return val("descripcion_galletas")
+            ? null
+            : "Cuéntame un poco para qué son 🍪";
+        case "otro":
+          return val("descripcion_otro")
+            ? null
+            : "Cuéntame qué tienes en mente ✨";
+        default:
+          return null;
+      }
+    }
+
+    // --- Navegación ---
+    function ir(nuevoIdx: number) {
+      const lista = listaPasos();
+      idx = Math.max(0, Math.min(nuevoIdx, lista.length - 1));
+      const actual = lista[idx];
+
+      steps.forEach((s) => (s.hidden = s.dataset.step !== actual));
+      errorEl.hidden = true;
+
+      // Progreso
+      barEl.style.width = `${(idx / (lista.length - 1)) * 100}%`;
+      labelEl.textContent =
+        actual === "resumen"
+          ? "¡Listo!"
+          : `Paso ${idx + 1} de ${lista.length - 1}`;
+
+      // Botones
+      backBtn.disabled = idx === 0;
+      navEl.hidden = actual === "resumen";
+      const el = stepEl(actual);
+      actualizarNext(el);
+
+      if (actual === "resumen") prepararResumen();
+      else if (actual === "modelo") requestAnimationFrame(mostrarModelos);
+      else enfocar(el);
+    }
+
+    // --- Paso "Modelo": páginas de 4 en escritorio, carrusel en móvil ---
+    const PAGINA = 4;
+    const mqMovil = window.matchMedia("(max-width: 600px)");
+    const grids = Array.from(wz.querySelectorAll<HTMLElement>(".modelo-grid"));
+    const pagEl = $("#wz-pag");
+    const pagPrev = $<HTMLButtonElement>("#wz-pag-prev");
+    const pagNext = $<HTMLButtonElement>("#wz-pag-next");
+    const pagDots = $("#wz-pag-dots");
+    const persoBtn = $<HTMLButtonElement>("#wz-personalizar");
+    const persoRadio = $<HTMLInputElement>("#wz-modelo-perso");
+    let pagina = 0;
+
+    const gridActiva = () => grids.find((g) => g.dataset.tipo === tipo);
+    const cartas = (g: HTMLElement) =>
+      Array.from(g.querySelectorAll<HTMLElement>(".modelo-card"));
+    const cartaSeleccionada = (g: HTMLElement) =>
+      cartas(g).find((c) => c.querySelector<HTMLInputElement>("input")!.checked);
+
+    // Carta más cercana al centro del carrusel (móvil)
+    // Cuánto hay que desplazar el carrusel para centrar la carta `i`.
+    // Se mide en pantalla (no con offsetLeft, que va respecto al ancestro
+    // posicionado y no respecto al carrusel). El `scale` de las cartas de
+    // los lados no estorba: encoge desde el centro, y el centro no se mueve.
+    function desplazamiento(g: HTMLElement, c: HTMLElement): number {
+      const gr = g.getBoundingClientRect();
+      const cr = c.getBoundingClientRect();
+      return cr.left + cr.width / 2 - (gr.left + gr.width / 2);
+    }
+
+    function indiceCentral(g: HTMLElement): number {
+      let mejor = 0;
+      let dist = Infinity;
+      cartas(g).forEach((c, i) => {
+        const d = Math.abs(desplazamiento(g, c));
+        if (d < dist) {
+          dist = d;
+          mejor = i;
+        }
+      });
+      return mejor;
+    }
+
+    function centrar(g: HTMLElement, i: number, suave = true) {
+      const c = cartas(g)[i];
+      if (!c) return;
+      g.scrollTo({
+        left: g.scrollLeft + desplazamiento(g, c),
+        behavior: suave ? "smooth" : "auto",
+      });
+    }
+
+    function pintarDots(total: number, actual: number) {
+      pagEl.hidden = total <= 1;
+      pagDots.innerHTML = "";
+      for (let i = 0; i < total; i++) {
+        const d = document.createElement("button");
+        d.type = "button";
+        d.className = "pag-dot" + (i === actual ? " is-active" : "");
+        d.setAttribute("aria-label", `Ir a ${i + 1}`);
+        d.addEventListener("click", () => irA(i));
+        pagDots.appendChild(d);
+      }
+      pagPrev.disabled = actual <= 0;
+      pagNext.disabled = actual >= total - 1;
+    }
+
+    function indiceActual(): number {
+      const g = gridActiva();
+      if (!g) return 0;
+      return mqMovil.matches ? indiceCentral(g) : pagina;
+    }
+
+    function irA(i: number) {
+      const g = gridActiva();
+      if (!g) return;
+      if (mqMovil.matches) centrar(g, i);
+      else {
+        pagina = i;
+        pintarModelos();
+      }
+    }
+
+    function pintarModelos() {
+      grids.forEach((g) => (g.hidden = g.dataset.tipo !== tipo));
+      persoBtn.classList.toggle("is-active", persoRadio.checked);
+      const g = gridActiva();
+      if (!g) return;
+      const cs = cartas(g);
+      if (mqMovil.matches) {
+        const i = indiceCentral(g);
+        cs.forEach((c, j) => {
+          c.hidden = false;
+          c.classList.toggle("is-center", j === i);
+        });
+        pintarDots(cs.length, i);
+      } else {
+        const total = Math.ceil(cs.length / PAGINA);
+        pagina = Math.max(0, Math.min(pagina, total - 1));
+        cs.forEach((c, j) => {
+          c.hidden = Math.floor(j / PAGINA) !== pagina;
+          c.classList.remove("is-center");
+        });
+        pintarDots(total, pagina);
+      }
+    }
+
+    // Al entrar en el paso: ir a la página / centrar la carta ya elegida
+    function mostrarModelos() {
+      grids.forEach((g) => (g.hidden = g.dataset.tipo !== tipo));
+      const g = gridActiva();
+      if (!g) return;
+      const sel = cartaSeleccionada(g);
+      const i = sel ? cartas(g).indexOf(sel) : 0;
+      if (mqMovil.matches) centrar(g, i, false);
+      else pagina = Math.floor(i / PAGINA);
+      pintarModelos();
+    }
+
+    grids.forEach((g) => {
+      let raf = 0;
+      g.addEventListener(
+        "scroll",
+        () => {
+          if (!mqMovil.matches) return;
+          cancelAnimationFrame(raf);
+          raf = requestAnimationFrame(pintarModelos);
+        },
+        { passive: true },
+      );
+    });
+    pagPrev.addEventListener("click", () => irA(indiceActual() - 1));
+    pagNext.addEventListener("click", () => irA(indiceActual() + 1));
+    mqMovil.addEventListener("change", () => {
+      if (listaPasos()[idx] === "modelo") mostrarModelos();
+    });
+
+    persoBtn.addEventListener("click", () => {
+      persoRadio.checked = true;
+      syncOtro("modelo");
+      pintarModelos();
+      actualizarNext(stepEl("modelo"));
+    });
+
+    function actualizarNext(el: HTMLElement) {
+      const skip =
+        el.hasAttribute("data-optional") && pasoVacio(el.dataset.step!);
+      nextBtn.textContent = skip ? "Saltar →" : "Siguiente →";
+      nextBtn.classList.toggle("is-skip", skip);
+    }
+
+    form.addEventListener("input", () => {
+      const actual = listaPasos()[idx];
+      const el = stepEl(actual);
+      if (el.hasAttribute("data-optional")) actualizarNext(el);
+    });
+
+    function enfocar(el: HTMLElement) {
+      // No enfocamos el campo de fecha: en móvil abriría el selector sin querer
+      const campo = el.querySelector<HTMLElement>(
+        'input[type="text"], input[type="number"], textarea:not([hidden])',
+      );
+      campo?.focus({ preventScroll: true });
+    }
+
+    function siguiente() {
+      const actual = listaPasos()[idx];
+      const error = validar(actual);
+      if (error) {
+        errorEl.textContent = error;
+        errorEl.hidden = false;
+        return;
+      }
+      ir(idx + 1);
+    }
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      siguiente();
+    });
+    backBtn.addEventListener("click", () => ir(idx - 1));
+
+    // --- Mensaje final ---
+    type Seccion = { titulo: string; lineas?: string[]; texto?: string };
+
+    function construirMensaje(): {
+      nombre: string;
+      asunto: string;
+      secciones: Seccion[];
+    } {
+      const nombre = val("nombre");
+      const fecha = parseFecha(val("fecha"));
+      const t = tipo!;
+      const secciones: Seccion[] = [
+        {
+          titulo: "Encargo",
+          lineas: [
+            `Tipo: ${TIPO_LABEL[t]} ${TIPO_EMOJI[t]}`,
+            `Fecha del evento: ${fecha ? fechaLarga(fecha) : val("fecha")}`,
+          ],
+        },
+      ];
+
+      // Modelo elegido (tartas y galletas): de la galería o descrito a mano
+      const [modelo] = leerOpcion("modelo");
+      const modeloEsGaleria = form.querySelector<HTMLInputElement>(
+        `input[name="modelo"]:checked:not([value="${PERSONALIZADO}"])`,
+      );
+      const lineaModelo = !modelo
+        ? ""
+        : modeloEsGaleria
+          ? `Modelo: ${modelo} (de la galería)`
+          : `Diseño: ${modelo}`;
+
+      if (t === "tarta") {
+        const detallesTarta = [`Personas: ${val("personas")}`];
+        const bizcocho = leerOpcion("bizcocho");
+        const relleno = leerOpcion("relleno");
+        const [cobertura] = leerOpcion("cobertura");
+        if (bizcocho.length) detallesTarta.push(`Bizcocho: ${bizcocho.join(", ")}`);
+        if (relleno.length) detallesTarta.push(`Relleno: ${relleno.join(", ")}`);
+        if (cobertura) detallesTarta.push(`Cobertura: ${cobertura}`);
+        if (lineaModelo) detallesTarta.push(lineaModelo);
+        secciones.push({ titulo: "Así la quiero", lineas: detallesTarta });
+        const detalles = val("detalles");
+        if (detalles) secciones.push({ titulo: "Detalles", texto: detalles });
+      } else if (t === "galletas") {
+        if (lineaModelo) secciones[0].lineas!.push(lineaModelo);
+        secciones.push({ titulo: "Para qué son", texto: val("descripcion_galletas") });
+      } else {
+        secciones.push({
+          titulo: "Qué me gustaría",
+          texto: val("descripcion_otro"),
+        });
+      }
+
+      const asunto = `Encargo de ${TIPO_LABEL[t].toLowerCase()} · ${nombre}`;
+      return { nombre, asunto, secciones };
+    }
+
+    // WhatsApp entiende *negrita*; el resto va en texto plano
+    function renderTexto(formato: "wa" | "plano"): string {
+      const { nombre, secciones } = construirMensaje();
+      const negrita = (s: string) =>
+        formato === "wa" ? `*${s}*` : s.toUpperCase();
+      const out: string[] = [`¡Hola Nanos! Soy ${nombre} 👋`, ""];
+      for (const s of secciones) {
+        out.push(negrita(s.titulo));
+        if (s.lineas) out.push(...s.lineas.map((l) => `• ${l}`));
+        if (s.texto) out.push(s.texto);
+        out.push("");
+      }
+      return out.join("\n").trim();
+    }
+
+    function renderResumenHTML(): string {
+      const { secciones } = construirMensaje();
+      const esc = (s: string) =>
+        s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+      return secciones
+        .map((s) => {
+          let bloque = `<h3>${esc(s.titulo)}</h3>`;
+          if (s.lineas)
+            bloque += `<ul>${s.lineas.map((l) => `<li>${esc(l)}</li>`).join("")}</ul>`;
+          if (s.texto) bloque += `<p>${esc(s.texto)}</p>`;
+          return bloque;
+        })
+        .join("");
+    }
+
+    const sendWa = $<HTMLAnchorElement>("#wz-send-wa");
+    const sendIg = $<HTMLAnchorElement>("#wz-send-ig");
+    const sendMail = $<HTMLAnchorElement>("#wz-send-mail");
+
+    function prepararResumen() {
+      resumenEl.innerHTML = renderResumenHTML();
+      toastEl.hidden = true;
+      const { asunto } = construirMensaje();
+      sendWa.href = `https://wa.me/${waNumber}?text=${encodeURIComponent(renderTexto("wa"))}`;
+      sendIg.href = igDm;
+      sendMail.href = `mailto:${email}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(renderTexto("plano"))}`;
+    }
+
+    let toastTimer: ReturnType<typeof setTimeout>;
+    function toast(msg: string) {
+      toastEl.textContent = msg;
+      toastEl.hidden = false;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => (toastEl.hidden = true), 6000);
+    }
+
+    async function copiar(): Promise<boolean> {
+      try {
+        await navigator.clipboard.writeText(renderTexto("plano"));
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
+    // Instagram no permite abrir un chat con texto ya escrito: copiamos el
+    // mensaje y abrimos el chat directo para que solo tenga que pegarlo.
+    sendIg.addEventListener("click", () => {
+      copiar().then((ok) =>
+        toast(
+          ok
+            ? "Mensaje copiado ✓ Pégalo en el chat de Instagram que se ha abierto."
+            : "No he podido copiar el mensaje: usa «Copiar el mensaje» y pégalo en Instagram.",
+        ),
+      );
+    });
+
+    $("#wz-copiar").addEventListener("click", () => {
+      copiar().then((ok) =>
+        toast(ok ? "Mensaje copiado ✓" : "No he podido copiar el mensaje 😔"),
+      );
+    });
+
+    // --- Arranque ---
+    ir(0);
+    if (tipoFijo) wz.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+</script>

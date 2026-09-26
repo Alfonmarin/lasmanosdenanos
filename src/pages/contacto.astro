@@ -1,22 +1,9 @@
 ---
 import { Image } from "astro:assets";
 import Layout from "../layouts/Layout.astro";
+import PedidoWizard from "../components/PedidoWizard.astro";
 import logoImg from "../assets/logo.png";
-import { tartas } from "../data/tartas";
-import { bizcochos, rellenos, coberturas } from "../data/opciones-tarta";
-
-const OTRO = "__otro__";
-
-// TODO: sustituir por los datos reales del negocio
-const CONTACTO = {
-  whatsappNumber: "34699155145",
-  whatsappDisplay: "+34 699 15 51 45",
-  email: "[EMAIL_ADDRESS]",
-  instagramHandle: "lasmanosdenanos",
-};
-
-const waLink = `https://wa.me/${CONTACTO.whatsappNumber}`;
-const igLink = `https://instagram.com/${CONTACTO.instagramHandle}`;
+import { CONTACTO, waLink, igLink, mailLink } from "../data/contacto";
 
 const perks = [
   {
@@ -34,7 +21,7 @@ const perks = [
   {
     emoji: "📅",
     title: "Reserva con tiempo",
-    sub: "mín. 5 días antes",
+    sub: `mín. ${CONTACTO.plazoMinimoTexto} antes`,
     variant: "pink",
   },
 ];
@@ -64,7 +51,7 @@ const pasos = [
         <div class="subtitle-bar">
           <span class="line"></span>Contacto<span class="line"></span>
         </div>
-        <h1 class="hero-title">Hablemos de tu tarta</h1>
+        <h1 class="hero-title">Hablemos de tu idea</h1>
         <p class="hero-lead">
           Cuéntame qué celebras y lo diseñamos juntas. La forma más rápida es
           WhatsApp: te respondo personalmente en pocas horas.
@@ -148,13 +135,14 @@ const pasos = [
           <span class="channel-arrow pink">→</span>
         </a>
 
-        <div class="channel-card static">
+        <a href={mailLink} class="channel-card">
           <span class="channel-icon rose">✉️</span>
           <div class="channel-info">
             <div class="channel-name">Email</div>
             <div class="channel-detail">{CONTACTO.email}</div>
           </div>
-        </div>
+          <span class="channel-arrow rose">→</span>
+        </a>
 
         <div class="how-card">
           <div class="how-title">Cómo funciona</div>
@@ -172,215 +160,7 @@ const pasos = [
       </div>
 
       <!-- FORMULARIO -->
-      <div class="form-card">
-        <div id="form-panel">
-          <span class="form-badge">Formulario · opcional</span>
-          <h2 class="form-title">Cuéntame tu idea</h2>
-          <p class="form-lead">
-            Rellena lo que quieras y prepararé tu mensaje de WhatsApp listo para
-            enviar. Sin compromiso.
-          </p>
-
-          <form id="contacto-form" data-wa-number={CONTACTO.whatsappNumber}>
-            <div class="form-grid">
-              <div class="field">
-                <label for="f-nombre">Tu nombre *</label>
-                <input
-                  id="f-nombre"
-                  name="nombre"
-                  type="text"
-                  placeholder="Ej. María"
-                />
-              </div>
-              <div class="field">
-                <label for="f-contacto">WhatsApp o email *</label>
-                <input
-                  id="f-contacto"
-                  name="contacto"
-                  type="text"
-                  placeholder="Cómo te contesto"
-                />
-              </div>
-              <div class="field">
-                <label for="f-ocasion">Ocasión</label>
-                <select id="f-ocasion" name="ocasion">
-                  <option value="">Elige…</option>
-                  <option value="un cumpleaños">Cumpleaños</option>
-                  <option value="un baby shower">Baby shower</option>
-                  <option value="una graduación">Graduación</option>
-                  <option value="un evento">Evento</option>
-                  <option value="unas galletas">Galletas</option>
-                  <option value="otra ocasión">Otra</option>
-                </select>
-              </div>
-              <div class="field">
-                <label for="f-fecha">Fecha del evento</label>
-                <input
-                  id="f-fecha"
-                  name="fecha"
-                  type="text"
-                  placeholder="Ej. 20 de julio"
-                />
-              </div>
-            </div>
-
-            <div class="form-section">
-              <span class="form-section-title">Tu tarta</span>
-              <p class="form-section-lead">
-                Todo opcional — cuanto más me cuentes, más ajustado te paso el
-                presupuesto.
-              </p>
-            </div>
-
-            <div class="form-grid">
-              <div class="field field-full-row">
-                <label for="f-diseno">Diseño</label>
-                <select id="f-diseno" name="diseno">
-                  <option value="">Elige un modelo de la galería…</option>
-                  {tartas.map((t) => (
-                    <option value={t.nombre} data-id={t.id}>
-                      {t.nombre}
-                    </option>
-                  ))}
-                  <option value={OTRO}>Diseño propio / otro</option>
-                </select>
-                <input
-                  class="otro-input"
-                  name="diseno_otro"
-                  type="text"
-                  placeholder="Cuéntame el diseño que tienes en mente"
-                  hidden
-                />
-              </div>
-              <div class="field">
-                <label for="f-personas">¿Cuántas personas?</label>
-                <input
-                  id="f-personas"
-                  name="personas"
-                  type="number"
-                  min="1"
-                  inputmode="numeric"
-                  placeholder="Ej. 12"
-                />
-              </div>
-              <div class="field">
-                <label for="f-diametro">Diámetro <span class="opt">(opcional)</span></label>
-                <input
-                  id="f-diametro"
-                  name="diametro"
-                  type="text"
-                  placeholder="Ej. 20 cm"
-                />
-              </div>
-            </div>
-
-            <fieldset class="chips-field">
-              <legend>Bizcocho <span class="opt">(puedes marcar varios)</span></legend>
-              <div class="chips">
-                {bizcochos.map((b) => (
-                  <label class="chip">
-                    <input type="checkbox" name="bizcocho" value={b} />
-                    <span>{b}</span>
-                  </label>
-                ))}
-                <label class="chip">
-                  <input type="checkbox" name="bizcocho" value={OTRO} />
-                  <span>Otro</span>
-                </label>
-              </div>
-              <input
-                class="otro-input"
-                name="bizcocho_otro"
-                type="text"
-                placeholder="¿Qué bizcocho te gustaría?"
-                hidden
-              />
-            </fieldset>
-
-            <fieldset class="chips-field">
-              <legend>Relleno <span class="opt">(puedes marcar varios)</span></legend>
-              <div class="chips">
-                {rellenos.map((r) => (
-                  <label class="chip">
-                    <input type="checkbox" name="relleno" value={r} />
-                    <span>{r}</span>
-                  </label>
-                ))}
-                <label class="chip">
-                  <input type="checkbox" name="relleno" value={OTRO} />
-                  <span>Otro</span>
-                </label>
-              </div>
-              <input
-                class="otro-input"
-                name="relleno_otro"
-                type="text"
-                placeholder="¿Qué relleno te gustaría?"
-                hidden
-              />
-            </fieldset>
-
-            <div class="field field-full">
-              <label for="f-cobertura">Cobertura</label>
-              <select id="f-cobertura" name="cobertura">
-                <option value="">Elige…</option>
-                {coberturas.map((c) => <option value={c}>{c}</option>)}
-                <option value={OTRO}>Otra</option>
-              </select>
-              <input
-                class="otro-input"
-                name="cobertura_otro"
-                type="text"
-                placeholder="¿Qué cobertura te gustaría?"
-                hidden
-              />
-            </div>
-
-            <div class="field field-full">
-              <label for="f-mensaje">Cuéntame más</label>
-              <textarea
-                id="f-mensaje"
-                name="mensaje"
-                rows="3"
-                placeholder="Temática, colores, alergias, cualquier detalle…"></textarea>
-            </div>
-
-            <p id="form-error" class="form-error" hidden>
-              Escribe al menos tu nombre y cómo contactarte 💕
-            </p>
-
-            <button type="submit" class="form-submit">
-              <span class="dot-white"></span>Preparar mi mensaje de WhatsApp
-            </button>
-            <p class="form-note">
-              Sin registros ni spam. Solo abriremos WhatsApp con tu mensaje
-              escrito.
-            </p>
-          </form>
-        </div>
-
-        <div id="success-panel" hidden>
-          <div class="success-icon">🎉</div>
-          <h2 class="success-title">¡Tu mensaje está listo!</h2>
-          <p class="success-lead">
-            He preparado tu mensaje con estos datos. Pulsa el botón para abrir
-            WhatsApp y enviármelo:
-          </p>
-          <div id="success-preview" class="success-preview"></div>
-          <a
-            id="success-link"
-            href="#"
-            target="_blank"
-            rel="noopener"
-            class="form-submit success-btn"
-          >
-            <span class="dot-white"></span>Abrir WhatsApp y enviar
-          </a>
-          <button type="button" id="reset-btn" class="success-reset">
-            Escribir otro mensaje
-          </button>
-        </div>
-      </div>
+      <PedidoWizard />
     </div>
   </section>
 </Layout>
@@ -710,6 +490,9 @@ const pasos = [
   .channel-arrow.pink {
     color: #c13584;
   }
+  .channel-arrow.rose {
+    color: var(--color-primary);
+  }
 
   .how-card {
     background: #fff;
@@ -759,346 +542,6 @@ const pasos = [
     font-weight: 600;
   }
 
-  /* ---- FORM CARD ---- */
-  .form-card {
-    background: #fff;
-    border-radius: 24px;
-    padding: 34px 32px;
-    box-shadow: 0 22px 50px -26px rgba(140, 60, 95, 0.5);
-    border: 1px solid #f0e1e9;
-  }
-
-  .form-badge {
-    display: inline-flex;
-    background: #f6ecfb;
-    color: #8a4e9e;
-    font-weight: 800;
-    font-size: 11.5px;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    padding: 6px 12px;
-    border-radius: 999px;
-    margin-bottom: 14px;
-  }
-
-  .form-title {
-    font-family: var(--font-title);
-    font-size: 30px;
-    color: var(--color-primary);
-    margin: 0 0 6px;
-  }
-
-  .form-lead {
-    margin: 0 0 24px;
-    font-size: 14.5px;
-    line-height: 1.55;
-    color: var(--color-secondary);
-    font-weight: 600;
-  }
-
-  .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .field-full {
-    margin-top: 16px;
-  }
-
-  .field label {
-    font-weight: 800;
-    font-size: 13px;
-    color: var(--color-secondary);
-    margin-bottom: 7px;
-  }
-
-  .field input,
-  .field select,
-  .field textarea {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 13px 16px;
-    border-radius: 12px;
-    border: 1.5px solid #ead7dd;
-    background: #fffdfb;
-    font-family: var(--font-body);
-    font-size: 15px;
-    color: var(--color-text-dark);
-    font-weight: 600;
-    outline: none;
-    transition:
-      border-color 0.15s ease,
-      box-shadow 0.15s ease;
-  }
-
-  .field select {
-    appearance: none;
-  }
-
-  .field textarea {
-    resize: vertical;
-  }
-
-  .field input::placeholder,
-  .field textarea::placeholder {
-    color: #c3a9b2;
-  }
-
-  .field input:focus,
-  .field select:focus,
-  .field textarea:focus {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(188, 17, 80, 0.12);
-  }
-
-  .field-full-row {
-    grid-column: 1 / -1;
-  }
-
-  .opt {
-    font-weight: 600;
-    color: #a88;
-    text-transform: none;
-    letter-spacing: 0;
-  }
-
-  /* Campo de texto que aparece al marcar "Otro" */
-  .otro-input {
-    margin-top: 8px;
-  }
-
-  /* ---- SECCIÓN "TU TARTA" ---- */
-  .form-section {
-    margin: 26px 0 14px;
-    padding-top: 22px;
-    border-top: 1.5px solid #f3e1e5;
-  }
-
-  .form-section-title {
-    display: block;
-    font-family: var(--font-title);
-    font-size: 24px;
-    color: var(--color-primary);
-    margin-bottom: 4px;
-  }
-
-  .form-section-lead {
-    margin: 0;
-    font-size: 13.5px;
-    line-height: 1.5;
-    color: var(--color-secondary);
-    font-weight: 600;
-  }
-
-  /* ---- CHIPS (bizcocho, relleno) ---- */
-  .chips-field {
-    margin: 16px 0 0;
-    padding: 0;
-    border: none;
-    min-width: 0;
-  }
-
-  .chips-field legend {
-    font-weight: 800;
-    font-size: 13px;
-    color: var(--color-secondary);
-    margin-bottom: 9px;
-    padding: 0;
-  }
-
-  .chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .chip {
-    position: relative;
-    cursor: pointer;
-  }
-
-  .chip input {
-    position: absolute;
-    opacity: 0;
-    width: 1px;
-    height: 1px;
-    pointer-events: none;
-  }
-
-  .chip span {
-    display: inline-flex;
-    align-items: center;
-    min-height: 40px;
-    padding: 9px 15px;
-    border-radius: 999px;
-    border: 1.5px solid #ead7dd;
-    background: #fffdfb;
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--color-text-dark);
-    user-select: none;
-    transition:
-      background 0.15s ease,
-      border-color 0.15s ease,
-      color 0.15s ease,
-      box-shadow 0.15s ease;
-  }
-
-  .chip:hover span {
-    border-color: #d9a7ba;
-  }
-
-  .chip input:checked + span {
-    background: var(--color-primary);
-    border-color: var(--color-primary);
-    color: #fff;
-    box-shadow: 0 8px 18px -10px rgba(188, 17, 80, 0.6);
-  }
-
-  .chip input:focus-visible + span {
-    box-shadow: 0 0 0 3px rgba(188, 17, 80, 0.25);
-  }
-
-  .chips-field .otro-input {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 13px 16px;
-    border-radius: 12px;
-    border: 1.5px solid #ead7dd;
-    background: #fffdfb;
-    font-family: var(--font-body);
-    font-size: 15px;
-    color: var(--color-text-dark);
-    font-weight: 600;
-    outline: none;
-    margin-top: 10px;
-  }
-
-  .chips-field .otro-input::placeholder {
-    color: #c3a9b2;
-  }
-
-  .chips-field .otro-input:focus {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(188, 17, 80, 0.12);
-  }
-
-  .form-error {
-    margin: 14px 0 0;
-    background: #fce8ee;
-    color: var(--color-primary);
-    font-weight: 700;
-    font-size: 13.5px;
-    padding: 11px 15px;
-    border-radius: 12px;
-    border: 1px solid #f3c9d7;
-  }
-
-  .form-submit {
-    margin-top: 22px;
-    width: 100%;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    background: var(--color-primary);
-    color: #fff;
-    font-family: var(--font-body);
-    font-weight: 800;
-    font-size: 16.5px;
-    padding: 16px;
-    border: none;
-    border-radius: 14px;
-    box-shadow: 0 16px 32px -14px rgba(188, 17, 80, 0.6);
-    transition: transform 0.2s ease;
-  }
-  .form-submit:hover {
-    transform: translateY(-2px);
-  }
-
-  .form-note {
-    margin: 14px 0 0;
-    text-align: center;
-    font-size: 12.5px;
-    color: #a88;
-    font-weight: 600;
-  }
-
-  /* ---- SUCCESS PANEL ---- */
-  #success-panel {
-    text-align: center;
-    padding: 14px 6px;
-  }
-
-  .success-icon {
-    width: 74px;
-    height: 74px;
-    border-radius: 50%;
-    background: #e9f9ee;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 34px;
-    margin: 6px auto 18px;
-  }
-
-  .success-title {
-    font-family: var(--font-title);
-    font-size: 30px;
-    color: var(--color-primary);
-    margin: 0 0 8px;
-  }
-
-  .success-lead {
-    margin: 0 auto 20px;
-    max-width: 400px;
-    font-size: 15px;
-    line-height: 1.6;
-    color: var(--color-secondary);
-    font-weight: 600;
-  }
-
-  .success-preview {
-    text-align: left;
-    background: #fbeff3;
-    border-radius: 16px;
-    padding: 18px 20px;
-    margin: 0 auto 22px;
-    max-width: 440px;
-    border: 1px solid #f0dce5;
-    font-size: 13.5px;
-    line-height: 1.6;
-    color: #5a3e48;
-    font-weight: 600;
-    white-space: pre-line;
-  }
-
-  .success-btn {
-    background: #25d366;
-    box-shadow: 0 16px 32px -14px rgba(37, 211, 102, 0.55);
-  }
-
-  .success-reset {
-    display: block;
-    margin: 16px auto 0;
-    cursor: pointer;
-    background: none;
-    border: none;
-    color: #8a4e9e;
-    font-family: var(--font-body);
-    font-weight: 800;
-    font-size: 14px;
-    text-decoration: underline;
-  }
-
   /* ---- RESPONSIVE ---- */
   @media (max-width: 900px) {
     .hero-inner {
@@ -1114,12 +557,6 @@ const pasos = [
   }
 
   @media (max-width: 600px) {
-    .form-grid {
-      grid-template-columns: 1fr;
-    }
-    .form-card {
-      padding: 26px 22px;
-    }
     .hero-actions {
       flex-direction: column;
       align-items: stretch;
@@ -1133,126 +570,6 @@ const pasos = [
 
 <script>
   import { gsap } from "gsap";
-
-  // --- Formulario: prepara el mensaje de WhatsApp ---
-  const form = document.querySelector<HTMLFormElement>("#contacto-form");
-  const waNumber = form?.dataset.waNumber ?? "";
-  const errorEl = document.querySelector<HTMLElement>("#form-error");
-  const formPanel = document.querySelector<HTMLElement>("#form-panel");
-  const successPanel = document.querySelector<HTMLElement>("#success-panel");
-  const previewEl = document.querySelector<HTMLElement>("#success-preview");
-  const successLink =
-    document.querySelector<HTMLAnchorElement>("#success-link");
-  const resetBtn = document.querySelector<HTMLButtonElement>("#reset-btn");
-
-  // Mismo valor que la constante OTRO del frontmatter
-  const OTRO = "__otro__";
-
-  // --- "Otro": muestra el campo de texto al elegir/marcar esa opción ---
-  function syncOtro(controlName: string) {
-    if (!form) return;
-    const otroInput = form.querySelector<HTMLInputElement>(
-      `input[name="${controlName}_otro"]`,
-    );
-    if (!otroInput) return;
-    const controls = form.querySelectorAll<HTMLInputElement | HTMLSelectElement>(
-      `[name="${controlName}"]`,
-    );
-    const activo = Array.from(controls).some((c) =>
-      c instanceof HTMLSelectElement
-        ? c.value === OTRO
-        : c.value === OTRO && c.checked,
-    );
-    otroInput.hidden = !activo;
-    if (!activo) otroInput.value = "";
-  }
-
-  const CON_OTRO = ["diseno", "bizcocho", "relleno", "cobertura"];
-  form?.addEventListener("change", (e) => {
-    const name = (e.target as HTMLInputElement).name;
-    if (CON_OTRO.includes(name)) syncOtro(name);
-  });
-
-  // --- Preselecciona el diseño si venimos de una ficha (?tarta=id) ---
-  {
-    const id = new URLSearchParams(location.search).get("tarta");
-    const diseno = form?.querySelector<HTMLSelectElement>('[name="diseno"]');
-    if (id && diseno) {
-      // El <option> lleva el nombre; el id lo pasamos en el data-attribute
-      const opt = Array.from(diseno.options).find((o) => o.dataset.id === id);
-      if (opt) {
-        diseno.value = opt.value;
-        form?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    }
-  }
-
-  // Lee un grupo de checkboxes (o un select) y sustituye "Otro" por el texto
-  function leerOpcion(data: FormData, name: string): string[] {
-    const otro = ((data.get(`${name}_otro`) as string) || "").trim();
-    return data
-      .getAll(name)
-      .map((v) => (v === OTRO ? otro : (v as string)))
-      .filter(Boolean);
-  }
-
-  form?.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const data = new FormData(form);
-    const nombre = ((data.get("nombre") as string) || "").trim();
-    const contacto = ((data.get("contacto") as string) || "").trim();
-
-    if (!nombre || !contacto) {
-      errorEl?.removeAttribute("hidden");
-      return;
-    }
-    errorEl?.setAttribute("hidden", "");
-
-    const ocasion = (data.get("ocasion") as string) || "";
-    const fecha = ((data.get("fecha") as string) || "").trim();
-    const personas = ((data.get("personas") as string) || "").trim();
-    const diametro = ((data.get("diametro") as string) || "").trim();
-    const mensaje = ((data.get("mensaje") as string) || "").trim();
-    const [diseno] = leerOpcion(data, "diseno");
-    const bizcocho = leerOpcion(data, "bizcocho");
-    const relleno = leerOpcion(data, "relleno");
-    const [cobertura] = leerOpcion(data, "cobertura");
-
-    const lineas = [
-      `¡Hola Nanos! Soy ${nombre}.`,
-      `Me gustaría encargar una tarta para ${ocasion || "una ocasión especial"}.`,
-    ];
-    if (fecha) lineas.push(`Fecha: ${fecha}`);
-
-    const tarta: string[] = [];
-    if (diseno) tarta.push(`Diseño: ${diseno}`);
-    if (personas) tarta.push(`Personas: ${personas}`);
-    if (diametro) tarta.push(`Diámetro: ${diametro}`);
-    if (bizcocho.length) tarta.push(`Bizcocho: ${bizcocho.join(", ")}`);
-    if (relleno.length) tarta.push(`Relleno: ${relleno.join(", ")}`);
-    if (cobertura) tarta.push(`Cobertura: ${cobertura}`);
-    if (tarta.length) lineas.push("", "Así la quiero:", ...tarta.map((l) => `· ${l}`));
-
-    if (mensaje) lineas.push("", `Más detalles: ${mensaje}`);
-    lineas.push("", `Me contactas por: ${contacto}`);
-
-    const texto = lineas.join("\n");
-    const waHref = `https://wa.me/${waNumber}?text=${encodeURIComponent(texto)}`;
-
-    if (previewEl) previewEl.textContent = texto;
-    if (successLink) successLink.href = waHref;
-
-    formPanel?.setAttribute("hidden", "");
-    successPanel?.removeAttribute("hidden");
-  });
-
-  resetBtn?.addEventListener("click", () => {
-    form?.reset();
-    CON_OTRO.forEach(syncOtro);
-    errorEl?.setAttribute("hidden", "");
-    successPanel?.setAttribute("hidden", "");
-    formPanel?.removeAttribute("hidden");
-  });
 
   // --- Entrance animations ---
   gsap.from(".hero-text > *", {
@@ -1279,7 +596,7 @@ const pasos = [
     ease: "power2.out",
   });
 
-  gsap.from(".form-card", {
+  gsap.from(".wizard", {
     y: 20,
     opacity: 0,
     duration: 0.6,
