@@ -2,6 +2,7 @@
 import { Image } from "astro:assets";
 import Layout from "../../layouts/Layout.astro";
 import { tartas, tieneFicha, type Tarta } from "../../data/tartas";
+import { waLink } from "../../data/contacto";
 
 export function getStaticPaths() {
   // Ficha para las tartas que tengan algo que enseñar: el modelo 3D o la
@@ -49,22 +50,25 @@ const CATEGORIA_LABEL: Record<Tarta["categoria"], string> = {
             </div>
           ) : (
             <figure class="detail-photo">
-              <Image src={tarta.foto!} alt={tarta.nombre} class="detail-photo-img" />
+              <Image
+                src={tarta.foto!}
+                alt={tarta.nombre}
+                class="detail-photo-img"
+              />
             </figure>
           )
         }
 
         <div class="detail-info">
-          <span class="pill-cat-static">{CATEGORIA_LABEL[tarta.categoria]}</span>
+          <span class="pill-cat-static">{CATEGORIA_LABEL[tarta.categoria]}</span
+          >
           <h1 class="detail-title">{tarta.nombre}</h1>
           <p class="detail-desc">{tarta.descLarga}</p>
 
           <div class="detail-block">
             <h2 class="detail-subtitle">Así se hizo esta</h2>
             <ul class="sabores-list">
-              {tarta.sabores.map((sabor) => (
-                <li>{sabor}</li>
-              ))}
+              {tarta.sabores.map((sabor) => <li>{sabor}</li>)}
             </ul>
             <p class="sabores-nota">
               Es solo un ejemplo: el bizcocho, el relleno y la cobertura se
@@ -74,16 +78,24 @@ const CATEGORIA_LABEL: Record<Tarta["categoria"], string> = {
 
           <div class="consulta-box">
             <span class="consulta-label">Consultar precio</span>
-            <p class="consulta-texto">
+            <!-- <p class="consulta-texto">
               El precio depende de lo que elijas: tamaño, bizcocho, relleno,
               cobertura… Cuéntame cómo la quieres y te paso presupuesto por
               WhatsApp, sin compromiso.
-            </p>
-            <a href={`/contacto?tarta=${tarta.id}`} class="cta-btn-main">
+            </p> -->
+            <a
+              href={`/contacto?tipo=tarta&modelo=${tarta.id}`}
+              class="cta-btn-main"
+            >
               Personalizar este modelo →
             </a>
-            <a href="/contacto" class="consulta-alt">
-              <span class="dot-green"></span>o escríbeme directamente
+            <a
+              href={waLink}
+              target="_blank"
+              rel="noopener"
+              class="consulta-alt"
+            >
+              <!--<span class="dot-green"></span>o escríbeme directamente-->
             </a>
           </div>
         </div>

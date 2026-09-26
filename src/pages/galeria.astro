@@ -1,37 +1,11 @@
 ---
 import { Image } from "astro:assets";
-import type { ImageMetadata } from "astro";
 import Layout from "../layouts/Layout.astro";
 import { tartas, tieneFicha, ULTIMA_NOVEDAD_ID } from "../data/tartas";
+import { galletas } from "../data/galletas";
 
 const cumpleanosTartas = tartas.filter((t) => t.categoria === "cumpleanos");
 const eventosTartas = tartas.filter((t) => t.categoria === "eventos");
-
-// Igual que en src/data/tartas.ts: añade `foto: miImportacion` a un item
-// para poner una imagen real (importa el archivo desde src/assets/galeria/
-// arriba del todo del archivo). Sin `foto` se muestra el patrón de relleno.
-const galletas: {
-  id: string;
-  nombre: string;
-  desc: string;
-  foto?: ImageMetadata;
-}[] = [
-  {
-    id: "galleta-1",
-    nombre: "Galletas decoradas",
-    desc: "De mantequilla con glasa real, pintadas a mano una a una.",
-  },
-  {
-    id: "galleta-2",
-    nombre: "Galletas personalizadas",
-    desc: "Con nombres, logos o la forma que imagines para tu detalle.",
-  },
-  {
-    id: "galleta-3",
-    nombre: "Caja surtida de mini galletas",
-    desc: "Un puñado de sabores caseros para regalar o compartir.",
-  },
-];
 
 // Se elige a mano vía ULTIMA_NOVEDAD_ID (en src/data/tartas.ts), nunca por
 // orden automático — así una tarta sin modelo 3D no puede colarse aquí.
@@ -146,7 +120,7 @@ const galletasLabel = `${galletas.length} ${galletas.length === 1 ? "creación" 
                   {conFicha ? (
                     <span class="card-cta">Ver detalles →</span>
                   ) : (
-                    <a href="/contacto" class="card-cta">
+                    <a href="/contacto?tipo=tarta" class="card-cta">
                       Contacto →
                     </a>
                   )}
@@ -189,7 +163,7 @@ const galletasLabel = `${galletas.length} ${galletas.length === 1 ? "creación" 
                   {conFicha ? (
                     <span class="card-cta">Ver detalles →</span>
                   ) : (
-                    <a href="/contacto" class="card-cta">
+                    <a href="/contacto?tipo=tarta" class="card-cta">
                       Contacto →
                     </a>
                   )}
@@ -202,7 +176,7 @@ const galletasLabel = `${galletas.length} ${galletas.length === 1 ? "creación" 
     </section>
 
     <!-- GALLETAS -->
-    <section class="category-section">
+    <section class="category-section" id="galletas">
       <div class="section-header">
         <h2 class="section-title primary">Galletas</h2>
         <span class="section-line pink"></span>
@@ -211,23 +185,21 @@ const galletasLabel = `${galletas.length} ${galletas.length === 1 ? "creación" 
       <div class="cards-grid">
         {
           galletas.map((item) => (
-            <div class="card">
+            <a href={`/galeria/galletas/${item.id}`} class="card">
               <div class="card-img primary">
                 {item.foto ? (
                   <Image src={item.foto} alt={item.nombre} class="card-photo" />
                 ) : (
                   <span class="img-label">Foto · Galletas</span>
                 )}
-                <span class="pill-cat primary">Galletas</span>
+                <span class="pill-cat primary">{item.ocasion}</span>
               </div>
               <div class="card-body">
                 <h3 class="card-name">{item.nombre}</h3>
                 <p class="card-text">{item.desc}</p>
-                <a href="/contacto" class="card-cta">
-                  Contacto →
-                </a>
+                <span class="card-cta">Ver detalles →</span>
               </div>
-            </div>
+            </a>
           ))
         }
       </div>
