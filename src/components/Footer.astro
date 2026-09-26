@@ -1,8 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import logoImg from '../assets/logo.png';
-
-const igLink = 'https://instagram.com/lasmanosdenanos';
+import { CONTACTO, igLink, mailLink } from '../data/contacto';
 
 // Decoración: chispitas repartidas por el fondo burdeos.
 // `edge: true` = se mantiene en móvil; el resto se oculta para no recargar.
@@ -68,6 +67,7 @@ const sparkles = [
         <div>
           <span class="logo-text">Las Manos de Nanos</span>
           <p class="brand-desc">Repostería artesanal casera hecha con mucho cariño.</p>
+          <a href={mailLink} class="brand-mail">{CONTACTO.email}</a>
         </div>
       </div>
 
@@ -296,6 +296,21 @@ const sparkles = [
     font-size: 14px;
     line-height: 1.5;
     color: #f6cdd9;
+  }
+
+  .brand-mail {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #fce0ea;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.2s ease;
+  }
+
+  .brand-mail:hover {
+    color: #fff;
   }
 
   .footer-nav {
