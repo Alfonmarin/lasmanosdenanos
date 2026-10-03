@@ -3,6 +3,25 @@ import { Font } from 'astro:assets';
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+
+// Lo que enseñan Google y las redes (WhatsApp, Instagram…) al compartir un
+// enlace. `imagen` es una de las tarjetas de /og (ver src/pages/og/).
+type Props = {
+	titulo?: string;
+	descripcion?: string;
+	imagen?: string;
+};
+
+const MARCA = 'Las Manos de Nanos';
+const {
+	titulo,
+	descripcion = 'Tartas y galletas personalizadas, hechas a mano por Elsa, «Nanos». Mira mis creaciones, algunas en 3D, y prepara tu encargo en un momento.',
+	imagen = '/og/inicio.jpg',
+} = Astro.props;
+
+const tituloCompleto = titulo ? `${titulo} · ${MARCA}` : `${MARCA} · Tartas y galletas artesanales`;
+const url = new URL(Astro.url.pathname, Astro.site);
+const imagenUrl = new URL(imagen, Astro.site);
 ---
 <!doctype html>
 <html lang="es">
@@ -12,7 +31,24 @@ import Footer from '../components/Footer.astro';
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Las Manos de Nanos</title>
+		<title>{tituloCompleto}</title>
+		<meta name="description" content={descripcion} />
+		<link rel="canonical" href={url} />
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content={MARCA} />
+		<meta property="og:locale" content="es_ES" />
+		<meta property="og:url" content={url} />
+		<meta property="og:title" content={tituloCompleto} />
+		<meta property="og:description" content={descripcion} />
+		<meta property="og:image" content={imagenUrl} />
+		<meta property="og:image:type" content="image/jpeg" />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta property="og:image:alt" content={tituloCompleto} />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={tituloCompleto} />
+		<meta name="twitter:description" content={descripcion} />
+		<meta name="twitter:image" content={imagenUrl} />
 		<Font cssVariable="--font-nunito" preload={[{ style: 'normal' }]} />
 		<Font cssVariable="--font-pacifico" preload />
 		<script is:inline>

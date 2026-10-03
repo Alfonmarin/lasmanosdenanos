@@ -19,7 +19,11 @@ const metaDe = (d: (typeof diplomas)[number]) =>
   [d.escuela, d.fecha].filter(Boolean).join(" · ");
 ---
 
-<Layout>
+<Layout
+  titulo="Sobre Nanos"
+  descripcion="Conoce a Elsa, «Nanos», la repostera que hay detrás de cada tarta: su historia, su formación y cómo trabaja cada encargo."
+  imagen="/og/sobre-nanos.jpg"
+>
   <!-- === HERO: RETRATO + INTRO === -->
   <section class="nanos-hero">
     <div class="hero-inner">

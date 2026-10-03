@@ -35,7 +35,11 @@ const eventosLabel = `${eventosTartas.length} ${eventosTartas.length === 1 ? "cr
 const galletasLabel = `${galletas.length} ${galletas.length === 1 ? "creación" : "creaciones"}`;
 ---
 
-<Layout>
+<Layout
+  titulo="Galería"
+  descripcion="Tartas de cumpleaños, tartas para eventos y galletas decoradas, todas hechas a mano. Algunas se pueden ver en 3D, por todos los lados."
+  imagen={`/og/tarta-${ultimaNovedad.id}.jpg`}
+>
   <!-- === HERO: GALERÍA + ÚLTIMA NOVEDAD === -->
   <section class="galeria-hero">
     <div class="hero-blob a"></div>
