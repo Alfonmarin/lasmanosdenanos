@@ -82,11 +82,14 @@ const galletasLabel = `${galletas.length} ${galletas.length === 1 ? "creación" 
           src={ultimaNovedad.modelo}
           alt={ultimaNovedad.nombre}
           camera-controls
+          disable-pan
+          disable-zoom
+          touch-action="pan-y"
           auto-rotate
           auto-rotate-delay="0"
           rotation-per-second="18deg"
           interaction-prompt="none"
-          camera-orbit="0deg 80deg auto"
+          camera-orbit={`${ultimaNovedad.anguloInicial ?? 0}deg 80deg auto`}
           min-camera-orbit="auto 10deg auto"
           max-camera-orbit="auto 90deg auto"
           shadow-intensity="1"
@@ -124,7 +127,7 @@ const galletasLabel = `${galletas.length} ${galletas.length === 1 ? "creación" 
                     <Image
                       src={item.foto}
                       alt={item.nombre}
-                      class="card-photo"
+                      widths={[320, 480, 720]} sizes="(max-width: 900px) 46vw, 350px" class="card-photo"
                     />
                   ) : (
                     <span class="img-label">Foto · Tarta</span>
@@ -171,7 +174,7 @@ const galletasLabel = `${galletas.length} ${galletas.length === 1 ? "creación" 
                     <Image
                       src={item.foto}
                       alt={item.nombre}
-                      class="card-photo"
+                      widths={[320, 480, 720]} sizes="(max-width: 900px) 46vw, 350px" class="card-photo"
                     />
                   ) : (
                     <span class="img-label purple">Foto · Tarta</span>
@@ -209,7 +212,7 @@ const galletasLabel = `${galletas.length} ${galletas.length === 1 ? "creación" 
             <a href={`/galeria/galletas/${item.id}`} class="card">
               <div class="card-img primary">
                 {item.foto ? (
-                  <Image src={item.foto} alt={item.nombre} class="card-photo" />
+                  <Image src={item.foto} alt={item.nombre} widths={[320, 480, 720]} sizes="(max-width: 900px) 46vw, 350px" class="card-photo" />
                 ) : (
                   <span class="img-label">Foto · Galletas</span>
                 )}
@@ -736,8 +739,42 @@ const galletasLabel = `${galletas.length} ${galletas.length === 1 ? "creación" 
   }
 
   @media (max-width: 600px) {
+    /* Dos por fila también en móvil: con muchas tartas, una sola columna
+       obliga a un scroll eterno. Las tarjetas van en versión compacta. */
     .cards-grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .card {
+      border-radius: 14px;
+    }
+    .card-body {
+      padding: 11px 12px 12px;
+    }
+    .card-name {
+      margin-bottom: 4px;
+      font-size: 14.5px;
+      line-height: 1.25;
+    }
+    .card-text {
+      margin-bottom: 9px;
+      font-size: 12.5px;
+      line-height: 1.4;
+      /* Recorta a tres líneas para que las dos tarjetas de cada fila
+         queden a la misma altura */
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      overflow: hidden;
+    }
+    .card-cta {
+      display: none;
+    }
+    .pill-cat {
+      top: 8px;
+      left: 8px;
+      font-size: 9px;
+      padding: 4px 7px;
     }
     .hero-stage {
       height: 320px;
@@ -759,17 +796,50 @@ const galletasLabel = `${galletas.length} ${galletas.length === 1 ? "creación" 
 
 <script>
   import { gsap } from "gsap";
-  import "@google/model-viewer";
+
+  // El visor 3D pesa (~1 MB de JS y mucho trabajo de CPU): se carga cuando la
+  // página ya ha terminado y el navegador está libre, para no retrasar el
+  // primer pintado ni las animaciones de entrada.
+  const cargarVisor = () => {
+    const importar = () => import("@google/model-viewer");
+    if ("requestIdleCallback" in window) requestIdleCallback(importar, { timeout: 1500 });
+    else setTimeout(importar, 200);
+  };
+  if (document.readyState === "complete") cargarVisor();
+  else window.addEventListener("load", cargarVisor, { once: true });
+
+  // model-viewer combina mal disable-zoom con touch-action="pan-y": en vez de
+  // dejar pasar el scroll vertical, bloquea también el deslizamiento (lo pasa
+  // a "manipulation"). Se corrige a mano en el elemento interno que recibe el
+  // gesto, y se vigila por si el componente lo vuelve a tocar.
+  customElements.whenDefined("model-viewer").then(() => {
+    document.querySelectorAll<any>(".hero-stage model-viewer").forEach((mv) => {
+      const fijar = () => {
+        const userInput = mv.shadowRoot?.querySelector(".userInput") as HTMLElement | null;
+        if (userInput && userInput.style.touchAction !== "pan-y") {
+          userInput.style.touchAction = "pan-y";
+        }
+      };
+      fijar();
+      new MutationObserver(fijar).observe(mv.shadowRoot, {
+        attributes: true,
+        attributeFilter: ["style"],
+        subtree: true,
+      });
+    });
+  });
 
   // --- 3D viewer: volver a la posición inicial tras un rato sin tocar ---
   const RESET_DELAY_MS = 1500;
   document.querySelectorAll<any>("model-viewer").forEach((mv) => {
     let resetTimer: ReturnType<typeof setTimeout>;
+    const orbitaInicial = mv.getAttribute("camera-orbit") ?? "auto auto auto";
     mv.addEventListener("camera-change", (event: CustomEvent) => {
       if (event.detail.source !== "user-interaction") return;
       clearTimeout(resetTimer);
       resetTimer = setTimeout(() => {
-        mv.cameraOrbit = "auto auto auto";
+        mv.cameraOrbit = orbitaInicial;
+        mv.cameraTarget = "auto auto auto";
         mv.fieldOfView = "auto";
       }, RESET_DELAY_MS);
     });

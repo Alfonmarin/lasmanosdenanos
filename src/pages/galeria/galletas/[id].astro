@@ -29,6 +29,9 @@ const { galleta } = Astro.props as Props;
               <Image
                 src={galleta.foto}
                 alt={galleta.nombre}
+                widths={[400, 640, 900]}
+                sizes="(max-width: 900px) 92vw, 540px"
+                loading="eager"
                 class="detail-photo-img"
               />
             ) : (
