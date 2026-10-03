@@ -17,7 +17,11 @@ type Props = { galleta: Galleta };
 const { galleta } = Astro.props as Props;
 ---
 
-<Layout>
+<Layout
+  titulo={`${galleta.nombre} · Galletas`}
+  descripcion={galleta.desc}
+  imagen={galleta.foto ? `/og/galletas-${galleta.id}.jpg` : undefined}
+>
   <section class="detail-hero">
     <div class="detail-inner">
       <a href="/galeria#galletas" class="back-link">← Volver a la galería</a>

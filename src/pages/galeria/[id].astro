@@ -23,7 +23,11 @@ const CATEGORIA_LABEL: Record<Tarta["categoria"], string> = {
 };
 ---
 
-<Layout>
+<Layout
+  titulo={tarta.nombre}
+  descripcion={tarta.desc}
+  imagen={tarta.foto ? `/og/tarta-${tarta.id}.jpg` : undefined}
+>
   <section class="detail-hero">
     <div class="detail-inner">
       <a href="/galeria" class="back-link">← Volver a la galería</a>

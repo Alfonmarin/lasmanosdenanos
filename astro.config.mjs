@@ -3,6 +3,10 @@ import { defineConfig, fontProviders } from 'astro/config';
 
 // https://astro.build/config
 export default defineConfig({
+  // Dirección pública de la web: hace falta para los enlaces absolutos de la
+  // vista previa al compartir (og:image). Netlify pone en URL la dirección
+  // real al compilar, también si luego se conecta un dominio propio.
+  site: process.env.URL ?? 'https://lasmanosdenanos.netlify.app',
   // Las fuentes se descargan al compilar y se sirven desde la propia web:
   // sin la hoja de Google Fonts que bloqueaba el primer pintado.
   fonts: [
