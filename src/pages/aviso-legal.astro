@@ -1,0 +1,46 @@
+---
+import LegalPage from "../components/legal/LegalPage.astro";
+import { CONTACTO, RESPONSABLE } from "../data/contacto";
+---
+
+<LegalPage
+  titulo="Aviso Legal"
+  descripcion="Quién gestiona esta web y en qué condiciones se puede usar."
+  actualizado="octubre de 2026"
+>
+  <h2>Quién hay detrás de esta web</h2>
+  <p>
+    <strong>Las Manos de Nanos</strong> es un proyecto personal, sin
+    actividad empresarial registrada. La página la gestiona{" "}
+    <strong>{RESPONSABLE.nombre}</strong>, {RESPONSABLE.localidad}, para dar
+    visibilidad a los encargos de repostería artesanal que su madre, Elsa
+    («Nanos»), realiza de forma ocasional y como afición, no como negocio
+    profesional.
+  </p>
+  <p>
+    Contacto: <a href={`mailto:${CONTACTO.email}`}>{CONTACTO.email}</a>
+  </p>
+
+  <h2>Para qué sirve esta web</h2>
+  <p>
+    Esta web es informativa: enseña fotos de tartas y galletas ya hechas y
+    permite ponerse en contacto para proponer un encargo. No es una tienda
+    online — no se procesan pagos ni se cierra ningún contrato a través de
+    la página. Todo encargo se habla y se confirma directamente por
+    WhatsApp, Instagram o email.
+  </p>
+
+  <h2>Contenido y fotos</h2>
+  <p>
+    Los textos, fotos y el diseño de la web son propios. Si quieres usar
+    alguna foto o algún texto, simplemente pide permiso antes por cualquiera
+    de los canales de contacto.
+  </p>
+
+  <h2>Enlaces a otras webs</h2>
+  <p>
+    Esta web enlaza a WhatsApp, Instagram y a tu gestor de correo para
+    facilitar el contacto. Cada uno de esos servicios tiene sus propias
+    condiciones y política de privacidad, que no dependen de esta web.
+  </p>
+</LegalPage>

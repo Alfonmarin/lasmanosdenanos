@@ -1,0 +1,52 @@
+---
+import LegalPage from "../components/legal/LegalPage.astro";
+import { RESPONSABLE } from "../data/contacto";
+---
+
+<LegalPage
+  titulo="Privacidad"
+  descripcion="Qué pasa con los datos que dejas en el formulario de encargo."
+  actualizado="octubre de 2026"
+>
+  <h2>Quién es el responsable</h2>
+  <p>
+    <strong>{RESPONSABLE.nombre}</strong>, {RESPONSABLE.localidad}, como
+    gestor de esta web. Para cualquier tema de privacidad, escribe a{" "}
+    <a href={`mailto:${RESPONSABLE.emailPrivacidad}`}>
+      {RESPONSABLE.emailPrivacidad}
+    </a>.
+  </p>
+
+  <h2>Qué datos se piden y para qué</h2>
+  <p>
+    El formulario de "Prepara tu encargo" pide tu nombre, la fecha del
+    evento, el tipo de producto y, si quieres, una referencia o una
+    descripción de lo que tienes en mente. Solo se usan para preparar y
+    gestionar tu encargo.
+  </p>
+
+  <h2>Dónde van esos datos</h2>
+  <p>
+    <strong>Esta web no tiene servidor que guarde tus datos.</strong> El
+    formulario solo redacta un mensaje con lo que has escrito y abre la app
+    que elijas — WhatsApp, Instagram o tu correo — para que seas tú quien lo
+    envía. A partir de ahí, la conversación queda en esa app, no en esta
+    web, y se rige por la política de privacidad de quien la presta (Meta en
+    el caso de WhatsApp e Instagram, o tu proveedor de correo).
+  </p>
+
+  <h2>Cuánto tiempo se conservan</h2>
+  <p>
+    El tiempo que decidas mantener la conversación en tu propia app de
+    mensajería o correo. No se guarda copia en ningún otro sitio.
+  </p>
+
+  <h2>Tus derechos</h2>
+  <p>
+    Puedes pedir acceder a tus datos, corregirlos, borrarlos o dejar de
+    recibir mensajes en cualquier momento, escribiendo a{" "}
+    <a href={`mailto:${RESPONSABLE.emailPrivacidad}`}>
+      {RESPONSABLE.emailPrivacidad}
+    </a>.
+  </p>
+</LegalPage>
