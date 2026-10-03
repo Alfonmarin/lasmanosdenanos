@@ -13,8 +13,8 @@
   --color-border: #F3E1E5;
 
   /* Fonts */
-  --font-title: 'Pacifico', cursive;
-  --font-body: 'Nunito', system-ui, sans-serif;
+  --font-title: var(--font-pacifico);
+  --font-body: var(--font-nunito);
 }
 
 *, *::before, *::after {
@@ -29,6 +29,11 @@ body {
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ver Layout.astro: se quita en cuanto han corrido los scripts de la página */
+html.antes-de-js main {
+  visibility: hidden;
 }
 
 h1, h2, h3, h4, h5, h6 {

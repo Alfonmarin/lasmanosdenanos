@@ -7,6 +7,14 @@ import NuestraHistoria from "../components/inicio/NuestraHistoria.astro";
 ---
 
 <Layout>
+  <!-- El póster del vídeo es lo primero que se ve: que se pida cuanto antes -->
+  <link
+    slot="head"
+    rel="preload"
+    as="image"
+    href="/video/hero-reposteria-poster.jpg"
+    fetchpriority="high"
+  />
   <Hero />
   <Ocasiones />
   <Tarta3DScroll />
