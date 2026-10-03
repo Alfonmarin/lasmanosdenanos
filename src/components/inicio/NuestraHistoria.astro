@@ -6,7 +6,7 @@ import { diplomas } from "../../data/diplomas";
 
 <section class="historia">
   <div class="historia-inner">
-    <div class="historia-foto" data-reveal>
+    <div class="historia-foto">
       <Image
         src={nanosImg}
         alt="Elsa, «Nanos», en su cocina"
@@ -289,3 +289,76 @@ import { diplomas } from "../../data/diplomas";
     }
   }
 </style>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const foto = document.querySelector<HTMLElement>(".historia-foto");
+  const tag = document.querySelector<HTMLElement>(".historia-tag");
+  const reducirMovimiento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (foto && tag && !reducirMovimiento) {
+    const mm = gsap.matchMedia();
+
+    // Escritorio: la foto entra girando y con rebote; el sello de
+    // "repostera artesana" aparece justo después, con un pop achulado.
+    mm.add("(min-width: 901px)", () => {
+      gsap.set(foto, { opacity: 0, y: 70, rotate: -16, scale: 0.82 });
+      gsap.set(tag, { opacity: 0, scale: 0.3, rotate: -22 });
+
+      ScrollTrigger.create({
+        trigger: foto,
+        start: "top 85%",
+        once: true,
+        onEnter: () => {
+          gsap
+            .timeline()
+            .to(foto, {
+              opacity: 1,
+              y: 0,
+              rotate: -3,
+              scale: 1,
+              duration: 0.9,
+              ease: "back.out(1.6)",
+            })
+            .to(
+              tag,
+              {
+                opacity: 1,
+                scale: 1,
+                rotate: 6,
+                duration: 0.7,
+                ease: "back.out(3)",
+              },
+              "-=0.15",
+            );
+        },
+      });
+    });
+
+    // Móvil: mismo orden, más discreto (sin el giro exagerado).
+    mm.add("(max-width: 900px)", () => {
+      gsap.set(foto, { opacity: 0, y: 40 });
+      gsap.set(tag, { opacity: 0, scale: 0.4, rotate: -14 });
+
+      ScrollTrigger.create({
+        trigger: foto,
+        start: "top 88%",
+        once: true,
+        onEnter: () => {
+          gsap
+            .timeline()
+            .to(foto, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" })
+            .to(
+              tag,
+              { opacity: 1, scale: 1, rotate: 6, duration: 0.6, ease: "back.out(3)" },
+              "-=0.1",
+            );
+        },
+      });
+    });
+  }
+</script>

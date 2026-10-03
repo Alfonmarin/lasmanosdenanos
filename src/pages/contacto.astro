@@ -105,6 +105,9 @@ const pasos = [
               <div class:list={["chat-bubble", msg.from]}>{msg.text}</div>
             ))
           }
+          <div class="chat-typing" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
         </div>
       </a>
     </div>
@@ -343,6 +346,7 @@ const pasos = [
   }
 
   .chat-body {
+    position: relative;
     padding: 20px 16px;
     background: linear-gradient(180deg, #fbeff3, #f7ecf0);
     display: flex;
@@ -371,6 +375,50 @@ const pasos = [
     background: #dcf8c6;
     color: #33502b;
     border-radius: 14px 14px 4px 14px;
+  }
+
+  /* Globo de "escribiendo…" que sale antes de cada respuesta de Elsa. El
+     script lo coloca justo donde va a aparecer la respuesta. */
+  .chat-typing {
+    position: absolute;
+    top: 0;
+    right: 16px;
+    display: flex;
+    gap: 4px;
+    padding: 12px 14px;
+    background: #dcf8c6;
+    border-radius: 14px 14px 4px 14px;
+    box-shadow: 0 4px 10px -6px rgba(0, 0, 0, 0.15);
+    transform-origin: bottom right;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .chat-typing span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #6a8f5a;
+    animation: chat-dot 0.9s ease-in-out infinite;
+  }
+  .chat-typing span:nth-child(2) {
+    animation-delay: 0.15s;
+  }
+  .chat-typing span:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+
+  @keyframes chat-dot {
+    0%,
+    60%,
+    100% {
+      transform: translateY(0);
+      opacity: 0.45;
+    }
+    30% {
+      transform: translateY(-4px);
+      opacity: 1;
+    }
   }
 
   /* ---- SCALLOPED ---- */
@@ -560,6 +608,9 @@ const pasos = [
 
 <script>
   import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
 
   // --- Altura de la columna de canales ---
   // Al entrar (paso 1 del formulario) la columna izquierda mide lo mismo que
@@ -602,6 +653,63 @@ const pasos = [
     ease: "power2.out",
     delay: 0.2,
   });
+
+  // --- Conversación de WhatsApp: los globos salen uno a uno con un pop y,
+  // antes de cada respuesta de Elsa, aparece el "escribiendo…". Los globos
+  // ya ocupan su sitio (solo están invisibles), así que la tarjeta no salta.
+  const chatBody = document.querySelector<HTMLElement>(".chat-body");
+  const typing = document.querySelector<HTMLElement>(".chat-typing");
+  const status = document.querySelector<HTMLElement>(".chat-status");
+  const burbujas = [...document.querySelectorAll<HTMLElement>(".chat-bubble")];
+  const reducirMovimiento = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+
+  if (chatBody && typing && status && burbujas.length && !reducirMovimiento) {
+    const estadoOriginal = status.textContent ?? "";
+
+    burbujas.forEach((b) =>
+      gsap.set(b, {
+        opacity: 0,
+        scale: 0.5,
+        y: 14,
+        transformOrigin: b.classList.contains("out") ? "bottom right" : "bottom left",
+      }),
+    );
+
+    const tl = gsap.timeline({ paused: true });
+
+    burbujas.forEach((b, i) => {
+      const deElsa = b.classList.contains("out");
+      if (deElsa) {
+        tl.call(() => {
+          typing.style.top = `${b.offsetTop}px`;
+          status.textContent = "escribiendo…";
+        }, [], i === 0 ? 0 : "+=0.2")
+          .fromTo(
+            typing,
+            { opacity: 0, scale: 0.6 },
+            { opacity: 1, scale: 1, duration: 0.25, ease: "back.out(2.5)" },
+          )
+          .to(typing, { opacity: 0, scale: 0.6, duration: 0.15 }, "+=0.45")
+          .call(() => {
+            status.textContent = estadoOriginal;
+          });
+      }
+      tl.to(
+        b,
+        { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: "back.out(2.2)" },
+        deElsa ? "-=0.05" : i === 0 ? 0 : "+=0.2",
+      );
+    });
+
+    ScrollTrigger.create({
+      trigger: chatBody,
+      start: "top 85%",
+      once: true,
+      onEnter: () => gsap.delayedCall(0.6, () => tl.play()),
+    });
+  }
 
   gsap.from(".channel-card, .how-card", {
     y: 16,

@@ -31,6 +31,10 @@ const metaDe = (d: (typeof diplomas)[number]) =>
             alt="Elsa, Nanos"
             width={640}
             height={800}
+            widths={[360, 480, 640]}
+            sizes="(max-width: 900px) 80vw, 420px"
+            loading="eager"
+            fetchpriority="high"
             class="portrait-img"
           />
         </div>
@@ -58,7 +62,9 @@ const metaDe = (d: (typeof diplomas)[number]) =>
               <>
                 {i > 0 && <span class="stat-divider" />}
                 <div class="stat">
-                  <div class="stat-valor">{stat.valor}</div>
+                  <div class="stat-valor" data-count={stat.valor}>
+                    {stat.valor}
+                  </div>
                   <div class="stat-label">{stat.label}</div>
                 </div>
               </>
@@ -121,7 +127,8 @@ const metaDe = (d: (typeof diplomas)[number]) =>
                 <Image
                   src={diploma.imagen}
                   alt=""
-                  width={640}
+                  widths={[280, 420, 640]}
+                  sizes="(max-width: 700px) 45vw, (max-width: 900px) 30vw, 260px"
                   class="diploma-thumb"
                 />
                 <span class="diploma-zoom" aria-hidden="true">
@@ -819,6 +826,9 @@ const metaDe = (d: (typeof diplomas)[number]) =>
 
 <script>
   import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
 
   gsap.from(".hero-inner > *", {
     y: 24,
@@ -828,13 +838,117 @@ const metaDe = (d: (typeof diplomas)[number]) =>
     ease: "power2.out",
   });
 
-  gsap.from(".quote-card", {
-    y: 20,
-    opacity: 0,
-    duration: 0.6,
-    ease: "power2.out",
-    delay: 0.1,
-  });
+  // --- Números del hero: "+2", "+50", "100%" suben desde 0 al entrar en
+  // pantalla (no al cargar, porque en móvil quedan más abajo y ya habrían
+  // terminado de contar antes de que el usuario llegue a verlos) ---
+  const reducirMovimiento = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+
+  const statsRow = document.querySelector<HTMLElement>(".stats-row");
+
+  if (statsRow && !reducirMovimiento) {
+    const contadores = [
+      ...statsRow.querySelectorAll<HTMLElement>(".stat-valor[data-count]"),
+    ]
+      .map((el) => {
+        const match = (el.dataset.count ?? "").match(/^(\D*)(\d+)(\D*)$/);
+        if (!match) return null;
+        const [, prefijo, numero, sufijo] = match;
+        el.textContent = `${prefijo}0${sufijo}`;
+        return { el, prefijo, sufijo, destino: Number(numero) };
+      })
+      .filter((c): c is NonNullable<typeof c> => c !== null);
+
+    ScrollTrigger.create({
+      trigger: statsRow,
+      start: "top 90%",
+      once: true,
+      onEnter: () => {
+        contadores.forEach(({ el, prefijo, sufijo, destino }) => {
+          const contador = { valor: 0 };
+          gsap.to(contador, {
+            valor: destino,
+            duration: 1,
+            ease: "power1.out",
+            onUpdate: () => {
+              el.textContent = `${prefijo}${Math.round(contador.valor)}${sufijo}`;
+            },
+          });
+        });
+      },
+    });
+  }
+
+  // --- Cita destacada: la tarjeta entra con rebote y, ya dentro, las
+  // comillas hacen un pop, el texto se desliza y el separador se despliega
+  // antes de la firma. Dispara al acercarte, no al cargar la página. ---
+  const quoteSection = document.querySelector<HTMLElement>(".quote-section");
+  const quoteCard = document.querySelector<HTMLElement>(".quote-card");
+  const quoteOpen = document.querySelector<HTMLElement>(".quote-mark.open");
+  const quoteClose = document.querySelector<HTMLElement>(".quote-mark.close");
+  const quoteText = document.querySelector<HTMLElement>(".quote-text");
+  const quoteDivider = document.querySelector<HTMLElement>(".quote-divider");
+  const quoteAuthor = document.querySelector<HTMLElement>(".quote-author");
+
+  if (
+    quoteSection &&
+    quoteCard &&
+    quoteOpen &&
+    quoteClose &&
+    quoteText &&
+    quoteDivider &&
+    quoteAuthor &&
+    !reducirMovimiento
+  ) {
+    gsap.set(quoteCard, { opacity: 0, y: 40, scale: 0.92 });
+    gsap.set([quoteOpen, quoteClose], { opacity: 0, scale: 0.3 });
+    gsap.set(quoteText, { opacity: 0, y: 10 });
+    gsap.set(quoteDivider, { scaleX: 0 });
+    gsap.set(quoteAuthor, { opacity: 0, y: 8 });
+
+    ScrollTrigger.create({
+      trigger: quoteSection,
+      start: "top 85%",
+      once: true,
+      onEnter: () => {
+        gsap
+          .timeline()
+          .to(quoteCard, {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.7,
+            ease: "back.out(1.4)",
+          })
+          .to(
+            quoteOpen,
+            { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(3)" },
+            "-=0.25",
+          )
+          .to(
+            quoteText,
+            { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
+            "-=0.2",
+          )
+          .to(
+            quoteClose,
+            { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(3)" },
+            "-=0.3",
+          )
+          .to(
+            quoteDivider,
+            { scaleX: 1, duration: 0.4, ease: "power2.out" },
+            "-=0.1",
+          )
+          .to(
+            quoteAuthor,
+            { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" },
+            "-=0.15",
+          );
+      },
+    });
+  }
 
   gsap.from(".diploma-card", {
     y: 20,
