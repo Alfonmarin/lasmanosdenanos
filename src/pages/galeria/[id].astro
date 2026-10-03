@@ -36,10 +36,13 @@ const CATEGORIA_LABEL: Record<Tarta["categoria"], string> = {
                 src={tarta.modelo}
                 alt={tarta.nombre}
                 camera-controls
+                disable-pan
+                touch-action="pan-y"
                 auto-rotate
                 auto-rotate-delay="0"
                 rotation-per-second="24deg"
                 interaction-prompt="none"
+                camera-orbit={`${tarta.anguloInicial ?? 0}deg 75deg auto`}
                 min-camera-orbit="auto 10deg auto"
                 max-camera-orbit="auto 90deg auto"
                 shadow-intensity="1"
@@ -53,6 +56,9 @@ const CATEGORIA_LABEL: Record<Tarta["categoria"], string> = {
               <Image
                 src={tarta.foto!}
                 alt={tarta.nombre}
+                widths={[400, 640, 900]}
+                sizes="(max-width: 900px) 92vw, 540px"
+                loading="eager"
                 class="detail-photo-img"
               />
             </figure>
@@ -379,17 +385,27 @@ const CATEGORIA_LABEL: Record<Tarta["categoria"], string> = {
 
 <script>
   import { gsap } from "gsap";
-  import "@google/model-viewer";
+
+  // El visor 3D pesa (~1 MB de JS y mucho trabajo de CPU): se carga cuando ha
+  // terminado la animación de entrada, para no frenar la aparición del texto.
+  const cargarVisor = () => {
+    if (!document.querySelector("model-viewer")) return;
+    const importar = () => import("@google/model-viewer");
+    if ("requestIdleCallback" in window) requestIdleCallback(importar, { timeout: 1500 });
+    else setTimeout(importar, 200);
+  };
 
   // --- 3D viewer: volver a la posición inicial tras un rato sin tocar ---
   const RESET_DELAY_MS = 1500;
   document.querySelectorAll<any>("model-viewer").forEach((mv) => {
     let resetTimer: ReturnType<typeof setTimeout>;
+    const orbitaInicial = mv.getAttribute("camera-orbit") ?? "auto auto auto";
     mv.addEventListener("camera-change", (event: CustomEvent) => {
       if (event.detail.source !== "user-interaction") return;
       clearTimeout(resetTimer);
       resetTimer = setTimeout(() => {
-        mv.cameraOrbit = "auto auto auto";
+        mv.cameraOrbit = orbitaInicial;
+        mv.cameraTarget = "auto auto auto";
         mv.fieldOfView = "auto";
       }, RESET_DELAY_MS);
     });
@@ -409,5 +425,6 @@ const CATEGORIA_LABEL: Record<Tarta["categoria"], string> = {
     stagger: 0.15,
     ease: "power2.out",
     delay: 0.15,
+    onComplete: cargarVisor,
   });
 </script>

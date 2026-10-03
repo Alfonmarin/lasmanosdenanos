@@ -29,6 +29,11 @@ export type Tarta = {
   // Sin `modelo` la tarjeta no enlaza a una ficha de detalle (no hay 3D que
   // mostrar ahí) y se comporta como las galletas: solo foto + "Contacto".
   modelo?: string;
+  // Opcional: desde qué ángulo (en grados) se empieza a ver el modelo 3D.
+  // Cada escaneo sale orientado a su manera; si al cargar se ve de lado o
+  // por detrás, prueba valores hasta que se vea de frente. Más grados = la
+  // tarta aparece más girada hacia la izquierda. Sin este campo: 0.
+  anguloInicial?: number;
   // Opcional: foto de portada para la tarjeta de la galería. Ver nota arriba.
   foto?: ImageMetadata;
 };
@@ -62,6 +67,7 @@ export const tartas: Tarta[] = [
       "Cobertura de frosting de queso con detalles de fondant",
     ],
     modelo: "/models/bebazo_cropped.glb",
+    anguloInicial: 105,
     foto: bebeJefazoFoto,
   },
   {
