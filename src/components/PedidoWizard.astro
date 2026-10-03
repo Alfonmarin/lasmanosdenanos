@@ -209,34 +209,38 @@ const modelosGalletas = galletas.filter((g) => g.foto);
       <h2 class="wz-q">¿Tienes un modelo en mente?</h2>
       <p class="wz-hint">Elige uno de la galería como referencia o personaliza el diseño · opcional</p>
 
-      <div class="modelo-grid" data-tipo="tarta" hidden>
-        {modelosTarta.map((t) => (
-          <label class="modelo-card">
-            <input type="radio" name="modelo" value={t.id} data-nombre={t.nombre} />
-            <span class="modelo-inner">
-              <Image src={t.foto!} alt={t.nombre} width={360} class="modelo-img" />
-              <span class="modelo-name">{t.nombre}</span>
-            </span>
-          </label>
-        ))}
-      </div>
-      <div class="modelo-grid" data-tipo="galletas" hidden>
-        {modelosGalletas.map((g) => (
-          <label class="modelo-card">
-            <input type="radio" name="modelo" value={g.id} data-nombre={g.nombre} />
-            <span class="modelo-inner">
-              <Image src={g.foto!} alt={g.nombre} width={360} class="modelo-img" />
-              <span class="modelo-name">{g.nombre}</span>
-            </span>
-          </label>
-        ))}
-      </div>
+      <!-- Escritorio: páginas de 4 · Móvil: carrusel deslizable. Las flechas
+           van a los lados en los dos casos. -->
+      <div class="modelo-carrusel">
+        <div class="modelo-grid" data-tipo="tarta" hidden>
+          {modelosTarta.map((t) => (
+            <label class="modelo-card">
+              <input type="radio" name="modelo" value={t.id} data-nombre={t.nombre} />
+              <span class="modelo-inner">
+                <Image src={t.foto!} alt={t.nombre} width={360} class="modelo-img" />
+                <span class="modelo-name">{t.nombre}</span>
+              </span>
+            </label>
+          ))}
+        </div>
+        <div class="modelo-grid" data-tipo="galletas" hidden>
+          {modelosGalletas.map((g) => (
+            <label class="modelo-card">
+              <input type="radio" name="modelo" value={g.id} data-nombre={g.nombre} />
+              <span class="modelo-inner">
+                <Image src={g.foto!} alt={g.nombre} width={360} class="modelo-img" />
+                <span class="modelo-name">{g.nombre}</span>
+              </span>
+            </label>
+          ))}
+        </div>
 
-      <!-- Escritorio: páginas de 4 · Móvil: flechas y puntos del carrusel -->
-      <div class="modelo-pag" id="wz-pag" hidden>
-        <button type="button" class="pag-arrow" id="wz-pag-prev" aria-label="Anterior">←</button>
-        <div class="pag-dots" id="wz-pag-dots"></div>
-        <button type="button" class="pag-arrow" id="wz-pag-next" aria-label="Siguiente">→</button>
+        <button type="button" class="pag-arrow prev" id="wz-pag-prev" aria-label="Modelos anteriores" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6l-6 6 6 6" /></svg>
+        </button>
+        <button type="button" class="pag-arrow next" id="wz-pag-next" aria-label="Más modelos" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6" /></svg>
+        </button>
       </div>
 
       <input
@@ -343,7 +347,7 @@ const modelosGalletas = galletas.filter((g) => g.foto);
 
     <div class="wz-nav" id="wz-nav">
       <button type="button" class="wz-btn-back" id="wz-back">← Atrás</button>
-      <button type="submit" class="wz-btn-next" id="wz-next">Siguiente →</button
+      <button type="submit" class="wz-btn-next" id="wz-next">Siguiente</button
       >
     </div>
   </form>
@@ -511,8 +515,17 @@ const modelosGalletas = galletas.filter((g) => g.foto);
     margin: 0;
   }
 
+  /* En iPhone, un <input type="date"> con borde y fondo propios (como el
+     resto del formulario) sigue dibujando además su "píldora" nativa por
+     detrás, más ancha que nuestra caja: es lo que se veía "salir" a los
+     lados. -webkit-appearance:none la quita y deja solo nuestro recuadro;
+     el selector de fecha nativo al tocar sigue funcionando igual. */
   .wz-date {
-    font-size: 20px;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 18px 14px;
+    -webkit-appearance: none;
+    appearance: none;
   }
 
   /* Campo normal: textareas y "otro" */
@@ -731,60 +744,77 @@ const modelosGalletas = galletas.filter((g) => g.foto);
   }
 
 
-  /* Paginación (escritorio) / indicador del carrusel (móvil) */
-  .modelo-pag {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-    margin-top: 14px;
+  /* Flechas a los lados del carrusel, a caballo del borde de las tartas y
+     centradas en la foto (el nombre de debajo mide unos 35px). */
+  .modelo-carrusel {
+    --flecha: 42px;
+    position: relative;
   }
 
   .pag-arrow {
-    width: 36px;
-    height: 36px;
+    position: absolute;
+    top: calc(50% - 17px);
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: var(--flecha);
+    height: var(--flecha);
+    padding: 0;
     border-radius: 50%;
-    border: 1.5px solid #ead7dd;
+    border: 1.5px solid #f0e1e9;
     background: #fff;
     color: var(--color-primary);
-    font-weight: 800;
-    font-size: 16px;
+    box-shadow: 0 10px 22px -10px rgba(140, 60, 95, 0.55);
     cursor: pointer;
+    transform: translateY(-50%);
     transition:
+      background 0.15s ease,
+      color 0.15s ease,
       border-color 0.15s ease,
-      opacity 0.15s ease;
+      opacity 0.2s ease,
+      transform 0.2s ease;
   }
 
-  .pag-arrow:hover {
-    border-color: #d9a7ba;
+  .pag-arrow.prev {
+    left: calc(var(--flecha) / -2);
   }
 
-  .pag-arrow[disabled] {
-    opacity: 0.3;
-    cursor: default;
+  .pag-arrow.next {
+    right: calc(var(--flecha) / -2);
   }
 
-  .pag-dots {
-    display: flex;
-    gap: 6px;
-  }
-
-  .pag-dot {
-    width: 8px;
-    height: 8px;
-    padding: 0;
-    border: none;
-    border-radius: 999px;
-    background: #ead7dd;
-    cursor: pointer;
-    transition:
-      width 0.2s ease,
-      background 0.2s ease;
-  }
-
-  .pag-dot.is-active {
+  .pag-arrow svg {
     width: 20px;
-    background: var(--color-primary);
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  @media (hover: hover) {
+    .pag-arrow:hover {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+      color: #fff;
+    }
+  }
+
+  .pag-arrow:active {
+    transform: translateY(-50%) scale(0.92);
+  }
+
+  .pag-arrow:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(188, 17, 80, 0.22);
+  }
+
+  /* En los extremos la flecha que ya no lleva a ningún sitio se desvanece */
+  .pag-arrow[disabled] {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-50%) scale(0.8);
   }
 
   /* Botón "Personalizar diseño" */
@@ -1007,8 +1037,17 @@ const modelosGalletas = galletas.filter((g) => g.foto);
     /* Carrusel: una carta centrada y las de los lados atenuadas.
        El padding lateral es justo el hueco que sobra a los lados de una
        carta, para que la primera y la última también queden centradas. */
-    .modelo-grid {
+    .modelo-carrusel {
       --carta: min(210px, 62vw);
+      --flecha: 38px;
+    }
+    .pag-arrow.prev {
+      left: max(0px, calc(50% - var(--carta) / 2 - var(--flecha) / 2));
+    }
+    .pag-arrow.next {
+      right: max(0px, calc(50% - var(--carta) / 2 - var(--flecha) / 2));
+    }
+    .modelo-grid {
       display: flex;
       overflow-x: auto;
       scroll-snap-type: x mandatory;
@@ -1051,9 +1090,6 @@ const modelosGalletas = galletas.filter((g) => g.foto);
     }
     .wz-num {
       font-size: 38px;
-    }
-    .wz-btn-next {
-      flex: 1;
     }
   }
 </style>
@@ -1343,10 +1379,8 @@ const modelosGalletas = galletas.filter((g) => g.foto);
     const PAGINA = 4;
     const mqMovil = window.matchMedia("(max-width: 600px)");
     const grids = Array.from(wz.querySelectorAll<HTMLElement>(".modelo-grid"));
-    const pagEl = $("#wz-pag");
     const pagPrev = $<HTMLButtonElement>("#wz-pag-prev");
     const pagNext = $<HTMLButtonElement>("#wz-pag-next");
-    const pagDots = $("#wz-pag-dots");
     const persoBtn = $<HTMLButtonElement>("#wz-personalizar");
     const persoRadio = $<HTMLInputElement>("#wz-modelo-perso");
     let pagina = 0;
@@ -1390,17 +1424,8 @@ const modelosGalletas = galletas.filter((g) => g.foto);
       });
     }
 
-    function pintarDots(total: number, actual: number) {
-      pagEl.hidden = total <= 1;
-      pagDots.innerHTML = "";
-      for (let i = 0; i < total; i++) {
-        const d = document.createElement("button");
-        d.type = "button";
-        d.className = "pag-dot" + (i === actual ? " is-active" : "");
-        d.setAttribute("aria-label", `Ir a ${i + 1}`);
-        d.addEventListener("click", () => irA(i));
-        pagDots.appendChild(d);
-      }
+    function pintarFlechas(total: number, actual: number) {
+      pagPrev.hidden = pagNext.hidden = total <= 1;
       pagPrev.disabled = actual <= 0;
       pagNext.disabled = actual >= total - 1;
     }
@@ -1433,7 +1458,7 @@ const modelosGalletas = galletas.filter((g) => g.foto);
           c.hidden = false;
           c.classList.toggle("is-center", j === i);
         });
-        pintarDots(cs.length, i);
+        pintarFlechas(cs.length, i);
       } else {
         const total = Math.ceil(cs.length / PAGINA);
         pagina = Math.max(0, Math.min(pagina, total - 1));
@@ -1441,7 +1466,7 @@ const modelosGalletas = galletas.filter((g) => g.foto);
           c.hidden = Math.floor(j / PAGINA) !== pagina;
           c.classList.remove("is-center");
         });
-        pintarDots(total, pagina);
+        pintarFlechas(total, pagina);
       }
     }
 
@@ -1485,7 +1510,7 @@ const modelosGalletas = galletas.filter((g) => g.foto);
     function actualizarNext(el: HTMLElement) {
       const skip =
         el.hasAttribute("data-optional") && pasoVacio(el.dataset.step!);
-      nextBtn.textContent = skip ? "Saltar →" : "Siguiente →";
+      nextBtn.textContent = skip ? "Saltar" : "Siguiente";
       nextBtn.classList.toggle("is-skip", skip);
     }
 
