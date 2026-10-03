@@ -1,0 +1,729 @@
+---
+import { Image } from "astro:assets";
+import Layout from "../layouts/Layout.astro";
+import PedidoWizard from "../components/PedidoWizard.astro";
+import logoImg from "../assets/logo.png";
+import iconoWhatsapp from "../assets/iconos/whatsapp.png";
+import iconoInstagram from "../assets/iconos/instagram.png";
+import iconoGmail from "../assets/iconos/gmail.png";
+import { CONTACTO, waLink, igLink, mailLink } from "../data/contacto";
+
+const perks = [
+  {
+    emoji: "⏱️",
+    title: "Respuesta rápida",
+    sub: "en pocas horas",
+    variant: "pink",
+  },
+  {
+    emoji: "📍",
+    title: "Entrega y recogida",
+    sub: "consulta tu zona",
+    variant: "purple",
+  },
+  {
+    emoji: "📅",
+    title: "Reserva con tiempo",
+    sub: `mín. ${CONTACTO.plazoMinimoTexto} antes`,
+    variant: "pink",
+  },
+];
+
+const chatMessages = [
+  { from: "in", text: "¡Hola! Quiero una tarta para el cumple de mi hija 🎂" },
+  {
+    from: "out",
+    text: "¡Qué ilusión! ¿Para cuántas personas y qué temática? ✨",
+  },
+  { from: "in", text: "Somos 12 y le encantan los unicornios 🦄" },
+  { from: "out", text: "¡Me encanta! Te preparo una propuesta 💖" },
+];
+
+// Partimos el email para poder cortar la línea justo antes de la @
+const [emailUsuario, emailDominio] = CONTACTO.email.split("@");
+
+const pasos = [
+  "Me escribes con tu idea y la fecha.",
+  "Te paso propuesta y presupuesto.",
+  "Confirmas y me pongo manos a la obra.",
+];
+---
+
+<Layout>
+  <!-- === HERO === -->
+  <section class="contacto-hero">
+    <div class="hero-inner">
+      <div class="hero-text">
+        <div class="subtitle-bar">
+          <span class="line"></span>Contacto<span class="line"></span>
+        </div>
+        <h1 class="hero-title">Hablemos de tu idea</h1>
+        <p class="hero-lead">
+          Cuéntame qué celebras y lo diseñamos juntas. La forma más rápida es
+          WhatsApp: te respondo personalmente en pocas horas.
+        </p>
+        <div class="perks-row">
+          {
+            perks.map((perk) => (
+              <div class="perk">
+                <span class={`perk-icon ${perk.variant}`}>{perk.emoji}</span>
+                <div>
+                  <div class="perk-title">{perk.title}</div>
+                  <div class="perk-sub">{perk.sub}</div>
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+
+      <!-- En móvil la tarjeta entera abre WhatsApp (en escritorio es decorativa) -->
+      <a
+        href={waLink}
+        target="_blank"
+        rel="noopener"
+        class="chat-mock"
+        aria-label="Escríbeme por WhatsApp"
+      >
+        <div class="chat-header">
+          <Image
+            src={logoImg}
+            alt=""
+            width={76}
+            height={76}
+            class="chat-avatar"
+          />
+          <div>
+            <div class="chat-name">Las Manos de Nanos</div>
+            <div class="chat-status">en línea · te responde Elsa</div>
+          </div>
+          <span class="chat-open">Escribir →</span>
+        </div>
+        <div class="chat-body">
+          {
+            chatMessages.map((msg) => (
+              <div class:list={["chat-bubble", msg.from]}>{msg.text}</div>
+            ))
+          }
+          <div class="chat-typing" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- === SCALLOPED DIVIDER === -->
+  <div class="scalloped"></div>
+
+  <!-- === CANALES + FORMULARIO === -->
+  <section class="channels-section">
+    <div class="channels-inner">
+      <!-- CANALES -->
+      <div class="channels-col">
+        <h2 class="channels-title">Por dónde quieras</h2>
+        <p class="channels-lead">
+          Elige tu canal favorito. Sea cual sea, te responde Elsa en persona.
+        </p>
+
+        <div class="channels-row">
+          <a href={waLink} target="_blank" rel="noopener" class="channel-card">
+            <Image
+              src={iconoWhatsapp}
+              alt="WhatsApp"
+              width={240}
+              height={240}
+              densities={[1, 2, 3]}
+              class="channel-icon"
+            />
+            <span class="channel-detail">{CONTACTO.whatsappDisplay}</span>
+          </a>
+
+          <a href={igLink} target="_blank" rel="noopener" class="channel-card">
+            <Image
+              src={iconoInstagram}
+              alt="Instagram"
+              width={240}
+              height={240}
+              densities={[1, 2, 3]}
+              class="channel-icon"
+            />
+            <span class="channel-detail">@{CONTACTO.instagramHandle}</span>
+          </a>
+
+          <a href={mailLink} class="channel-card">
+            <Image
+              src={iconoGmail}
+              alt="Email"
+              width={240}
+              height={240}
+              densities={[1, 2, 3]}
+              class="channel-icon mail"
+            />
+            <span class="channel-detail">{emailUsuario}<wbr />@{emailDominio}</span>
+          </a>
+        </div>
+
+        <div class="how-card">
+          <div class="how-title">Cómo funciona</div>
+          <div class="how-steps">
+            {
+              pasos.map((paso, i) => (
+                <div class="how-step">
+                  <span class="how-num">{i + 1}</span>
+                  <span class="how-text">{paso}</span>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- FORMULARIO -->
+      <PedidoWizard />
+    </div>
+  </section>
+</Layout>
+
+<style>
+  /* ---- HERO ---- */
+  .contacto-hero {
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(120% 90% at 22% -10%, #fceef0 0%, #fffaf4 62%);
+  }
+
+  .hero-inner {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 58px 5vw 56px;
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 52px;
+    align-items: center;
+  }
+
+  .subtitle-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #c9769a;
+    margin-bottom: 16px;
+  }
+
+  .line {
+    width: 24px;
+    height: 1.5px;
+    background: #e7b8cb;
+  }
+
+  .hero-title {
+    font-family: var(--font-title);
+    font-size: clamp(38px, 6vw, 54px);
+    line-height: 1.12;
+    color: var(--color-primary);
+    margin: 0 0 16px;
+  }
+
+  .hero-lead {
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--color-text);
+    font-weight: 600;
+    margin: 0 0 36px;
+    max-width: 460px;
+  }
+
+  .perks-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    max-width: 560px;
+  }
+
+  .perk {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    padding: 18px 12px 16px;
+    box-shadow: 0 14px 30px -22px rgba(140, 60, 95, 0.45);
+  }
+
+  .perk-icon {
+    width: 42px;
+    height: 42px;
+    flex: none;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+  .perk-icon.pink {
+    background: #fceff1;
+  }
+  .perk-icon.purple {
+    background: #f6ecfb;
+  }
+
+  .perk-title {
+    font-weight: 800;
+    font-size: 14px;
+    line-height: 1.25;
+    color: var(--color-text-dark);
+    text-wrap: balance;
+  }
+
+  .perk-sub {
+    font-weight: 600;
+    font-size: 12.5px;
+    color: #8a6a76;
+    margin-top: 4px;
+    text-wrap: balance;
+  }
+
+  /* ---- CHAT MOCK ---- */
+  .chat-mock {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    pointer-events: none;
+    justify-self: center;
+    width: 340px;
+    max-width: 100%;
+    background: #fff;
+    border-radius: 26px;
+    box-shadow: 0 30px 60px -28px rgba(140, 60, 95, 0.5);
+    border: 1px solid var(--color-border);
+    overflow: hidden;
+  }
+
+  .chat-header {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 14px 18px;
+    background: #128c7e;
+    color: #fff;
+  }
+
+  .chat-avatar {
+    width: 38px;
+    height: 38px;
+    object-fit: cover;
+    border-radius: 50%;
+    background: #fff;
+    padding: 3px;
+  }
+
+  .chat-name {
+    font-weight: 800;
+    font-size: 15px;
+  }
+
+  .chat-status {
+    font-size: 11.5px;
+    opacity: 0.85;
+  }
+
+  .chat-open {
+    display: none;
+    margin-left: auto;
+    font-weight: 800;
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .chat-body {
+    position: relative;
+    padding: 20px 16px;
+    background: linear-gradient(180deg, #fbeff3, #f7ecf0);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .chat-bubble {
+    max-width: 82%;
+    padding: 11px 14px;
+    font-size: 13.5px;
+    line-height: 1.45;
+    font-weight: 600;
+    box-shadow: 0 4px 10px -6px rgba(0, 0, 0, 0.15);
+  }
+
+  .chat-bubble.in {
+    align-self: flex-start;
+    background: #fff;
+    color: var(--color-text-dark);
+    border-radius: 14px 14px 14px 4px;
+  }
+
+  .chat-bubble.out {
+    align-self: flex-end;
+    background: #dcf8c6;
+    color: #33502b;
+    border-radius: 14px 14px 4px 14px;
+  }
+
+  /* Globo de "escribiendo…" que sale antes de cada respuesta de Elsa. El
+     script lo coloca justo donde va a aparecer la respuesta. */
+  .chat-typing {
+    position: absolute;
+    top: 0;
+    right: 16px;
+    display: flex;
+    gap: 4px;
+    padding: 12px 14px;
+    background: #dcf8c6;
+    border-radius: 14px 14px 4px 14px;
+    box-shadow: 0 4px 10px -6px rgba(0, 0, 0, 0.15);
+    transform-origin: bottom right;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .chat-typing span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #6a8f5a;
+    animation: chat-dot 0.9s ease-in-out infinite;
+  }
+  .chat-typing span:nth-child(2) {
+    animation-delay: 0.15s;
+  }
+  .chat-typing span:nth-child(3) {
+    animation-delay: 0.3s;
+  }
+
+  @keyframes chat-dot {
+    0%,
+    60%,
+    100% {
+      transform: translateY(0);
+      opacity: 0.45;
+    }
+    30% {
+      transform: translateY(-4px);
+      opacity: 1;
+    }
+  }
+
+  /* ---- SCALLOPED ---- */
+  .scalloped {
+    height: 26px;
+    background:
+      radial-gradient(circle at 13px 0, #f6ecfb 13px, transparent 14px) 0 0/26px
+        26px repeat-x,
+      #fffaf4;
+  }
+
+  /* ---- CHANNELS + FORM ---- */
+  .channels-section {
+    background: #f6ecfb;
+    padding: 56px 5vw;
+  }
+
+  .channels-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 32px;
+    /* La columna de canales NO sigue al formulario cuando este crece con los
+       pasos: su altura se fija al cargar (ver script) para cuadrar con el
+       primer paso. */
+    align-items: start;
+  }
+
+  .channels-col {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .channels-title {
+    font-family: var(--font-title);
+    font-size: 30px;
+    color: #8a4e9e;
+    margin: 0 0 4px;
+  }
+
+  .channels-lead {
+    margin: 0 0 6px;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--color-secondary);
+    font-weight: 600;
+  }
+
+  .channels-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin: 4px 0 6px;
+  }
+
+  /* Sin tarjeta: solo el icono y el dato debajo. Los tres iconos comparten
+     el mismo cuadrado de 80px y los textos arrancan todos a la misma altura. */
+  .channel-card {
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .channel-icon {
+    display: block;
+    width: 80px;
+    height: 80px;
+    flex: none;
+    object-fit: contain;
+    border-radius: 18px;
+    box-shadow: 0 10px 18px -8px rgba(140, 60, 95, 0.35);
+    /* El hover va en el icono: la tarjeta la anima GSAP al entrar y una
+       transición CSS sobre ella se pelearía con esa animación. */
+    transition: transform 0.2s ease;
+  }
+
+  /* El logo de Gmail es apaisado: lo metemos en una baldosa blanca del mismo
+     tamaño que WhatsApp e Instagram para que los tres queden alineados. */
+  .channel-icon.mail {
+    background: #fff;
+    padding: 16px 12px;
+    box-sizing: border-box;
+  }
+
+  .channel-card:hover .channel-icon {
+    transform: translateY(-3px);
+  }
+
+  .channel-detail {
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 1.35;
+    color: var(--color-secondary);
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  .how-card {
+    /* Rellena lo que sobre de la columna, cuya altura fija el script */
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: #fff;
+    border-radius: 18px;
+    padding: 20px;
+    box-shadow: 0 14px 34px -22px rgba(140, 60, 95, 0.4);
+    border: 1px solid #ede1f3;
+  }
+
+  .how-title {
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--color-text-dark);
+    margin-bottom: 10px;
+  }
+
+  .how-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .how-step {
+    display: flex;
+    gap: 11px;
+    align-items: flex-start;
+  }
+
+  .how-num {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fceff1;
+    color: var(--color-primary);
+    font-weight: 800;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .how-text {
+    font-size: 13.5px;
+    line-height: 1.4;
+    color: var(--color-secondary);
+    font-weight: 600;
+  }
+
+  /* ---- RESPONSIVE ---- */
+  @media (max-width: 900px) {
+    .hero-inner {
+      grid-template-columns: 1fr;
+      gap: 28px;
+      padding: 44px 5vw 40px;
+    }
+    .chat-mock {
+      width: 100%;
+      pointer-events: auto;
+    }
+    .chat-open {
+      display: inline-block;
+    }
+    .channels-inner {
+      grid-template-columns: 1fr;
+    }
+
+    /* En móvil vamos directos al formulario: fuera lo que ya cubren
+       el wizard (canales, plazo) y el footer (enlaces de contacto). */
+    .hero-lead,
+    .perks-row,
+    .channels-col {
+      display: none;
+    }
+    .hero-title {
+      margin-bottom: 0;
+    }
+  }
+</style>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  // --- Altura de la columna de canales ---
+  // Al entrar (paso 1 del formulario) la columna izquierda mide lo mismo que
+  // el formulario, y "Cómo funciona" rellena el hueco. Cuando el formulario
+  // avanza y cambia de altura, la columna se queda como estaba.
+  const col = document.querySelector<HTMLElement>(".channels-col");
+  const wizard = document.querySelector<HTMLElement>(".wizard");
+  const pasoTipo = document.querySelector<HTMLElement>('[data-step="tipo"]');
+  let medido = false;
+
+  function fijarAltura() {
+    if (!col || !wizard) return;
+    if (window.innerWidth <= 900) return; // en móvil la columna está oculta
+    // Solo medimos con el primer paso a la vista (o la primera vez, si el
+    // formulario arranca en otro paso porque el tipo viene fijado).
+    if (medido && pasoTipo?.hidden) return;
+    col.style.minHeight = `${wizard.offsetHeight}px`;
+    medido = true;
+  }
+
+  fijarAltura();
+  window.addEventListener("load", fijarAltura);
+  window.addEventListener("resize", fijarAltura);
+  document.fonts?.ready.then(fijarAltura);
+  if (wizard) new ResizeObserver(fijarAltura).observe(wizard);
+
+  // --- Entrance animations ---
+  gsap.from(".hero-text > *", {
+    y: 24,
+    opacity: 0,
+    duration: 0.7,
+    stagger: 0.12,
+    ease: "power2.out",
+  });
+
+  gsap.from(".chat-mock", {
+    y: 24,
+    opacity: 0,
+    duration: 0.7,
+    ease: "power2.out",
+    delay: 0.2,
+  });
+
+  // --- Conversación de WhatsApp: los globos salen uno a uno con un pop y,
+  // antes de cada respuesta de Elsa, aparece el "escribiendo…". Los globos
+  // ya ocupan su sitio (solo están invisibles), así que la tarjeta no salta.
+  const chatBody = document.querySelector<HTMLElement>(".chat-body");
+  const typing = document.querySelector<HTMLElement>(".chat-typing");
+  const status = document.querySelector<HTMLElement>(".chat-status");
+  const burbujas = [...document.querySelectorAll<HTMLElement>(".chat-bubble")];
+  const reducirMovimiento = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+
+  if (chatBody && typing && status && burbujas.length && !reducirMovimiento) {
+    const estadoOriginal = status.textContent ?? "";
+
+    burbujas.forEach((b) =>
+      gsap.set(b, {
+        opacity: 0,
+        scale: 0.5,
+        y: 14,
+        transformOrigin: b.classList.contains("out") ? "bottom right" : "bottom left",
+      }),
+    );
+
+    const tl = gsap.timeline({ paused: true });
+
+    burbujas.forEach((b, i) => {
+      const deElsa = b.classList.contains("out");
+      if (deElsa) {
+        tl.call(() => {
+          typing.style.top = `${b.offsetTop}px`;
+          status.textContent = "escribiendo…";
+        }, [], i === 0 ? 0 : "+=0.2")
+          .fromTo(
+            typing,
+            { opacity: 0, scale: 0.6 },
+            { opacity: 1, scale: 1, duration: 0.25, ease: "back.out(2.5)" },
+          )
+          .to(typing, { opacity: 0, scale: 0.6, duration: 0.15 }, "+=0.45")
+          .call(() => {
+            status.textContent = estadoOriginal;
+          });
+      }
+      tl.to(
+        b,
+        { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: "back.out(2.2)" },
+        deElsa ? "-=0.05" : i === 0 ? 0 : "+=0.2",
+      );
+    });
+
+    ScrollTrigger.create({
+      trigger: chatBody,
+      start: "top 85%",
+      once: true,
+      onEnter: () => gsap.delayedCall(0.6, () => tl.play()),
+    });
+  }
+
+  gsap.from(".channel-card, .how-card", {
+    y: 16,
+    opacity: 0,
+    duration: 0.5,
+    stagger: 0.08,
+    ease: "power2.out",
+  });
+
+  gsap.from(".wizard", {
+    y: 20,
+    opacity: 0,
+    duration: 0.6,
+    ease: "power2.out",
+    delay: 0.15,
+  });
+</script>

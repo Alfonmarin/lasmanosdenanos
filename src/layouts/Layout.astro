@@ -1,23 +1,70 @@
+---
+import { Font } from 'astro:assets';
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
 <!doctype html>
-<html lang="en">
+<html lang="es">
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
+		<title>Las Manos de Nanos</title>
+		<Font cssVariable="--font-nunito" preload={[{ style: 'normal' }]} />
+		<Font cssVariable="--font-pacifico" preload />
+		<script is:inline>
+			// El <main> se queda oculto hasta que la página está lista para mostrarse
+			// de una vez, sin parpadeos:
+			// - Las animaciones de entrada ocultan contenido desde JS; si se pinta
+			//   antes, se ve aparecer, desaparecer y volver a entrar. Los scripts
+			//   de la página corren antes de DOMContentLoaded y GSAP escribe sus
+			//   valores iniciales en el siguiente frame.
+			// - Al volver atrás sin caché, Safari en iPhone pintaba la página arriba
+			//   y luego saltaba a donde estabas. El scroll lo restauramos nosotros
+			//   al destapar, con las fuentes ya aplicadas para que la altura cuadre.
+			(() => {
+				const html = document.documentElement;
+				const clave = "scroll:" + location.pathname + location.search;
+				html.classList.add("antes-de-js");
+				history.scrollRestoration = "manual";
+				addEventListener("pagehide", () => {
+					try {
+						sessionStorage.setItem(clave, String(scrollY));
+					} catch {}
+				});
+
+				document.addEventListener("DOMContentLoaded", () => {
+					const tipo = performance.getEntriesByType("navigation")[0]?.type;
+					let y = 0;
+					if (tipo === "back_forward" || tipo === "reload") {
+						try {
+							y = Number(sessionStorage.getItem(clave)) || 0;
+						} catch {}
+					}
+					// No document.fonts.ready: en Safari espera también a imágenes y vídeo
+					const fuentes = [...(document.fonts ?? [])]
+						.filter((f) => f.status === "loading")
+						.map((f) => f.loaded.catch(() => {}));
+					const espera = new Promise((listo) => setTimeout(listo, 1000));
+					Promise.race([Promise.all(fuentes), espera]).then(() =>
+						requestAnimationFrame(() => {
+							if (y) scrollTo(0, y);
+							html.classList.remove("antes-de-js");
+						}),
+					);
+				});
+			})();
+		</script>
+		<slot name="head" />
 	</head>
 	<body>
-		<slot />
+		<Header />
+		<main>
+			<slot />
+		</main>
+		<Footer />
 	</body>
 </html>
-
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>

@@ -1,0 +1,415 @@
+---
+import { tartas, ULTIMA_NOVEDAD_ID } from "../../data/tartas";
+
+// La misma tarta que destaca la galería como "Última novedad"
+const tarta =
+  tartas.find((t) => t.id === ULTIMA_NOVEDAD_ID && t.modelo) ??
+  tartas.find((t) => t.modelo)!;
+
+const pasos = [
+  {
+    titulo: "Diseñada contigo",
+    texto: "Partimos de tu idea, tus colores y tu temática.",
+  },
+  {
+    titulo: "Modelada a mano",
+    texto: "Cada figura y cada detalle, pieza a pieza.",
+  },
+  {
+    titulo: "Lista para tu fiesta",
+    texto: "Recogida o entrega el día que la necesites.",
+  },
+];
+---
+
+<section class="t3d">
+  <div class="t3d-inner">
+    <div class="t3d-text">
+      <p class="kicker">
+        <span class="line"></span>Hecha a mano<span class="line"></span>
+      </p>
+      <h2 class="t3d-title">Mírala por todos lados</h2>
+      <p class="t3d-lead">
+        Así es <strong>{tarta.nombre}</strong>, una de mis últimas creaciones.
+      </p>
+
+      <ol class="t3d-pasos">
+        {
+          pasos.map((p, i) => (
+            <li class="t3d-paso" data-paso={i}>
+              <span class="t3d-num">{i + 1}</span>
+              <span>
+                <span class="t3d-paso-titulo">{p.titulo}</span>
+                <span class="t3d-paso-texto">{p.texto}</span>
+              </span>
+            </li>
+          ))
+        }
+      </ol>
+
+      <a href={`/galeria/${tarta.id}`} class="t3d-btn">Ver esta tarta</a>
+    </div>
+
+    <div class="t3d-stage">
+      <div class="t3d-halo"></div>
+      <div class="t3d-pedestal"></div>
+      <model-viewer
+        class="t3d-model"
+        src={tarta.modelo}
+        alt={`Tarta ${tarta.nombre} en 3D`}
+        camera-orbit={`${tarta.anguloInicial ?? 0}deg 78deg auto`}
+        data-angulo={tarta.anguloInicial ?? 0}
+        interpolation-decay="80"
+        interaction-prompt="none"
+        disable-zoom
+        disable-pan
+        shadow-intensity="1"
+        exposure="0.95"
+        loading="lazy"></model-viewer>
+      <span class="t3d-hint" aria-hidden="true">↓ sigue bajando</span>
+    </div>
+  </div>
+</section>
+
+<style>
+  .t3d {
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(
+        60% 70% at 72% 50%,
+        #f1e3fa 0%,
+        rgba(241, 227, 250, 0) 70%
+      ),
+      radial-gradient(
+        50% 60% at 15% 20%,
+        #fde8ee 0%,
+        rgba(253, 232, 238, 0) 65%
+      ),
+      #fff7f4;
+  }
+
+  .t3d-inner {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 70px 5vw;
+    min-height: calc(100svh - 78px);
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    align-items: center;
+    gap: 40px;
+  }
+
+  .kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 10px;
+    font-weight: 800;
+    font-size: 12.5px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #c9769a;
+  }
+
+  .line {
+    width: 24px;
+    height: 1.5px;
+    background: #e7b8cb;
+  }
+
+  .t3d-title {
+    margin: 0 0 14px;
+    font-family: var(--font-title);
+    font-weight: 400;
+    font-size: clamp(36px, 4.6vw, 56px);
+    line-height: 1.15;
+    text-wrap: balance;
+    color: var(--color-primary);
+  }
+
+  .t3d-lead {
+    margin: 0 0 28px;
+    max-width: 440px;
+    font-size: 17px;
+    line-height: 1.6;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .t3d-pasos {
+    list-style: none;
+    margin: 0 0 30px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* Los pasos se van "encendiendo" a medida que gira la tarta */
+  .t3d-paso {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid transparent;
+    opacity: 0.45;
+    transition:
+      opacity 0.35s ease,
+      background 0.35s ease,
+      border-color 0.35s ease,
+      transform 0.35s ease;
+  }
+  .t3d-paso.activo {
+    opacity: 1;
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    transform: translateX(6px);
+    box-shadow: 0 16px 34px -16px rgba(188, 17, 80, 0.55);
+  }
+
+  .t3d-num {
+    flex: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fceff1;
+    color: var(--color-primary);
+    font-weight: 900;
+    font-size: 14px;
+    transition:
+      background 0.35s ease,
+      color 0.35s ease;
+  }
+  .t3d-paso.activo .t3d-num {
+    background: rgba(255, 255, 255, 0.22);
+    color: #fff;
+  }
+
+  .t3d-paso-titulo {
+    display: block;
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--color-text-dark);
+    transition: color 0.35s ease;
+  }
+  .t3d-paso.activo .t3d-paso-titulo {
+    color: #fff;
+  }
+
+  .t3d-paso-texto {
+    display: block;
+    margin-top: 2px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #8a6a76;
+    transition: color 0.35s ease;
+  }
+  .t3d-paso.activo .t3d-paso-texto {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  .t3d-btn {
+    display: inline-flex;
+    background: var(--color-primary);
+    color: #fff;
+    font-weight: 800;
+    font-size: 15px;
+    padding: 14px 28px;
+    border-radius: 999px;
+    box-shadow: 0 14px 30px -12px rgba(188, 17, 80, 0.55);
+    transition: transform 0.2s ease;
+  }
+  .t3d-btn:hover {
+    transform: translateY(-2px);
+  }
+
+  /* ---- Escenario 3D ---- */
+  .t3d-stage {
+    position: relative;
+    height: min(620px, 72svh);
+  }
+
+  .t3d-halo {
+    position: absolute;
+    inset: 12% 10%;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fbd0dd 0%, rgba(251, 208, 221, 0) 68%);
+    filter: blur(10px);
+  }
+
+  .t3d-pedestal {
+    position: absolute;
+    left: 50%;
+    bottom: 8%;
+    width: 60%;
+    height: 44px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(140, 60, 110, 0.26) 0%,
+      rgba(140, 60, 110, 0) 70%
+    );
+    filter: blur(6px);
+  }
+
+  .t3d-model {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    --poster-color: transparent;
+  }
+
+  .t3d-hint {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #b78aa0;
+    transition: opacity 0.3s ease;
+  }
+
+  /* ---- Móvil / tablet: tarta arriba, texto debajo, sin quedarse fija ---- */
+  @media (max-width: 900px) {
+    .t3d-inner {
+      grid-template-columns: 1fr;
+      min-height: 0;
+      padding: 56px 20px 64px;
+      gap: 8px;
+      text-align: center;
+    }
+    .t3d-stage {
+      order: -1;
+      height: 380px;
+    }
+    .t3d-text {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .t3d-lead {
+      font-size: 16px;
+    }
+    .t3d-pasos {
+      width: 100%;
+      max-width: 420px;
+      text-align: left;
+    }
+    .t3d-paso,
+    .t3d-paso.activo {
+      opacity: 1;
+      transform: none;
+      background: #fff;
+      border-color: var(--color-border);
+    }
+    .t3d-paso.activo .t3d-num {
+      background: #fceff1;
+      color: var(--color-primary);
+    }
+    .t3d-paso.activo .t3d-paso-titulo {
+      color: var(--color-text-dark);
+    }
+    .t3d-paso.activo .t3d-paso-texto {
+      color: #8a6a76;
+    }
+    .t3d-hint {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const seccion = document.querySelector<HTMLElement>(".t3d");
+  const modelo = document.querySelector<any>(".t3d-model");
+  const pasos = [...document.querySelectorAll<HTMLElement>(".t3d-paso")];
+  const hint = document.querySelector<HTMLElement>(".t3d-hint");
+  const reducirMovimiento = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+
+  // El visor 3D (~1 MB de JS) solo se descarga al acercarse a la sección
+  if (seccion) {
+    const obs = new IntersectionObserver(
+      ([entrada]) => {
+        if (!entrada.isIntersecting) return;
+        obs.disconnect();
+        import("@google/model-viewer");
+      },
+      { rootMargin: "800px 0px" },
+    );
+    obs.observe(seccion);
+  }
+
+  // Por atributo y no por propiedad: funciona igual antes de que el visor
+  // termine de cargar, y cuando carga recoge la posición actual.
+  // `progreso` 0 = de frente (con el ángulo propio de cada tarta).
+  const anguloFrente = Number(modelo?.dataset.angulo) || 0;
+  const girar = (progreso: number) => {
+    modelo?.setAttribute(
+      "camera-orbit",
+      `${anguloFrente + progreso * 360}deg 78deg auto`,
+    );
+  };
+
+  if (seccion && modelo) {
+    if (reducirMovimiento) {
+      // Sin animaciones ligadas al scroll: gira sola, despacio
+      modelo.setAttribute("auto-rotate", "");
+      modelo.setAttribute("rotation-per-second", "12deg");
+      pasos.forEach((p) => p.classList.add("activo"));
+    } else {
+      const mm = gsap.matchMedia();
+
+      // Escritorio: la sección se queda fija mientras la tarta da una vuelta
+      // completa y se van encendiendo los tres pasos
+      mm.add("(min-width: 901px)", () => {
+        const cabecera = document.querySelector<HTMLElement>("header");
+        ScrollTrigger.create({
+          trigger: seccion,
+          start: () => `top ${cabecera?.offsetHeight ?? 0}px`,
+          end: "+=140%",
+          pin: true,
+          scrub: true,
+          onUpdate: ({ progress }) => {
+            girar(progress);
+            const activo = Math.min(
+              pasos.length - 1,
+              Math.floor(progress * pasos.length),
+            );
+            pasos.forEach((p, i) => p.classList.toggle("activo", i <= activo));
+            if (hint) hint.style.opacity = progress > 0.05 ? "0" : "1";
+          },
+        });
+      });
+
+      // Móvil: gira mientras la tarta cruza la pantalla, sin fijar la
+      // sección. Se mide sobre la propia tarta y no sobre toda la sección:
+      // a mitad de recorrido está centrada en pantalla, y ahí se ve de frente.
+      mm.add("(max-width: 900px)", () => {
+        ScrollTrigger.create({
+          trigger: modelo.closest(".t3d-stage") ?? modelo,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: true,
+          onUpdate: ({ progress }) => girar(progress - 0.5),
+        });
+      });
+    }
+  }
+</script>

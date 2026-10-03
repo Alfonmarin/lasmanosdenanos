@@ -1,0 +1,399 @@
+---
+import { Image } from 'astro:assets';
+import logoImg from '../assets/logo.png';
+import { CONTACTO, igLink, mailLink } from '../data/contacto';
+
+// Decoración: chispitas repartidas por el fondo burdeos.
+// `edge: true` = se mantiene en móvil; el resto se oculta para no recargar.
+const sparkles = [
+  { type: 'star', top: '9%',  left: '6%',   size: 26, opacity: 0.4,  delay: '0s',   edge: true },
+  { type: 'dot',  top: '16%', left: '15%',  size: 10, opacity: 0.3,  delay: '1.2s', edge: false },
+  { type: 'star', top: '30%', left: '10%',  size: 14, opacity: 0.28, delay: '2.4s', edge: false },
+  { type: 'dash', top: '52%', left: '5%',   size: 18, opacity: 0.22, delay: '0.8s', edge: false },
+  { type: 'dot',  top: '72%', left: '12%',  size: 7,  opacity: 0.26, delay: '3s',   edge: false },
+  { type: 'star', top: '86%', left: '4%',   size: 18, opacity: 0.3,  delay: '1.8s', edge: true },
+  { type: 'dot',  top: '6%',  left: '48%',  size: 6,  opacity: 0.3,  delay: '2.1s', edge: false },
+  { type: 'star', top: '94%', left: '44%',  size: 13, opacity: 0.24, delay: '0.4s', edge: false },
+  { type: 'star', top: '12%', left: '91%',  size: 24, opacity: 0.4,  delay: '1.5s', edge: true },
+  { type: 'dot',  top: '26%', left: '84%',  size: 9,  opacity: 0.3,  delay: '2.8s', edge: false },
+  { type: 'dash', top: '44%', left: '93%',  size: 20, opacity: 0.24, delay: '0.6s', edge: false },
+  { type: 'star', top: '64%', left: '88%',  size: 16, opacity: 0.3,  delay: '3.4s', edge: false },
+  { type: 'dot',  top: '82%', left: '95%',  size: 8,  opacity: 0.26, delay: '1s',   edge: true },
+];
+---
+
+<footer class="site-footer">
+  <!-- Chispitas decorativas -->
+  <div class="sparkles" aria-hidden="true">
+    {
+      sparkles.map((s) => (
+        <span
+          class:list={['spark', `spark-${s.type}`, { 'is-edge': s.edge }]}
+          style={`top:${s.top};left:${s.left};width:${s.size}px;height:${s.type === 'dash' ? 6 : s.size}px;--s:${s.size}px;--o:${s.opacity};animation-delay:${s.delay};`}
+        >
+          {s.type === 'star' && (
+            <svg viewBox="0 0 24 24" width={s.size} height={s.size} fill="currentColor">
+              <path d="M12 0c.6 5.9 5.5 10.8 11.4 11.4v1.2C17.5 13.2 12.6 18.1 12 24h-1.2C10.2 18.1 5.3 13.2-.6 12.6v-1.2C5.3 10.8 10.2 5.9 10.8 0H12Z" />
+            </svg>
+          )}
+        </span>
+      ))
+    }
+  </div>
+
+  <div class="footer-inner">
+    <!-- === Llamada a la acción === -->
+    <div class="footer-cta">
+      <h2 class="cta-title">¿Ya tienes tu idea en mente?</h2>
+      <p class="cta-desc">
+        Cuéntame qué celebras y la diseñamos juntas. Te respondo rápido.
+      </p>
+      <div class="cta-actions">
+        <a href="/contacto" class="cta-btn-main">
+          <span class="dot-green"></span>Escríbeme por WhatsApp
+        </a>
+        <a href={igLink} target="_blank" rel="noopener" class="cta-btn-outline">
+          Sígueme en Instagram
+        </a>
+      </div>
+    </div>
+
+    <!-- === Marca + navegación === -->
+    <div class="footer-main">
+      <div class="footer-brand">
+        <div class="logo-badge">
+          <Image src={logoImg} alt="Las Manos de Nanos" class="logo-img" width={48} densities={[1, 2]} />
+        </div>
+        <div>
+          <span class="logo-text">Las Manos de Nanos</span>
+          <p class="brand-desc">Repostería artesanal casera hecha con mucho cariño.</p>
+          <a href={mailLink} class="brand-mail">{CONTACTO.email}</a>
+        </div>
+      </div>
+
+      <nav class="footer-nav" aria-label="Enlaces del pie de página">
+        <a href="/">Inicio</a>
+        <a href="/galeria">Galería</a>
+        <a href="/sobre-nanos">Sobre Nanos</a>
+        <a href="/contacto">Contacto</a>
+      </nav>
+    </div>
+
+    <!-- === Legal === -->
+    <div class="footer-bottom">
+      <p class="copyright">
+        &copy; {new Date().getFullYear()} Las Manos de Nanos. Todos los derechos reservados.
+      </p>
+      <div class="legal-links">
+        <a href="#">Aviso Legal</a>
+        <a href="#">Privacidad</a>
+        <a href="#">Cookies</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #bc1150 0%, #9c1257 100%);
+    color: #fff;
+    padding: 64px 5vw 28px;
+  }
+
+  .footer-inner {
+    position: relative;
+    z-index: 1;
+    max-width: 1160px;
+    margin: 0 auto;
+  }
+
+  /* ---- CHISPITAS ---- */
+  .sparkles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .spark {
+    position: absolute;
+    display: block;
+    width: var(--s);
+    height: var(--s);
+    color: #fff;
+    opacity: var(--o);
+    animation: twinkle 5s ease-in-out infinite;
+  }
+
+  .spark svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .spark-dot {
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.85);
+  }
+
+  .spark-dash {
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.8);
+    transform: rotate(24deg);
+  }
+
+  @keyframes twinkle {
+    0%,
+    100% {
+      opacity: calc(var(--o) * 0.45);
+      transform: scale(0.85);
+    }
+    50% {
+      opacity: var(--o);
+      transform: scale(1);
+    }
+  }
+
+  .spark-dash {
+    animation-name: twinkle-dash;
+  }
+
+  @keyframes twinkle-dash {
+    0%,
+    100% {
+      opacity: calc(var(--o) * 0.45);
+      transform: rotate(24deg) scale(0.85);
+    }
+    50% {
+      opacity: var(--o);
+      transform: rotate(24deg) scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .spark {
+      animation: none;
+    }
+  }
+
+  /* ---- CTA ---- */
+  .footer-cta {
+    text-align: center;
+    padding-bottom: 48px;
+  }
+
+  .cta-title {
+    font-family: var(--font-title);
+    font-size: clamp(28px, 5vw, 38px);
+    margin: 0 0 10px;
+    color: #fff;
+  }
+
+  .cta-desc {
+    max-width: 520px;
+    margin: 0 auto 26px;
+    font-size: 17px;
+    line-height: 1.55;
+    color: #fce0ea;
+    font-weight: 600;
+  }
+
+  .cta-actions {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .cta-btn-main {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    background: #fff;
+    color: var(--color-primary);
+    font-weight: 800;
+    font-size: 16px;
+    padding: 15px 28px;
+    border-radius: 999px;
+    box-shadow: 0 14px 30px -12px rgba(0, 0, 0, 0.35);
+    transition: transform 0.2s ease;
+  }
+
+  .cta-btn-main:hover {
+    transform: translateY(-2px);
+  }
+
+  .dot-green {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #25d366;
+  }
+
+  .cta-btn-outline {
+    display: inline-flex;
+    align-items: center;
+    background: transparent;
+    color: #fff;
+    font-weight: 800;
+    font-size: 16px;
+    padding: 14px 26px;
+    border-radius: 999px;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    transition: background 0.2s ease;
+  }
+
+  .cta-btn-outline:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  /* ---- MARCA + NAV ---- */
+  .footer-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    flex-wrap: wrap;
+    padding: 30px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
+  }
+
+  .footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .logo-badge {
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 66px;
+    height: 66px;
+    padding: 9px;
+    border-radius: 50%;
+    background: #fffaf4;
+    box-shadow: 0 10px 24px -14px rgba(0, 0, 0, 0.5);
+  }
+
+  .logo-img {
+    width: 100%;
+    height: auto;
+  }
+
+  .logo-text {
+    display: block;
+    font-family: var(--font-title);
+    font-size: 21px;
+    color: #fff;
+  }
+
+  .brand-desc {
+    margin: 4px 0 0;
+    max-width: 280px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #f6cdd9;
+  }
+
+  .brand-mail {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #fce0ea;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.2s ease;
+  }
+
+  .brand-mail:hover {
+    color: #fff;
+  }
+
+  .footer-nav {
+    display: flex;
+    gap: 26px;
+    flex-wrap: wrap;
+  }
+
+  .footer-nav a {
+    color: #fce0ea;
+    font-weight: 700;
+    font-size: 15px;
+    transition: color 0.2s ease;
+  }
+
+  .footer-nav a:hover {
+    color: #fff;
+  }
+
+  /* ---- LEGAL ---- */
+  .footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.18);
+  }
+
+  .copyright {
+    margin: 0;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.72);
+  }
+
+  .legal-links {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+
+  .legal-links a {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.72);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.2s ease;
+  }
+
+  .legal-links a:hover {
+    color: #fff;
+  }
+
+  /* ---- RESPONSIVE ---- */
+  @media (max-width: 760px) {
+    .site-footer {
+      padding: 52px 5vw 26px;
+    }
+
+    .spark:not(.is-edge) {
+      display: none;
+    }
+
+    .footer-main,
+    .footer-bottom {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .footer-brand {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .brand-desc {
+      max-width: 320px;
+    }
+
+    .footer-nav {
+      justify-content: center;
+      gap: 18px;
+    }
+  }
+</style>

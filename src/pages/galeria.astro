@@ -1,0 +1,881 @@
+---
+import { Image } from "astro:assets";
+import Layout from "../layouts/Layout.astro";
+import { tartas, tieneFicha, ULTIMA_NOVEDAD_ID } from "../data/tartas";
+import { galletas } from "../data/galletas";
+import selloNovedad from "../assets/iconos/novedad.png";
+
+const cumpleanosTartas = tartas.filter((t) => t.categoria === "cumpleanos");
+const eventosTartas = tartas.filter((t) => t.categoria === "eventos");
+
+// Se elige a mano vía ULTIMA_NOVEDAD_ID (en src/data/tartas.ts), nunca por
+// orden automático — así una tarta sin modelo 3D no puede colarse aquí.
+// El fallback solo entra en juego si ese id no existe o se queda sin modelo.
+const ultimaNovedad =
+  tartas.find((t) => t.id === ULTIMA_NOVEDAD_ID && t.modelo) ??
+  tartas.find((t) => t.modelo)!;
+
+// Parte el nombre en dos para el rótulo de la novedad: la primera palabra va
+// en grande y el resto debajo ("Motero 50 años" → "Motero" / "50 años").
+// Si la primera palabra es muy corta ("Mi", "La"…) se une con la siguiente,
+// para que no quede un "Mi" gigante suelto.
+function partirNombre(nombre: string): [string, string] {
+  const palabras = nombre.trim().split(/\s+/);
+  let n = 1;
+  while (n < palabras.length && palabras.slice(0, n).join(" ").length <= 3) n++;
+  return [palabras.slice(0, n).join(" "), palabras.slice(n).join(" ")];
+}
+
+const [nombreGrande, nombreResto] = partirNombre(ultimaNovedad.nombre);
+// Con una primera línea larga bajamos un punto la letra para que quepa
+const nombreLargo = nombreGrande.length > 9;
+
+const cumpleanosLabel = `${cumpleanosTartas.length} ${cumpleanosTartas.length === 1 ? "creación" : "creaciones"}`;
+const eventosLabel = `${eventosTartas.length} ${eventosTartas.length === 1 ? "creación" : "creaciones"}`;
+const galletasLabel = `${galletas.length} ${galletas.length === 1 ? "creación" : "creaciones"}`;
+---
+
+<Layout>
+  <!-- === HERO: GALERÍA + ÚLTIMA NOVEDAD === -->
+  <section class="galeria-hero">
+    <div class="hero-blob a"></div>
+    <div class="hero-blob b"></div>
+    <div class="confetti c1"></div>
+    <div class="confetti c2"></div>
+    <div class="confetti c3"></div>
+
+    <Image
+      src={selloNovedad}
+      alt="Novedad"
+      width={320}
+      densities={[1, 2]}
+      class="sello-novedad"
+    />
+
+    <div class="hero-inner">
+      <!-- La cabecera visible es la novedad; el h1 queda solo para buscadores
+           y lectores de pantalla -->
+      <h1 class="sr-only">Galería</h1>
+
+      <!-- Rótulo, descripción y botón comparten un mismo eje central -->
+      <div class="hero-text">
+        <div class="hero-head">
+          <h2 class:list={["feature-name", { largo: nombreLargo }]}>
+            <span class="feature-name-inner">
+              <span class="name-big">{nombreGrande}</span>
+              {nombreResto && <span class="name-rest">{nombreResto}</span>}
+            </span>
+          </h2>
+        </div>
+
+        <div class="hero-body">
+          <p class="feature-desc">{ultimaNovedad.desc}</p>
+          <a href={`/galeria/${ultimaNovedad.id}`} class="btn-feature">
+            Ver detalles
+          </a>
+        </div>
+      </div>
+
+      <div class="hero-stage">
+        <div class="hero-pedestal"></div>
+        <model-viewer
+          src={ultimaNovedad.modelo}
+          alt={ultimaNovedad.nombre}
+          camera-controls
+          disable-pan
+          disable-zoom
+          touch-action="pan-y"
+          auto-rotate
+          auto-rotate-delay="0"
+          rotation-per-second="18deg"
+          interaction-prompt="none"
+          camera-orbit={`${ultimaNovedad.anguloInicial ?? 0}deg 80deg auto`}
+          min-camera-orbit="auto 10deg auto"
+          max-camera-orbit="auto 90deg auto"
+          shadow-intensity="1"
+          exposure="0.95"
+          style="width: 100%; height: 100%; background: transparent;"
+        ></model-viewer>
+      </div>
+    </div>
+  </section>
+
+  <!-- === SCALLOPED DIVIDER === -->
+  <div class="scalloped"></div>
+
+  <!-- === CATEGORY SECTIONS === -->
+  <div class="categories-wrapper" id="creaciones">
+    <!-- CUMPLEAÑOS -->
+    <section class="category-section" id="cumpleanos">
+      <div class="section-header">
+        <h2 class="section-title primary">Cumpleaños</h2>
+        <span class="section-line pink"></span>
+        <span class="section-count">{cumpleanosLabel}</span>
+      </div>
+      <div class="cards-grid">
+        {
+          cumpleanosTartas.map((item) => {
+            const conFicha = tieneFicha(item);
+            const Wrapper = conFicha ? "a" : "div";
+            return (
+              <Wrapper
+                href={conFicha ? `/galeria/${item.id}` : undefined}
+                class="card"
+              >
+                <div class="card-img primary">
+                  {item.foto ? (
+                    <Image
+                      src={item.foto}
+                      alt={item.nombre}
+                      widths={[320, 480, 720]} sizes="(max-width: 900px) 46vw, 350px" class="card-photo"
+                    />
+                  ) : (
+                    <span class="img-label">Foto · Tarta</span>
+                  )}
+                  <span class="pill-cat primary">Cumpleaños</span>
+                </div>
+                <div class="card-body">
+                  <h3 class="card-name">{item.nombre}</h3>
+                  <p class="card-text">{item.desc}</p>
+                  {conFicha ? (
+                    <span class="card-cta">Ver detalles →</span>
+                  ) : (
+                    <a href="/contacto?tipo=tarta" class="card-cta">
+                      Contacto →
+                    </a>
+                  )}
+                </div>
+              </Wrapper>
+            );
+          })
+        }
+      </div>
+    </section>
+
+    <!-- EVENTOS -->
+    <section class="category-section" id="eventos">
+      <div class="section-header">
+        <h2 class="section-title secondary">Eventos</h2>
+        <span class="section-line purple"></span>
+        <span class="section-count secondary">{eventosLabel}</span>
+      </div>
+      <div class="cards-grid">
+        {
+          eventosTartas.map((item) => {
+            const conFicha = tieneFicha(item);
+            const Wrapper = conFicha ? "a" : "div";
+            return (
+              <Wrapper
+                href={conFicha ? `/galeria/${item.id}` : undefined}
+                class="card"
+              >
+                <div class="card-img secondary">
+                  {item.foto ? (
+                    <Image
+                      src={item.foto}
+                      alt={item.nombre}
+                      widths={[320, 480, 720]} sizes="(max-width: 900px) 46vw, 350px" class="card-photo"
+                    />
+                  ) : (
+                    <span class="img-label purple">Foto · Tarta</span>
+                  )}
+                  <span class="pill-cat secondary">Eventos</span>
+                </div>
+                <div class="card-body">
+                  <h3 class="card-name">{item.nombre}</h3>
+                  <p class="card-text">{item.desc}</p>
+                  {conFicha ? (
+                    <span class="card-cta">Ver detalles →</span>
+                  ) : (
+                    <a href="/contacto?tipo=tarta" class="card-cta">
+                      Contacto →
+                    </a>
+                  )}
+                </div>
+              </Wrapper>
+            );
+          })
+        }
+      </div>
+    </section>
+
+    <!-- GALLETAS -->
+    <section class="category-section" id="galletas">
+      <div class="section-header">
+        <h2 class="section-title primary">Galletas</h2>
+        <span class="section-line pink"></span>
+        <span class="section-count">{galletasLabel}</span>
+      </div>
+      <div class="cards-grid">
+        {
+          galletas.map((item) => (
+            <a href={`/galeria/galletas/${item.id}`} class="card">
+              <div class="card-img primary">
+                {item.foto ? (
+                  <Image src={item.foto} alt={item.nombre} widths={[320, 480, 720]} sizes="(max-width: 900px) 46vw, 350px" class="card-photo" />
+                ) : (
+                  <span class="img-label">Foto · Galletas</span>
+                )}
+                <span class="pill-cat primary">{item.ocasion}</span>
+              </div>
+              <div class="card-body">
+                <h3 class="card-name">{item.nombre}</h3>
+                <p class="card-text">{item.desc}</p>
+                <span class="card-cta">Ver detalles →</span>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  /* Los mosaicos del inicio enlazan a #cumpleanos, #eventos y #galletas:
+     margen para que la cabecera fija no tape el título al llegar */
+  .category-section {
+    scroll-margin-top: 96px;
+  }
+
+  /* ---- HERO ---- */
+  .galeria-hero {
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(
+        80% 60% at 78% 35%,
+        #f1e3fa 0%,
+        rgba(241, 227, 250, 0) 62%
+      ),
+      radial-gradient(
+        70% 55% at 12% 15%,
+        #fde8ee 0%,
+        rgba(253, 232, 238, 0) 60%
+      ),
+      linear-gradient(180deg, #fffaf4 0%, #fbeff3 100%);
+  }
+
+  .hero-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(48px);
+    opacity: 0.75;
+    pointer-events: none;
+  }
+  .hero-blob.a {
+    width: 380px;
+    height: 380px;
+    top: 6%;
+    right: 8%;
+    background: #e6d0f7;
+  }
+  .hero-blob.b {
+    width: 300px;
+    height: 300px;
+    bottom: -6%;
+    right: 30%;
+    background: #fbd0dd;
+  }
+
+  .hero-inner {
+    position: relative;
+    z-index: 2;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 56px 5vw 64px;
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    grid-template-areas: "text stage";
+    column-gap: 48px;
+    align-items: center;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Stage: la tarta 3D flotando sin caja */
+  .hero-stage {
+    grid-area: stage;
+    position: relative;
+    height: 540px;
+  }
+
+  .hero-pedestal {
+    position: absolute;
+    left: 50%;
+    bottom: 9%;
+    width: 64%;
+    height: 46px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(140, 60, 110, 0.26) 0%,
+      rgba(140, 60, 110, 0) 70%
+    );
+    filter: blur(6px);
+    pointer-events: none;
+  }
+
+  .hero-stage model-viewer {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Sello "Novedad" (esquina superior izquierda).
+     Para moverlo o cambiarle el tamaño, toca solo estas tres variables:
+       --sello-top   → distancia al borde SUPERIOR de la sección
+       --sello-left  → distancia al borde IZQUIERDO (más grande = más a la derecha)
+       --sello-size  → ancho del sello
+     Los valores clamp(mín, ideal, máx) se adaptan al ancho de pantalla. */
+  .sello-novedad {
+    --sello-top: 18px;
+    --sello-left: clamp(24px, 7vw, 130px);
+    --sello-size: clamp(110px, 10vw, 150px);
+
+    position: absolute;
+    z-index: 3;
+    top: var(--sello-top);
+    left: var(--sello-left);
+    width: var(--sello-size);
+    height: auto;
+    filter: drop-shadow(0 12px 18px rgba(140, 20, 70, 0.28));
+    pointer-events: none;
+  }
+
+  /* Novedad destacada: rótulo, descripción y botón centrados entre sí sobre
+     un mismo eje. El bloque mide lo que mida su elemento más ancho. */
+  .hero-text {
+    grid-area: text;
+    justify-self: start;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  .hero-head {
+    grid-area: head;
+  }
+
+  .hero-body {
+    grid-area: body;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  /* Rótulo: primera palabra enorme y el resto debajo, algo desplazado,
+     todo ligeramente girado. El giro va en el span interior para no
+     pelearse con la animación de entrada (GSAP mueve el h2). */
+  .feature-name {
+    font-family: var(--font-title);
+    font-weight: 400;
+    font-size: clamp(76px, 8.6vw, 128px);
+    line-height: 1;
+    color: var(--color-primary);
+    margin: 0 0 22px;
+  }
+  .feature-name.largo {
+    font-size: clamp(60px, 6.6vw, 96px);
+  }
+
+  .feature-name-inner {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    transform: rotate(-4deg);
+    transform-origin: left center;
+  }
+
+  .name-big {
+    display: block;
+    padding-bottom: 0.08em;
+  }
+
+  .name-rest {
+    display: block;
+    font-size: 0.56em;
+    color: #8a4e9e;
+    margin-left: 1.1em;
+    margin-top: -0.1em;
+  }
+
+  .feature-desc {
+    margin: 0;
+    max-width: 440px;
+    text-wrap: balance;
+    font-size: 16.5px;
+    line-height: 1.55;
+    color: var(--color-text);
+    font-weight: 600;
+  }
+
+  .btn-feature {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 26px;
+    background: var(--color-primary);
+    color: #fff;
+    font-weight: 800;
+    font-size: 15px;
+    padding: 14px 30px;
+    border-radius: 999px;
+    box-shadow: 0 14px 30px -12px rgba(188, 17, 80, 0.55);
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  .btn-feature:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 34px -12px rgba(188, 17, 80, 0.6);
+  }
+
+  /* Confetti */
+  .confetti {
+    position: absolute;
+    border-radius: 3px;
+    z-index: 1;
+  }
+  .c1 {
+    top: 14%;
+    left: 6vw;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #f4cbd8;
+  }
+  .c2 {
+    top: 12%;
+    right: 7vw;
+    width: 16px;
+    height: 6px;
+    background: #c9aee6;
+    transform: rotate(-32deg);
+  }
+  .c3 {
+    bottom: 14%;
+    left: 40vw;
+    width: 15px;
+    height: 6px;
+    background: #e7b8cb;
+    transform: rotate(22deg);
+  }
+
+  /* ---- SCALLOPED ---- */
+  .scalloped {
+    height: 26px;
+    background:
+      radial-gradient(circle at 13px 0, #fbeff3 13px, transparent 14px) 0 0/26px
+        26px repeat-x,
+      #fffaf4;
+  }
+
+  /* ---- CATEGORIES ---- */
+  .categories-wrapper {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 12px 5vw 20px;
+  }
+
+  .category-section {
+    padding: 34px 0 12px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .section-title {
+    font-family: var(--font-title);
+    font-size: 32px;
+    margin: 0;
+  }
+  .section-title.primary {
+    color: var(--color-primary);
+  }
+  .section-title.secondary {
+    color: #8a4e9e;
+  }
+
+  .section-line {
+    height: 1.5px;
+    flex: 1;
+  }
+  .section-line.pink {
+    background: linear-gradient(90deg, #f1d6dd, transparent);
+  }
+  .section-line.purple {
+    background: linear-gradient(90deg, #e7d6f1, transparent);
+  }
+
+  .section-count {
+    font-weight: 800;
+    font-size: 13px;
+    color: #c67f9b;
+    white-space: nowrap;
+  }
+  .section-count.secondary {
+    color: #a07ec0;
+  }
+
+  /* ---- CARDS ---- */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .card {
+    display: block;
+    background: #fff;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 14px 34px -20px rgba(140, 60, 95, 0.4);
+    border: 1px solid #f3e1e5;
+    transition:
+      transform 0.25s ease,
+      box-shadow 0.25s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 42px -16px rgba(140, 60, 95, 0.5);
+  }
+
+  .card.secondary {
+    border-color: #ede1f3;
+  }
+
+  .card-img {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .card-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .card-img.primary {
+    background: repeating-linear-gradient(
+      135deg,
+      #f6e1e6 0 15px,
+      #fceef1 15px 30px
+    );
+  }
+
+  .card-img.secondary {
+    background: repeating-linear-gradient(
+      135deg,
+      #eee2f5 0 15px,
+      #f7effb 15px 30px
+    );
+  }
+
+  .img-label {
+    font:
+      800 11px/1.6 ui-monospace,
+      Menlo,
+      monospace;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #be7c92;
+  }
+
+  .img-label.purple {
+    color: #a886c4;
+  }
+
+  .pill-cat {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(255, 255, 255, 0.92);
+    font-weight: 800;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 5px 9px;
+    border-radius: 999px;
+  }
+  .pill-cat.primary {
+    color: #8a4e9e;
+  }
+  .pill-cat.secondary {
+    color: #8a4e9e;
+  }
+
+  .pill-3d {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #7b4fae;
+    color: #fff;
+    font-weight: 800;
+    font-size: 10.5px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    box-shadow: 0 6px 14px -6px rgba(123, 79, 174, 0.6);
+  }
+
+  .card-body {
+    padding: 18px 20px 20px;
+  }
+
+  .card-name {
+    margin: 0 0 6px;
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--color-text-dark);
+  }
+
+  .card-text {
+    margin: 0 0 14px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--color-secondary);
+    font-weight: 600;
+  }
+
+  .card-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--color-primary);
+    font-weight: 800;
+    font-size: 13.5px;
+    text-decoration: none;
+    transition: gap 0.2s ease;
+  }
+
+  .card:hover .card-cta {
+    gap: 10px;
+  }
+
+  /* ---- RESPONSIVE ---- */
+  @media (max-width: 900px) {
+    .cards-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .hero-inner {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "head"
+        "stage"
+        "body";
+      column-gap: 0;
+      padding: 44px 5vw 52px;
+      text-align: center;
+    }
+    .sello-novedad {
+      --sello-top: 14px;
+      --sello-left: 20px;
+      --sello-size: 100px;
+    }
+    /* En móvil el bloque se "deshace" para que el rótulo quede arriba y la
+       descripción con el botón debajo de la tarta */
+    .hero-text {
+      display: contents;
+    }
+    .feature-name {
+      margin-bottom: 8px;
+    }
+    .feature-name-inner {
+      align-items: center;
+      transform-origin: center;
+    }
+    .name-rest {
+      margin-left: 0;
+    }
+    .feature-desc {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .hero-stage {
+      height: 400px;
+    }
+    .hero-body {
+      margin-top: 18px;
+    }
+    .hero-blob.a {
+      width: 260px;
+      height: 260px;
+      top: 22%;
+      right: -10%;
+    }
+    .hero-blob.b {
+      width: 220px;
+      height: 220px;
+      right: auto;
+      left: -10%;
+      bottom: 20%;
+    }
+  }
+
+  @media (max-width: 600px) {
+    /* Dos por fila también en móvil: con muchas tartas, una sola columna
+       obliga a un scroll eterno. Las tarjetas van en versión compacta. */
+    .cards-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .card {
+      border-radius: 14px;
+    }
+    .card-body {
+      padding: 11px 12px 12px;
+    }
+    .card-name {
+      margin-bottom: 4px;
+      font-size: 14.5px;
+      line-height: 1.25;
+    }
+    .card-text {
+      margin-bottom: 9px;
+      font-size: 12.5px;
+      line-height: 1.4;
+      /* Recorta a tres líneas para que las dos tarjetas de cada fila
+         queden a la misma altura */
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      overflow: hidden;
+    }
+    .card-cta {
+      display: none;
+    }
+    .pill-cat {
+      top: 8px;
+      left: 8px;
+      font-size: 9px;
+      padding: 4px 7px;
+    }
+    .hero-stage {
+      height: 320px;
+    }
+    .hero-pedestal {
+      width: 72%;
+    }
+    .btn-feature {
+      width: 100%;
+    }
+    .categories-wrapper {
+      padding: 12px 20px 20px;
+    }
+    .section-title {
+      font-size: 26px;
+    }
+  }
+</style>
+
+<script>
+  import { gsap } from "gsap";
+
+  // El visor 3D pesa (~1 MB de JS y mucho trabajo de CPU): se carga cuando la
+  // página ya ha terminado y el navegador está libre, para no retrasar el
+  // primer pintado ni las animaciones de entrada.
+  const cargarVisor = () => {
+    const importar = () => import("@google/model-viewer");
+    if ("requestIdleCallback" in window) requestIdleCallback(importar, { timeout: 1500 });
+    else setTimeout(importar, 200);
+  };
+  if (document.readyState === "complete") cargarVisor();
+  else window.addEventListener("load", cargarVisor, { once: true });
+
+  // model-viewer combina mal disable-zoom con touch-action="pan-y": en vez de
+  // dejar pasar el scroll vertical, bloquea también el deslizamiento (lo pasa
+  // a "manipulation"). Se corrige a mano en el elemento interno que recibe el
+  // gesto, y se vigila por si el componente lo vuelve a tocar.
+  customElements.whenDefined("model-viewer").then(() => {
+    document.querySelectorAll<any>(".hero-stage model-viewer").forEach((mv) => {
+      const fijar = () => {
+        const userInput = mv.shadowRoot?.querySelector(".userInput") as HTMLElement | null;
+        if (userInput && userInput.style.touchAction !== "pan-y") {
+          userInput.style.touchAction = "pan-y";
+        }
+      };
+      fijar();
+      new MutationObserver(fijar).observe(mv.shadowRoot, {
+        attributes: true,
+        attributeFilter: ["style"],
+        subtree: true,
+      });
+    });
+  });
+
+  // --- 3D viewer: volver a la posición inicial tras un rato sin tocar ---
+  const RESET_DELAY_MS = 1500;
+  document.querySelectorAll<any>("model-viewer").forEach((mv) => {
+    let resetTimer: ReturnType<typeof setTimeout>;
+    const orbitaInicial = mv.getAttribute("camera-orbit") ?? "auto auto auto";
+    mv.addEventListener("camera-change", (event: CustomEvent) => {
+      if (event.detail.source !== "user-interaction") return;
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(() => {
+        mv.cameraOrbit = orbitaInicial;
+        mv.cameraTarget = "auto auto auto";
+        mv.fieldOfView = "auto";
+      }, RESET_DELAY_MS);
+    });
+  });
+
+  // --- Entrance animations on page load ---
+  gsap.from(".hero-blob", { opacity: 0, duration: 1.4, ease: "power1.out" });
+
+  // El sello "cae" con un pequeño rebote; acaba girado -12° (lo fija GSAP)
+  gsap.fromTo(
+    ".sello-novedad",
+    { scale: 0.3, rotation: -45, opacity: 0 },
+    {
+      scale: 1,
+      rotation: -12,
+      opacity: 1,
+      duration: 0.9,
+      delay: 0.5,
+      ease: "back.out(1.8)",
+    },
+  );
+
+  gsap.from(".hero-head > *, .hero-body > *", {
+    y: 22,
+    opacity: 0,
+    duration: 0.7,
+    stagger: 0.09,
+    ease: "power2.out",
+  });
+
+  gsap.from(".hero-stage", {
+    y: 26,
+    opacity: 0,
+    scale: 0.94,
+    duration: 1,
+    ease: "power3.out",
+    delay: 0.25,
+  });
+</script>

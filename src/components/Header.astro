@@ -1,0 +1,371 @@
+---
+import { Image } from 'astro:assets';
+import logoImg from '../assets/logo.png';
+
+const ruta = Astro.url.pathname.replace(/\/$/, '') || '/';
+const esActual = (href: string) =>
+  href === '/' ? ruta === '/' : ruta === href || ruta.startsWith(`${href}/`);
+
+const enlaces = [
+  { href: '/', label: 'Inicio' },
+  { href: '/galeria', label: 'Galería' },
+  { href: '/sobre-nanos', label: 'Sobre Nanos' },
+  { href: '/contacto', label: 'Contacto' },
+];
+---
+
+<header class="header">
+  <div class="header-container">
+    <a href="/" class="logo-area">
+      <Image src={logoImg} alt="Las Manos de Nanos Logo" class="logo-img" height={42} densities={[1, 2]} loading="eager" />
+      <span class="logo-text">Las Manos de Nanos</span>
+    </a>
+
+    <!-- Desktop Navigation -->
+    <nav class="desktop-nav">
+      <a href="/">Inicio</a>
+      <a href="/galeria">Galería</a>
+      <a href="/sobre-nanos">Sobre Nanos</a>
+      <a href="/contacto" class="btn-primary">
+        <span class="whatsapp-dot"></span> Contacto
+      </a>
+    </nav>
+
+    <button
+      class="menu-btn"
+      id="mobile-menu-btn"
+      aria-label="Abrir menú"
+      aria-expanded="false"
+      aria-controls="mobile-nav"
+    >
+      <span class="burger" aria-hidden="true"><span></span><span></span><span></span></span>
+    </button>
+  </div>
+</header>
+
+<!-- Fuera del <header>: su backdrop-filter recortaría un panel fijo dentro -->
+<div class="mnav" id="mobile-nav" role="dialog" aria-modal="true" aria-label="Menú">
+  <div class="mnav-top">
+    <span class="mnav-marca">Las Manos de Nanos</span>
+    <button class="menu-btn mnav-close" aria-label="Cerrar menú">
+      <span class="burger abierta" aria-hidden="true"><span></span><span></span><span></span></span>
+    </button>
+  </div>
+
+  <nav class="mnav-body" aria-label="Menú principal">
+    <ul class="mnav-list">
+      {
+        enlaces.map((e, i) => (
+          <li style={`--i: ${i}`}>
+            <a
+              href={e.href}
+              class:list={['mnav-link', { actual: esActual(e.href) }]}
+              aria-current={esActual(e.href) ? 'page' : undefined}
+            >
+              <span class="mnav-num">0{i + 1}</span>
+              <span class="mnav-label">{e.label}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+</div>
+
+<style>
+  .header {
+    background: rgba(255, 250, 244, 0.92);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+  }
+
+  .header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 44px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .logo-area {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+  }
+
+  .logo-img {
+    height: 42px;
+    width: auto;
+    display: block;
+  }
+
+  .logo-text {
+    font-family: var(--font-title);
+    font-size: 19px;
+    color: var(--color-primary);
+  }
+
+  .desktop-nav {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .desktop-nav a:not(.btn-primary) {
+    color: var(--color-secondary);
+    font-weight: 700;
+    font-size: 14.5px;
+    transition: color 0.2s ease;
+  }
+
+  .desktop-nav a:not(.btn-primary):hover {
+    color: var(--color-primary);
+  }
+
+  /* ---- Botón: dos líneas que se cruzan en X ---- */
+  .menu-btn {
+    display: none;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--color-primary);
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .burger {
+    position: relative;
+    width: 26px;
+    height: 18px;
+  }
+  .burger span {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2.5px;
+    border-radius: 2px;
+    background: currentColor;
+    transition:
+      transform 0.4s cubic-bezier(0.65, 0, 0.35, 1),
+      opacity 0.25s ease,
+      width 0.3s ease;
+  }
+  .burger span:nth-child(1) {
+    top: 0;
+  }
+  .burger span:nth-child(2) {
+    top: 8px;
+    width: 68%;
+  }
+  .burger span:nth-child(3) {
+    top: 16px;
+  }
+  .menu-btn:hover .burger span:nth-child(2) {
+    width: 100%;
+  }
+  /* Con el panel cerrado el icono son 3 líneas; al abrir se cruzan en X */
+  .burger.abierta span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+  }
+  .burger.abierta span:nth-child(2) {
+    width: 100%;
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  .burger.abierta span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+  }
+  .mnav:not(.open) .burger.abierta span {
+    transform: none;
+    opacity: 1;
+  }
+  .mnav.open .burger.abierta span {
+    transition-delay: 0.3s;
+  }
+
+  /* ---- Panel a pantalla completa ---- */
+  .mnav {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-primary);
+    color: #fff7f2;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    visibility: hidden;
+    clip-path: inset(0 0 100% 0);
+    transition:
+      clip-path 0.6s cubic-bezier(0.76, 0, 0.24, 1),
+      visibility 0s linear 0.6s;
+  }
+  .mnav.open {
+    visibility: visible;
+    clip-path: inset(0 0 0 0);
+    transition:
+      clip-path 0.65s cubic-bezier(0.76, 0, 0.24, 1),
+      visibility 0s;
+  }
+
+  .mnav-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    min-height: 71px;
+  }
+  .mnav-marca {
+    font-family: var(--font-title);
+    font-size: 19px;
+  }
+  .mnav-close {
+    display: flex;
+    color: #fff7f2;
+  }
+
+  .mnav-body {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 24px 28px;
+  }
+
+  .mnav-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+  }
+
+  /* Cada enlace sube desde debajo de su propia línea (efecto máscara) */
+  .mnav-list li {
+    overflow: hidden;
+    padding: 4px 0;
+  }
+  .mnav-link {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding: 6px 0;
+    transform: translateY(110%);
+    transition: transform 0.4s cubic-bezier(0.76, 0, 0.24, 1);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mnav.open .mnav-link {
+    transform: none;
+    transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) calc(0.35s + var(--i) * 0.08s);
+  }
+
+  .mnav-num {
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    opacity: 0.55;
+    transform: translateY(-14px);
+  }
+
+  .mnav-label {
+    position: relative;
+    font-weight: 800;
+    font-size: clamp(36px, 11vw, 48px);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+  .mnav-label::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 2px;
+    width: 0;
+    height: 2px;
+    background: currentColor;
+    transition: width 0.4s ease;
+  }
+  .mnav-link:hover .mnav-label::after,
+  .mnav-link:active .mnav-label::after {
+    width: 100%;
+  }
+
+  .mnav-link.actual {
+    color: var(--color-accent-pink);
+  }
+  .mnav-link.actual .mnav-num {
+    opacity: 1;
+  }
+
+  @media (max-width: 768px) {
+    .header-container {
+      padding: 14px 20px;
+    }
+    .desktop-nav {
+      display: none;
+    }
+    .menu-btn {
+      display: flex;
+    }
+  }
+
+  @media (min-width: 769px) {
+    .mnav {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mnav,
+    .mnav.open {
+      clip-path: none;
+      transition: visibility 0s;
+    }
+    .mnav-link,
+    .mnav.open .mnav-link {
+      transform: none;
+      opacity: 1;
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const btn = document.getElementById('mobile-menu-btn');
+  const nav = document.getElementById('mobile-nav');
+  const cerrarBtn = nav?.querySelector<HTMLButtonElement>('.mnav-close');
+
+  if (btn && nav && cerrarBtn) {
+    const abrir = () => {
+      nav.classList.add('open');
+      btn.setAttribute('aria-expanded', 'true');
+      document.documentElement.style.overflow = 'hidden';
+      cerrarBtn.focus({ preventScroll: true });
+    };
+
+    const cerrar = () => {
+      if (!nav.classList.contains('open')) return;
+      nav.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
+      document.documentElement.style.overflow = '';
+      btn.focus({ preventScroll: true });
+    };
+
+    btn.addEventListener('click', abrir);
+    cerrarBtn.addEventListener('click', cerrar);
+    nav.querySelectorAll('a').forEach((a) => a.addEventListener('click', cerrar));
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') cerrar();
+    });
+
+    window.matchMedia('(min-width: 769px)').addEventListener('change', (e) => {
+      if (e.matches) cerrar();
+    });
+  }
+</script>

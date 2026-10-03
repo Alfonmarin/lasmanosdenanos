@@ -1,0 +1,430 @@
+---
+import { Image } from "astro:assets";
+import Layout from "../../layouts/Layout.astro";
+import { tartas, tieneFicha, type Tarta } from "../../data/tartas";
+import { waLink } from "../../data/contacto";
+
+export function getStaticPaths() {
+  // Ficha para las tartas que tengan algo que enseñar: el modelo 3D o la
+  // foto. Las que aún no tengan ni una cosa ni la otra no navegan aquí
+  // (ver galeria.astro: esas tarjetas no son un enlace).
+  return tartas.filter(tieneFicha).map((tarta) => ({
+    params: { id: tarta.id },
+    props: { tarta },
+  }));
+}
+
+type Props = { tarta: Tarta };
+const { tarta } = Astro.props as Props;
+
+const CATEGORIA_LABEL: Record<Tarta["categoria"], string> = {
+  cumpleanos: "Cumpleaños",
+  eventos: "Eventos",
+};
+---
+
+<Layout>
+  <section class="detail-hero">
+    <div class="detail-inner">
+      <a href="/galeria" class="back-link">← Volver a la galería</a>
+
+      <div class="detail-layout">
+        {
+          tarta.modelo ? (
+            <div class="detail-viewer">
+              <model-viewer
+                src={tarta.modelo}
+                alt={tarta.nombre}
+                camera-controls
+                disable-pan
+                touch-action="pan-y"
+                auto-rotate
+                auto-rotate-delay="0"
+                rotation-per-second="24deg"
+                interaction-prompt="none"
+                camera-orbit={`${tarta.anguloInicial ?? 0}deg 75deg auto`}
+                min-camera-orbit="auto 10deg auto"
+                max-camera-orbit="auto 90deg auto"
+                shadow-intensity="1"
+                exposure="0.9"
+                style="width: 100%; height: 100%; background: transparent;"
+              />
+              <span class="pill-3d">↺ 360°</span>
+            </div>
+          ) : (
+            <figure class="detail-photo">
+              <Image
+                src={tarta.foto!}
+                alt={tarta.nombre}
+                widths={[400, 640, 900]}
+                sizes="(max-width: 900px) 92vw, 540px"
+                loading="eager"
+                class="detail-photo-img"
+              />
+            </figure>
+          )
+        }
+
+        <div class="detail-info">
+          <span class="pill-cat-static">{CATEGORIA_LABEL[tarta.categoria]}</span
+          >
+          <h1 class="detail-title">{tarta.nombre}</h1>
+          <p class="detail-desc">{tarta.descLarga}</p>
+
+          <div class="detail-block">
+            <h2 class="detail-subtitle">Así se hizo esta</h2>
+            <ul class="sabores-list">
+              {tarta.sabores.map((sabor) => <li>{sabor}</li>)}
+            </ul>
+            <p class="sabores-nota">
+              Es solo un ejemplo: el bizcocho, el relleno y la cobertura se
+              adaptan a lo que tú quieras.
+            </p>
+          </div>
+
+          <div class="consulta-box">
+            <span class="consulta-label">Consultar precio</span>
+            <!-- <p class="consulta-texto">
+              El precio depende de lo que elijas: tamaño, bizcocho, relleno,
+              cobertura… Cuéntame cómo la quieres y te paso presupuesto por
+              WhatsApp, sin compromiso.
+            </p> -->
+            <a
+              href={`/contacto?tipo=tarta&modelo=${tarta.id}`}
+              class="cta-btn-main"
+            >
+              Personalizar este modelo →
+            </a>
+            <a
+              href={waLink}
+              target="_blank"
+              rel="noopener"
+              class="consulta-alt"
+            >
+              <!--<span class="dot-green"></span>o escríbeme directamente-->
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .detail-hero {
+    background: radial-gradient(120% 90% at 50% -10%, #fceef0 0%, #fffaf4 60%);
+    padding: 32px 5vw 72px;
+  }
+
+  .detail-inner {
+    max-width: 1160px;
+    margin: 0 auto;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--color-secondary);
+    margin-bottom: 28px;
+    transition: color 0.2s ease;
+  }
+
+  .back-link:hover {
+    color: var(--color-primary);
+  }
+
+  .detail-layout {
+    display: flex;
+    gap: 48px;
+    align-items: flex-start;
+  }
+
+  .detail-viewer {
+    position: sticky;
+    top: 96px;
+    flex: 1.1;
+    height: 520px;
+    border-radius: 28px;
+    background: linear-gradient(180deg, #ffffff, #fbf1f7);
+    border: 1px solid #eeddef;
+    box-shadow: 0 22px 48px -24px rgba(140, 60, 110, 0.5);
+    overflow: hidden;
+  }
+
+  /* Foto para las tartas sin modelo 3D: mismo marco que el visor, pero
+     con proporción cuadrada para que la foto entre entera y sin recortes
+     bruscos, y un halo suave que la funde con el fondo de la página. */
+  .detail-photo {
+    position: sticky;
+    top: 96px;
+    flex: 1.1;
+    margin: 0;
+    aspect-ratio: 1 / 1;
+    border-radius: 28px;
+    overflow: hidden;
+    border: 1px solid #eeddef;
+    box-shadow: 0 22px 48px -24px rgba(140, 60, 110, 0.5);
+    background: linear-gradient(180deg, #ffffff, #fbf1f7);
+  }
+
+  .detail-photo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    box-shadow: inset 0 0 70px 24px rgba(255, 250, 244, 0.55);
+  }
+
+  .detail-photo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .pill-3d {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #7b4fae;
+    color: #fff;
+    font-weight: 800;
+    font-size: 10.5px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    box-shadow: 0 6px 14px -6px rgba(123, 79, 174, 0.6);
+  }
+
+  .detail-info {
+    flex: 1;
+    min-width: 280px;
+  }
+
+  .pill-cat-static {
+    display: inline-block;
+    background: #fceff1;
+    color: #8a4e9e;
+    font-weight: 800;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+
+  .detail-title {
+    font-family: var(--font-title);
+    font-size: clamp(34px, 5vw, 46px);
+    color: var(--color-primary);
+    margin: 0 0 14px;
+  }
+
+  .detail-desc {
+    font-size: 16.5px;
+    line-height: 1.65;
+    color: var(--color-text);
+    font-weight: 500;
+    margin: 0 0 28px;
+  }
+
+  .detail-block {
+    margin-bottom: 28px;
+  }
+
+  .detail-subtitle {
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #8a6a76;
+    margin: 0 0 12px;
+  }
+
+  .sabores-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+  }
+
+  .sabores-list li {
+    position: relative;
+    padding-left: 22px;
+    font-size: 15px;
+    color: var(--color-text-dark);
+    font-weight: 600;
+  }
+
+  .sabores-list li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-primary);
+  }
+
+  .sabores-nota {
+    margin: 12px 0 0;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--color-secondary);
+    font-weight: 500;
+    font-style: italic;
+  }
+
+  .consulta-box {
+    background: linear-gradient(135deg, #bc1150 0%, #9c1257 100%);
+    color: #fff;
+    border-radius: 20px;
+    padding: 24px 26px;
+    box-shadow: 0 18px 40px -18px rgba(188, 17, 80, 0.55);
+  }
+
+  .consulta-label {
+    display: block;
+    font-weight: 800;
+    font-size: 11.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #f6c3d3;
+    margin-bottom: 8px;
+  }
+
+  .consulta-texto {
+    margin: 0 0 18px;
+    font-size: 15px;
+    line-height: 1.55;
+    color: #fce0ea;
+    font-weight: 600;
+  }
+
+  .cta-btn-main {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    width: 100%;
+    box-sizing: border-box;
+    background: #fff;
+    color: var(--color-primary);
+    font-weight: 800;
+    font-size: 16px;
+    padding: 15px 28px;
+    border-radius: 999px;
+    box-shadow: 0 14px 30px -12px rgba(0, 0, 0, 0.35);
+    transition: transform 0.2s ease;
+  }
+  .cta-btn-main:hover {
+    transform: translateY(-2px);
+  }
+
+  .consulta-alt {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 13.5px;
+    opacity: 0.9;
+    transition: opacity 0.2s ease;
+  }
+  .consulta-alt:hover {
+    opacity: 1;
+    text-decoration: underline;
+  }
+
+  .dot-green {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #25d366;
+  }
+
+  /* ---- RESPONSIVE ---- */
+  @media (max-width: 900px) {
+    .detail-layout {
+      flex-direction: column;
+    }
+    .detail-viewer {
+      position: static;
+      flex: none;
+      width: 100%;
+      height: 360px;
+    }
+    .detail-photo {
+      position: static;
+      flex: none;
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .detail-hero {
+      padding: 24px 20px 48px;
+    }
+    .detail-viewer {
+      height: 300px;
+    }
+  }
+</style>
+
+<script>
+  import { gsap } from "gsap";
+
+  // El visor 3D pesa (~1 MB de JS y mucho trabajo de CPU): se carga cuando ha
+  // terminado la animación de entrada, para no frenar la aparición del texto.
+  const cargarVisor = () => {
+    if (!document.querySelector("model-viewer")) return;
+    const importar = () => import("@google/model-viewer");
+    if ("requestIdleCallback" in window) requestIdleCallback(importar, { timeout: 1500 });
+    else setTimeout(importar, 200);
+  };
+
+  // --- 3D viewer: volver a la posición inicial tras un rato sin tocar ---
+  const RESET_DELAY_MS = 1500;
+  document.querySelectorAll<any>("model-viewer").forEach((mv) => {
+    let resetTimer: ReturnType<typeof setTimeout>;
+    const orbitaInicial = mv.getAttribute("camera-orbit") ?? "auto auto auto";
+    mv.addEventListener("camera-change", (event: CustomEvent) => {
+      if (event.detail.source !== "user-interaction") return;
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(() => {
+        mv.cameraOrbit = orbitaInicial;
+        mv.cameraTarget = "auto auto auto";
+        mv.fieldOfView = "auto";
+      }, RESET_DELAY_MS);
+    });
+  });
+
+  gsap.from(".back-link", {
+    y: -10,
+    opacity: 0,
+    duration: 0.5,
+    ease: "power2.out",
+  });
+
+  gsap.from(".detail-layout > *", {
+    y: 20,
+    opacity: 0,
+    duration: 0.6,
+    stagger: 0.15,
+    ease: "power2.out",
+    delay: 0.15,
+    onComplete: cargarVisor,
+  });
+</script>

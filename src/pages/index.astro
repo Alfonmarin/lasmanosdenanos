@@ -1,11 +1,47 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import Layout from "../layouts/Layout.astro";
+import Hero from "../components/Hero.astro";
+import Ocasiones from "../components/inicio/Ocasiones.astro";
+import Tarta3DScroll from "../components/inicio/Tarta3DScroll.astro";
+import NuestraHistoria from "../components/inicio/NuestraHistoria.astro";
 ---
 
 <Layout>
-	<Welcome />
+  <!-- El póster del vídeo es lo primero que se ve: que se pida cuanto antes -->
+  <link
+    slot="head"
+    rel="preload"
+    as="image"
+    href="/video/hero-reposteria-poster.jpg"
+    fetchpriority="high"
+  />
+  <Hero />
+  <Ocasiones />
+  <Tarta3DScroll />
+  <NuestraHistoria />
 </Layout>
+
+<script>
+  import { gsap } from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Todo lo marcado con data-reveal aparece desde abajo al entrar en pantalla.
+  // Si llegan varios a la vez (p. ej. los tres mosaicos) salen escalonados.
+  if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    gsap.set("[data-reveal]", { y: 40, opacity: 0 });
+    ScrollTrigger.batch("[data-reveal]", {
+      start: "top 88%",
+      once: true,
+      onEnter: (lote) =>
+        gsap.to(lote, {
+          y: 0,
+          opacity: 1,
+          duration: 0.8,
+          stagger: 0.12,
+          ease: "power3.out",
+        }),
+    });
+  }
+</script>

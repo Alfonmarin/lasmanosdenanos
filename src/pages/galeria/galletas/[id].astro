@@ -1,0 +1,336 @@
+---
+import { Image } from "astro:assets";
+import Layout from "../../../layouts/Layout.astro";
+import { galletas, type Galleta } from "../../../data/galletas";
+import { waLink } from "../../../data/contacto";
+
+export function getStaticPaths() {
+  // Todas las galletas tienen ficha: hay descripción que enseñar aunque
+  // todavía no tengan foto (mientras tanto se muestra el patrón decorativo).
+  return galletas.map((galleta) => ({
+    params: { id: galleta.id },
+    props: { galleta },
+  }));
+}
+
+type Props = { galleta: Galleta };
+const { galleta } = Astro.props as Props;
+---
+
+<Layout>
+  <section class="detail-hero">
+    <div class="detail-inner">
+      <a href="/galeria#galletas" class="back-link">← Volver a la galería</a>
+
+      <div class="detail-layout">
+        <figure class="detail-photo">
+          {
+            galleta.foto ? (
+              <Image
+                src={galleta.foto}
+                alt={galleta.nombre}
+                widths={[400, 640, 900]}
+                sizes="(max-width: 900px) 92vw, 540px"
+                loading="eager"
+                class="detail-photo-img"
+              />
+            ) : (
+              <span class="img-label">Foto · Galletas</span>
+            )
+          }
+        </figure>
+
+        <div class="detail-info">
+          <span class="pill-cat-static">{galleta.ocasion} · Galletas</span>
+          <h1 class="detail-title">{galleta.nombre}</h1>
+          <p class="detail-desc">{galleta.descLarga}</p>
+
+          <div class="detail-block">
+            <div class="galleta-chips">
+              <span class="galleta-chip">🧈 De mantequilla</span>
+              <span class="galleta-chip">🎨 Glasa real a mano</span>
+              <span class="galleta-chip">✏️ Personalizables</span>
+            </div>
+            <p class="galleta-nota">
+              Todas mis galletas son de mantequilla: lo que cambia de un encargo
+              a otro es la decoración. Dime la temática, los colores y el texto
+              y te las preparo a juego con tu celebración.
+            </p>
+          </div>
+
+          <div class="consulta-box">
+            <span class="consulta-label">Consultar precio</span>
+            <!-- <p class="consulta-texto">
+              El precio depende de la cantidad y de lo elaborado que sea el
+              diseño. Cuéntame para qué son y te paso presupuesto, sin
+              compromiso.
+            </p> -->
+            <a
+              href={`/contacto?tipo=galletas&modelo=${galleta.id}`}
+              class="cta-btn-main"
+            >
+              Personalizar estas galletas →
+            </a>
+            <!-- <a href={waLink} target="_blank" rel="noopener" class="consulta-alt">
+              <span class="dot-green"></span>o escríbeme directamente
+            </a> -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .detail-hero {
+    background: radial-gradient(120% 90% at 50% -10%, #fceef0 0%, #fffaf4 60%);
+    padding: 32px 5vw 72px;
+  }
+
+  .detail-inner {
+    max-width: 1160px;
+    margin: 0 auto;
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--color-secondary);
+    margin-bottom: 28px;
+    transition: color 0.2s ease;
+  }
+
+  .back-link:hover {
+    color: var(--color-primary);
+  }
+
+  .detail-layout {
+    display: flex;
+    gap: 48px;
+    align-items: flex-start;
+  }
+
+  /* Mismo marco que la ficha de tarta. Sin foto, muestra el patrón
+     decorativo de la galería para que la ficha no quede vacía. */
+  .detail-photo {
+    position: sticky;
+    top: 96px;
+    flex: 1.1;
+    margin: 0;
+    aspect-ratio: 1 / 1;
+    border-radius: 28px;
+    overflow: hidden;
+    border: 1px solid #eeddef;
+    box-shadow: 0 22px 48px -24px rgba(140, 60, 110, 0.5);
+    background: repeating-linear-gradient(
+      135deg,
+      #f6e1e6 0 15px,
+      #fceef1 15px 30px
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .detail-photo::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    box-shadow: inset 0 0 70px 24px rgba(255, 250, 244, 0.55);
+  }
+
+  .detail-photo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .img-label {
+    font:
+      800 12px/1.6 ui-monospace,
+      Menlo,
+      monospace;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #be7c92;
+  }
+
+  .detail-info {
+    flex: 1;
+    min-width: 280px;
+  }
+
+  .pill-cat-static {
+    display: inline-block;
+    background: #fceff1;
+    color: #8a4e9e;
+    font-weight: 800;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+
+  .detail-title {
+    font-family: var(--font-title);
+    font-size: clamp(34px, 5vw, 46px);
+    color: var(--color-primary);
+    margin: 0 0 14px;
+  }
+
+  .detail-desc {
+    font-size: 16.5px;
+    line-height: 1.65;
+    color: var(--color-text);
+    font-weight: 500;
+    margin: 0 0 28px;
+  }
+
+  .detail-block {
+    margin-bottom: 28px;
+  }
+
+  .galleta-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .galleta-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #fff;
+    border: 1px solid #f0dce5;
+    border-radius: 999px;
+    padding: 9px 15px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--color-text-dark);
+  }
+
+  .galleta-nota {
+    margin: 0;
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: var(--color-secondary);
+    font-weight: 600;
+  }
+
+  .consulta-box {
+    background: linear-gradient(135deg, #bc1150 0%, #9c1257 100%);
+    color: #fff;
+    border-radius: 20px;
+    padding: 24px 26px;
+    box-shadow: 0 18px 40px -18px rgba(188, 17, 80, 0.55);
+  }
+
+  .consulta-label {
+    display: block;
+    font-weight: 800;
+    font-size: 11.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #f6c3d3;
+    margin-bottom: 8px;
+  }
+
+  .consulta-texto {
+    margin: 0 0 18px;
+    font-size: 15px;
+    line-height: 1.55;
+    color: #fce0ea;
+    font-weight: 600;
+  }
+
+  .cta-btn-main {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    width: 100%;
+    box-sizing: border-box;
+    background: #fff;
+    color: var(--color-primary);
+    font-weight: 800;
+    font-size: 16px;
+    padding: 15px 28px;
+    border-radius: 999px;
+    box-shadow: 0 14px 30px -12px rgba(0, 0, 0, 0.35);
+    transition: transform 0.2s ease;
+  }
+  .cta-btn-main:hover {
+    transform: translateY(-2px);
+  }
+
+  .consulta-alt {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 13.5px;
+    opacity: 0.9;
+    transition: opacity 0.2s ease;
+  }
+  .consulta-alt:hover {
+    opacity: 1;
+    text-decoration: underline;
+  }
+
+  .dot-green {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #25d366;
+  }
+
+  /* ---- RESPONSIVE ---- */
+  @media (max-width: 900px) {
+    .detail-layout {
+      flex-direction: column;
+    }
+    .detail-photo {
+      position: static;
+      flex: none;
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .detail-hero {
+      padding: 24px 20px 48px;
+    }
+  }
+</style>
+
+<script>
+  import { gsap } from "gsap";
+
+  gsap.from(".back-link", {
+    y: -10,
+    opacity: 0,
+    duration: 0.5,
+    ease: "power2.out",
+  });
+
+  gsap.from(".detail-layout > *", {
+    y: 20,
+    opacity: 0,
+    duration: 0.6,
+    stagger: 0.15,
+    ease: "power2.out",
+    delay: 0.15,
+  });
+</script>

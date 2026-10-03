@@ -1,0 +1,75 @@
+:root {
+  /* Colors */
+  --color-primary: #BC1150;
+  --color-primary-light: rgba(188, 17, 80, 0.6);
+  --color-secondary: #7A5B67;
+  --color-text-dark: #4A2E3A;
+  --color-text: #6B505C;
+  --color-bg: #F3E7E9;
+  --color-bg-light: #FFFAF4;
+  --color-accent-pink: #F4CBD8;
+  --color-accent-purple: #C9AEE6;
+  --color-whatsapp-circle: #7DDB8E;
+  --color-border: #F3E1E5;
+
+  /* Fonts */
+  --font-title: var(--font-pacifico);
+  --font-body: var(--font-nunito);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-bg);
+  font-family: var(--font-body);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ver Layout.astro: se quita en cuanto han corrido los scripts de la página */
+html.antes-de-js main {
+  visibility: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-text-dark);
+  margin-top: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Utils */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 800;
+  font-size: 14px;
+  padding: 11px 20px;
+  border-radius: 999px;
+  box-shadow: 0 10px 22px -10px var(--color-primary-light);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 26px -8px var(--color-primary-light);
+}
+
+.whatsapp-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-whatsapp-circle);
+  box-shadow: 0 0 0 3px rgba(125, 219, 142, 0.35);
+}
